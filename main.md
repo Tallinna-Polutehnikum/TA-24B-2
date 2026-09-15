@@ -27,12 +27,13 @@
 
 
 ## Feature list:
-    - Account system and customization
-    - Sales and account bonuses
-    - Different languages
+    - 
     - Subscription content
     - Ads (+ No ads subscription)
     - Dark & Light themes
+    - Account system and customization --later or unnecessary // extreme mode
+    - Sales and account bonuses --later or unnecessary
+    - Different languages --later or unnecessary // hard mode
 
 
 Sigma
