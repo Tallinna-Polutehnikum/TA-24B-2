@@ -1,0 +1,17 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: apollo-kino-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: apollo_kino
+      MYSQL_USER: apollo
+      MYSQL_PASSWORD: apollo
+    ports:
+      - "13306:3306"
+    volumes:
+      - apollo_mysql_data:/var/lib/mysql
+
+volumes:
+  apollo_mysql_data:
