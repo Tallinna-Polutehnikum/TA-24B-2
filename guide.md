@@ -8,8 +8,6 @@
 ## 2. Backend folder
     ```bash or VSC terminal
         cd backend
-        cp .env.example .env
-        npm install
         npm run dev
     ```
 
@@ -17,8 +15,10 @@
 
 ```bash or VSC terminal
     cd frontend
-    npm install
     npm run dev
 ```
 
-P.S. Activate every folder in different terminals, not in one terminal!
+## Attention!
+    1. Open the Docker Desktop before the initialization
+    2. Activate every folder in different terminals, not in one terminal
+    3. If you didn't install npm, write "npm install" to install it
