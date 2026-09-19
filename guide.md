@@ -21,4 +21,4 @@
 ## Attention!
     1. Open the Docker Desktop before the initialization
     2. Activate every folder in different terminals, not in one terminal
-    3. If you didn't install npm, write "npm install" to install it
+    3. If you accidently deleted frontend or backend node.js structure, you can recover it writing "npm install" command in the terminal
