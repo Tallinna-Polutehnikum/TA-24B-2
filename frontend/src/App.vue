@@ -46,7 +46,7 @@ onMounted(async () => {
     <main>
       <section class="hero" :style="{ backgroundImage: `linear-gradient(90deg,rgba(0,0,0,.9),rgba(0,0,0,.35)), url(${banner})` }">
         <div class="hero-copy">
-          <Tag value="NOW SHOWING" severity="secondary" />
+          <Tag value="NOW IN THEATERS" severity="secondary" />
           <h1>More movies, More Fun, More Happiness</h1>
           <p>Made By Samir Cibis, Aleksander Kartuzov and Daniel Helmrosin</p>
           <Button label="See movies" icon="pi pi-play" @click="document.getElementById('movies').scrollIntoView({behavior:'smooth'})" />
