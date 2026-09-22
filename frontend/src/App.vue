@@ -10,10 +10,12 @@ import poster3 from './poster3.jpg';
 import poster4 from './poster4.jpg';
 import poster5 from './poster5.jpg';
 import banner from './banner1.jpg';
+import seatchooser from './seatchooser.vue';
 
 const movies = ref([]);
 const loading = ref(true);
 const error = ref('');
+const showSeatChooser = ref(false);
 const posters = [poster1, poster2, poster3, poster4, poster5];
 
 function getPoster(movie, index) {
@@ -36,14 +38,17 @@ onMounted(async () => {
         <a href="#apollokino.ee" class="logo" aria-label="Go to main screen">APOLLO <span>KINO</span></a>
         <nav class="logo-actions" aria-label="Main navigation">
           <Button class="nav-button" as="a" href="#movies" label="Movies" size="small" text />
-          <Button class="nav-button" as="a" href="#cinemas" label="Theaters" size="small" text />
+          <Button class="nav-button" label="Theaters" size="small" text @click="showSeatChooser = true" />
           <Button class="nav-button" as="a" href="#login" label="Log in" size="small" text />
           <Button class="nav-button" as="a" href="#login" label="Register" size="small" outlined />
         </nav>
       </div>
     </header>
 
-    <main>
+    <main v-if="showSeatChooser">
+      <seatchooser />
+    </main>
+    <main v-else>
       <section class="hero" :style="{ backgroundImage: `linear-gradient(90deg,rgba(0,0,0,.9),rgba(0,0,0,.35)), url(${banner})` }">
         <div class="hero-copy">
           <Tag value="NOW IN THEATERS" severity="secondary" />
