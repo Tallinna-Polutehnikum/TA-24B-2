@@ -28,7 +28,7 @@
 
 ## Feature list:
     - Movie list
-    - Seat search 
+    - Seat picker
     - link to your ticket
     - Subscription content
     - Ads (+ No ads subscription)
