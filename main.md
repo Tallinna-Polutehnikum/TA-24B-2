@@ -27,6 +27,9 @@
 
 
 ## Feature list:
+    - Movie list
+    - Seat search 
+    - link to your ticket
     - Subscription content
     - Ads (+ No ads subscription)
     - Dark & Light themes
