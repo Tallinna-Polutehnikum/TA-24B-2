@@ -37,8 +37,8 @@ onMounted(async () => {
         <nav class="logo-actions" aria-label="Main navigation">
           <Button class="nav-button" as="a" href="#movies" label="Movies" size="small" text />
           <Button class="nav-button" as="a" href="#cinemas" label="Theaters" size="small" text />
-          <Button class="nav-button" as="a" href="#login" label="Log in" size="small" text />
-          <Button class="nav-button" as="a" href="#login" label="Register" size="small" outlined />
+          <Button class="nav-button" as="a" href="#about-us" label="About Us" size="small" text />
+          <Button class="nav-button" as="a" href="log-in" label="Log In" size="small" outlined />
         </nav>
       </div>
     </header>
@@ -46,9 +46,9 @@ onMounted(async () => {
     <main>
       <section class="hero" :style="{ backgroundImage: `linear-gradient(90deg,rgba(0,0,0,.9),rgba(0,0,0,.35)), url(${banner})` }">
         <div class="hero-copy">
-          <Tag value="NOW SHOWING" severity="secondary" />
-          <h1>More movies, More Fun, More Happiness</h1>
-          <p>Made By Samir Cibis, Aleksander Kartuzov and Daniel Helmrosin</p>
+          <Tag value="NOW IN THEATERS" severity="secondary" />
+          <h1>Crime Patrol: The Amazing full FMV-movie</h1>
+          <p>For only 9.99€</p>
           <Button label="See movies" icon="pi pi-play" @click="document.getElementById('movies').scrollIntoView({behavior:'smooth'})" />
         </div>
       </section>
@@ -66,6 +66,10 @@ onMounted(async () => {
             <template #footer><Button label="Choose showtime" icon="pi pi-ticket" outlined /></template>
           </Card>
         </div>
+      </section>
+
+      <section id="theaters" class="content">
+        <div>Bro</div>
       </section>
     </main>
     <footer>Apollo Kino · School project · First milestone</footer>
