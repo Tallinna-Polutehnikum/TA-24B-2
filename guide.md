@@ -2,7 +2,7 @@
 
 ## 1. Database folder
     ```bash or VSC terminal
-    docker compose up -d
+       docker compose up -d
     ```
 
 ## 2. Backend folder

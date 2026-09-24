@@ -10,7 +10,6 @@ import poster3 from './assets/poster3.jpg';
 import poster4 from './assets/poster4.jpg';
 import poster5 from './assets/poster5.jpg';
 import poster6 from './assets/poster6.jpg'; 
-import poster7 from './assets/poster7.jpg';
 import banner from './assets/banner1.jpg';
 import seatpicker from './seatpicker.vue';
 
@@ -18,7 +17,7 @@ const movies = ref([]);
 const loading = ref(true);
 const error = ref('');
 const showSeatPicker = ref(false);
-const posters = [poster1, poster2, poster3, poster4, poster5, poster6, poster7];
+const posters = [poster1, poster2, poster3, poster4, poster5, poster6];
 
 function getPoster(movie, index) {
   const posterName = movie.posterUrl?.split('/').pop();
