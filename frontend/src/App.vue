@@ -4,19 +4,21 @@ import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Tag from 'primevue/tag';
 import { getMovies } from './services/api';
-import poster1 from './poster1.jpg';
-import poster2 from './poster2.jpg';
-import poster3 from './poster3.jpg';
-import poster4 from './poster4.jpg';
-import poster5 from './poster5.jpg';
-import banner from './banner1.jpg';
-import seatchooser from './seatchooser.vue';
+import poster1 from './assets/poster1.jpg';
+import poster2 from './assets/poster2.jpg';
+import poster3 from './assets/poster3.jpg';
+import poster4 from './assets/poster4.jpg';
+import poster5 from './assets/poster5.jpg';
+import poster6 from './assets/poster6.jpg'; 
+import poster7 from './assets/poster7.jpg';
+import banner from './assets/banner1.jpg';
+import seatpicker from './seatpicker.vue';
 
 const movies = ref([]);
 const loading = ref(true);
 const error = ref('');
-const showSeatChooser = ref(false);
-const posters = [poster1, poster2, poster3, poster4, poster5];
+const showSeatPicker = ref(false);
+const posters = [poster1, poster2, poster3, poster4, poster5, poster6, poster7];
 
 function getPoster(movie, index) {
   const posterName = movie.posterUrl?.split('/').pop();
@@ -38,15 +40,15 @@ onMounted(async () => {
         <a href="#apollokino.ee" class="logo" aria-label="Go to main screen">APOLLO <span>KINO</span></a>
         <nav class="logo-actions" aria-label="Main navigation">
           <Button class="nav-button" as="a" href="#movies" label="Movies" size="small" text />
-          <Button class="nav-button" label="Theaters" size="small" text @click="showSeatChooser = true" />
+          <Button class="nav-button" label="Theaters" size="small" text @click="showSeatPicker = true" />
           <Button class="nav-button" as="a" href="#about-us" label="About Us" size="small" text />
           <Button class="nav-button" as="a" href="log-in" label="Log In" size="small" outlined />
         </nav>
       </div>
     </header>
 
-    <main v-if="showSeatChooser">
-      <seatchooser />
+    <main v-if="showSeatPicker">
+      <seatpicker />
     </main>
     <main v-else>
       <section class="hero" :style="{ backgroundImage: `linear-gradient(90deg,rgba(0,0,0,.9),rgba(0,0,0,.35)), url(${banner})` }">

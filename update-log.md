@@ -1,13 +1,12 @@
 # Update Log
 
-## Alpha 0.01 /// 16.09.2026
-## Alpha 0.01 /// 16.09.2026
+## 16.09.2026
     - Project has been created
     - Added the documentary (main, guide and update log)
     - Added the first main page version
 
-## Alpha 0.02 /// 22.09.2026
-    -
-    -
+## 24.09.2026
+    - Updated app.vue file
+    - Fixed a bug with films not appending on the website
 
 Bradar, what it this?
