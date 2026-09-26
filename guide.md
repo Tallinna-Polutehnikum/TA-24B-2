@@ -18,6 +18,6 @@
 ```
 
 ## Attention!
-1. Open the Docker Desktop before the initialization
-2. Activate every folder in different terminals
+1. Open the Docker Desktop app before the project initialization
+2. Activate every folder in different terminals (Recommended)
 3. If the frontend or backend node.js structure doesn't exist, you can recover it writing `npm install` command in the terminal

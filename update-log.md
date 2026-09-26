@@ -10,4 +10,9 @@
 - Fixed a bug with films not appending on the website
 - Fixed the database sync problem (Changes didn't applied on the website)
 
+## 26.09.2026
+-
+-
+-
+
 Bradar, what it this?
