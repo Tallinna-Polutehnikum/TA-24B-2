@@ -1,17 +1,17 @@
 services:
   mysql:
     image: mysql:8.4
-    container_name: apollo-kino-mysql
+    container_name: bradar-cinema-mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: apollo_kino
-      MYSQL_USER: apollo
-      MYSQL_PASSWORD: apollo
+      MYSQL_DATABASE: bradar_cinema
+      MYSQL_USER: bradar
+      MYSQL_PASSWORD: bradar
     ports:
       - "13306:3306"
     volumes:
-      - apollo_mysql_data:/var/lib/mysql
+      - bradar_cinema_mysql_data:/var/lib/mysql
 
 volumes:
-  apollo_mysql_data:
+  bradar_cinema_mysql_data:

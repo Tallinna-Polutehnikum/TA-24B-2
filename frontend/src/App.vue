@@ -33,10 +33,10 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="page" id="apollokino.ee">
+  <div class="page" id="bradarcinema.ee">
     <header class="topbar">
       <div class="brand">
-        <a href="#apollokino.ee" class="logo" aria-label="Go to main screen">APOLLO <span>KINO</span></a>
+        <a href="#bradarcinema.ee" class="logo" aria-label="Go to main screen">BRADAR <span>CINEMA</span></a>
         <nav class="logo-actions" aria-label="Main navigation">
           <Button class="nav-button" as="a" href="#movies" label="Movies" size="small" text />
           <Button class="nav-button" label="Theaters" size="small" text @click="showSeatPicker = true" />
@@ -73,12 +73,11 @@ onMounted(async () => {
           </Card>
         </div>
       </section>
-
-      <section id="theaters" class="content">
-        <div>Bro</div>
-      </section>
     </main>
-    <footer>Apollo Kino · School project · First milestone</footer>
+    <footer class="footer">
+      <div class="fleft">Bradar Cinema · School project</div>
+      <div class="fright">Copyright © 2026 Bradar Cinema. All rights reserved.</div>
+    </footer>
   </div>
 </template>
 
@@ -232,12 +231,22 @@ onMounted(async () => {
   .error { 
     color:#f0a0a0; 
   } 
-  footer { 
+  .footer {
+    color:#666;
+    font-size:13px; 
     border-top:1px solid #222; 
-    padding:25px 6vw; 
-    color:#666; 
-    font-size:13px; }
-  @media(max-width:700px){
+    padding:25px 6vw;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .footerleft { 
+    text-align:left; 
+  }
+.footerright { 
+    text-align:right; 
+  }
+ @media(max-width:700px){
     .topbar{padding:12px 20px}.brand{width:100%; flex-wrap:wrap; gap:6px 16px}.logo-actions{width:100%; flex-wrap:wrap; gap:4px}.hero{padding:50px 20px}.content{padding:40px 20px}.movie-card img{height:280px}
   }
 </style>

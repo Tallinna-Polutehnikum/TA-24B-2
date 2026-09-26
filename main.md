@@ -1,7 +1,7 @@
-# Apollo Kino Project
+# Bradar Cinema Project
 
 ## Introdution
-The main project - "Apollo Kino" website. Made by Samir 'Miles' Cibis, Aleksander 'ThePanshurup' Kartuzov and Daniel Helmrosin.
+The main project - "Bradar Cinema" website. Based on the Apollo Kino. Made by Samir 'Miles' Cibis, Aleksander 'ThePanshurup' Kartuzov and Daniel Helmrosin.
 
 In this document we will show which stackes we used for the project and explain which features we will add to our project.
 
@@ -31,11 +31,11 @@ You can see the update logs in the `update-log.md`.
 - Seat picker
 - movie detail view
 - link to your ticket
-- Subscription content
-- Ads (+ No ads subscription)
+- Club benefits
 - Dark & Light themes
+- Ads (+ No ads subscription) -- later or unnecessary
 - Account system and customization --later or unnecessary // extreme mode
-- Sales and account bonuses --later or unnecessary
+- Sales and account bonuses --later or unnecessarys
 - Different languages --later or unnecessary // hard mode
 
 Sigma

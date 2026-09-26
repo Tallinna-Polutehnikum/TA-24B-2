@@ -11,8 +11,8 @@
 - Fixed the database sync problem (Changes didn't applied on the website)
 
 ## 26.09.2026
--
--
--
+- Renamed the whole website to Bradar Cinema
+- 
+- 
 
 Bradar, what it this?
