@@ -82,15 +82,16 @@ onMounted(async () => {
 </template>
 
 <style>
-  :root { 
-    font-family: Inter, system-ui, sans-serif; 
-    color: #f5f5f5; background: #090909; 
-  }
-  * { box-sizing: border-box; } 
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Outfit:wght@415&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Outfit:wght@415&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
   body { 
+    font-family: "DM Sans", sans-serif; 
+    color: #f5f5f5; background: #090909; 
     margin: 0; 
     background: #090909; 
   } 
+   * { box-sizing: border-box; } 
   a { 
     color: #fff;
     text-decoration: none; 
@@ -119,11 +120,11 @@ onMounted(async () => {
     gap:12px;
   }
   .logo { 
+    font-family: "Outfit", sans-serif;
     font-weight:900; 
     letter-spacing:.08em; 
     font-size:20px; 
-    color:rgb(255, 123, 0);
-    font-style: italic;
+    color:rgb(61, 119, 243);
     display:inline-block;
     cursor:pointer;
     transition:opacity .2s ease;
@@ -133,7 +134,7 @@ onMounted(async () => {
   }
   .logo span { 
     font-weight:400; 
-    color:#888;
+    color:#e2dfdf;
     font-style: normal;
   }
   nav { 
@@ -147,6 +148,7 @@ onMounted(async () => {
     align-items:center;
   }
   .nav-button {
+    font-family: "DM Sans", sans-serif;
     min-height:22px;
     padding:10px 18px;
     font-size:28px;

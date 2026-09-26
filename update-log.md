@@ -12,7 +12,6 @@
 
 ## 26.09.2026
 - Renamed the whole website to Bradar Cinema
-- 
-- 
+- Changed fonts and some small changes
 
 Bradar, what it this?
