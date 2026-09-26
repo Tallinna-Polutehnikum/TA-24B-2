@@ -14,12 +14,12 @@ export class MoviesService implements OnModuleInit {
     await this.orm.getSchemaGenerator().updateSchema();
     const em = this.em.fork();
     const movies = [
-      { title: 'Bradar: The First Mission', genre: 'Sci-Fi', duration: 128, description: 'A school-project demo movie used to show the Bradar Cinema flow.', posterUrl: '/poster1.jpg', bannerUrl: '/banner1.jpg', active: true },
-      { title: 'Midnight Run', genre: 'Action', duration: 114, description: 'A fast-paced night adventure through the city.', posterUrl: '/poster2.jpg', active: true },
-      { title: 'The Last Summer', genre: 'Drama', duration: 102, description: 'A story about friendship, choices and one unforgettable summer.', posterUrl: '/poster3.jpg', active: true },
-      { title: 'Pixel World', genre: 'Adventure', duration: 109, description: 'A colorful journey into a world built from pixels.', posterUrl: '/poster4.jpg', active: true },
-      { title: 'Northern Lights', genre: 'Drama', duration: 121, description: 'A quiet story set under the northern sky.', posterUrl: '/poster5.jpg', active: true },
-      { title: 'Re:Zero Tallinn Edition', genre: 'Anime', duration: 153, description: 'DID YOU SAY STAIRS?! *feels the aura*.', posterUrl: '/poster6.jpg', active: true }
+      { title: 'Crime Patrol', genre: 'Action', duration: 90, description: 'A FMV action movie about a cop that goes high to Delta Force rank and save the country from terrorists.', posterUrl: '/poster1.jpg', bannerUrl: '/banner1.jpg', active: true },
+      { title: 'Crime Patrol 2: Drug Wars', genre: 'Action', duration: 90, description: 'The cartel is spreading drugs across the whole country, but only you know how to stop them.', posterUrl: '/poster2.jpg', active: true },
+      { title: 'Rain Man', genre: 'Drama', duration: 134, description: 'A story about two brothers, one is a selfish car dealer and another with autistic abilities to calculate, but with father"s inherited money.', posterUrl: '/poster3.jpg', active: true },
+      { title: 'Pokémon: the First Movie', genre: 'Adventure', duration: 96, description: 'Witness the legendary battle of Mewtwo and mythical 151st Pokemon Mew. Who will prevail?', posterUrl: '/poster4.jpg', active: true },
+      { title: '1917', genre: 'Drama/War Action', duration: 119, description: 'A quiet tense history about two men, who is going to the long trip among bombs and artillery to save people in No man"s land from imminent death.', posterUrl: '/poster5.jpg', active: true },
+      { title: 'Re:Zero Tallinn Edition', genre: 'Anime', duration: 1000, description: 'DID YOU SAY STAIRS?! *feels the aura*.', posterUrl: '/poster6.jpg', active: true }
     ];
     for (const data of movies) {
       const existingMovie = await em.findOne(Movie, { posterUrl: data.posterUrl });

@@ -69,7 +69,13 @@ onMounted(async () => {
             <template #title>{{ movie.title }}</template>
             <template #subtitle>{{ movie.genre }} · {{ movie.duration }} min</template>
             <template #content><p>{{ movie.description }}</p></template>
-            <template #footer><Button label="Choose showtime" icon="pi pi-ticket" outlined /></template>
+            <template #footer>
+              <div class="showtime-wrap">
+                <button class="showtime" type="button">
+                  <i class="pi pi-ticket" aria-hidden="true"></i> Choose showtime
+                </button>
+              </div>
+            </template>
           </Card>
         </div>
       </section>
@@ -91,7 +97,8 @@ onMounted(async () => {
     margin: 0; 
     background: #090909; 
   } 
-   * { box-sizing: border-box; } 
+  * { box-sizing: border-box; }
+  button, .p-button { border-style: solid; }
   a { 
     color: #fff;
     text-decoration: none; 
@@ -245,8 +252,32 @@ onMounted(async () => {
   .footerleft { 
     text-align:left; 
   }
-.footerright { 
+  .footerright { 
     text-align:right; 
+  }
+  .showtime {
+    padding: 10px 16px;
+    border-radius: 24px;
+    border: 3px solid #fff;
+    background-color: #0a0a0a;
+    color: rgb(248, 247, 247);
+    cursor: pointer;
+    transition: background-color .2s ease;
+  }
+  .showtime:hover {
+    background-color: #fff;
+    color:#070707;
+    border-color: #fff;
+  }
+  .showtime-wrap {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+  .movie-card .p-card-footer {
+    display: flex;
+    justify-content: center;
+    padding: 12px 16px 18px;
   }
  @media(max-width:700px){
     .topbar{padding:12px 20px}.brand{width:100%; flex-wrap:wrap; gap:6px 16px}.logo-actions{width:100%; flex-wrap:wrap; gap:4px}.hero{padding:50px 20px}.content{padding:40px 20px}.movie-card img{height:280px}
