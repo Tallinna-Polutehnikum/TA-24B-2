@@ -17,4 +17,8 @@
 - Fixed the problem with databases that you didn't have an access to run the databases Nest.js and npm because of renames inside docker-compose.yml.
 - Made a better optimization.
 
+## 01.10.2026
+- Fixed a problem with switching pages on the website
+- Some changes in the README.md file
+
 Bradar, what it this?

@@ -36,11 +36,11 @@ onMounted(async () => {
   <div class="page" id="bradarcinema.ee">
     <header class="topbar">
       <div class="brand">
-        <a href="#bradarcinema.ee" class="logo" aria-label="Go to main screen">BRADAR <span>CINEMA</span></a>
+        <a href="#bradarcinema.ee" class="logo" aria-label="Go to main screen" @click="showSeatPicker = false">BRADAR <span>CINEMA</span></a>
         <nav class="logo-actions" aria-label="Main navigation">
-          <Button class="nav-button" as="a" href="#movies" label="Movies" size="small" text />
+          <Button class="nav-button" as="a" href="#movies" label="Movies" size="small" text @click="showSeatPicker = false" />
           <Button class="nav-button" label="Theaters" size="small" text @click="showSeatPicker = true" />
-          <Button class="nav-button" as="a" href="#about-us" label="About Us" size="small" text />
+          <Button class="nav-button" as="a" href="#about-us" label="About Us" size="small" text @click="showSeatPicker = false" />
           <Button class="nav-button" as="a" href="log-in" label="Log In" size="small" outlined />
         </nav>
       </div>
@@ -97,7 +97,6 @@ onMounted(async () => {
     margin: 0; 
     background: #090909; 
   } 
-  * { box-sizing: border-box; }
   button, .p-button { border-style: solid; }
   a { 
     color: #fff;
