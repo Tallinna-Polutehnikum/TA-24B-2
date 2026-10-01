@@ -8,6 +8,7 @@
     "build": "nest build"
   },
   "dependencies": {
+    "@faker-js/faker": "^10.6.0",
     "@mikro-orm/core": "^6.4.16",
     "@mikro-orm/mysql": "^6.4.16",
     "@nestjs/common": "^11.1.6",

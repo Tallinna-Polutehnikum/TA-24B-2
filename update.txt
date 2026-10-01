@@ -1,0 +1,21 @@
+# Изменить название
+Invoke-RestMethod -Method Patch -Uri "http://localhost:3000/movies/ID" -ContentType "application/json" -Body '{"title":"Новое название"}'
+
+# Добавить фильм Faker с заданным названием
+Invoke-RestMethod -Method Post -Uri "http://localhost:3000/movies" -ContentType "application/json" -Body '{"title":"Мой новый фильм"}'
+
+# Удалить Faker-фильм
+Invoke-RestMethod -Method Delete -Uri "http://localhost:3000/movies/ID"
+
+Invoke-RestMethod http://localhost:3000/movies |
+  Format-Table id, title, genre, seedKey
+
+$body = @{ title = "Новое название" } | ConvertTo-Json
+Invoke-RestMethod -Method Patch -Uri "http://localhost:3000/movies/7" `
+  -ContentType "application/json" -Body $body
+
+$body = @{ title = "Мой фильм" } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri "http://localhost:3000/movies" `
+  -ContentType "application/json" -Body $body
+
+Invoke-RestMethod -Method Delete -Uri "http://localhost:3000/movies/7"

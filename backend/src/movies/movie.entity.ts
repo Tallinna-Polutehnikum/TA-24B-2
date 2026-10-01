@@ -23,6 +23,9 @@ export class Movie {
   @Property({ nullable: true, length: 500 })
   bannerUrl?: string;
 
+  @Property({ nullable: true, unique: true, length: 64 })
+  seedKey?: string;
+
   @Property({ default: true })
   active = true;
 }
