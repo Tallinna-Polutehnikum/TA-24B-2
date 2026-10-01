@@ -20,9 +20,18 @@ const showSeatPicker = ref(false);
 const posters = [poster1, poster2, poster3, poster4, poster5, poster6];
 
 function getPoster(movie, index) {
+  if (movie.posterUrl?.startsWith('https://')) return movie.posterUrl;
   const posterName = movie.posterUrl?.split('/').pop();
   const posterIndex = posters.findIndex((poster) => posterName === `poster${posters.indexOf(poster) + 1}.jpg`);
   return posterIndex >= 0 ? posters[posterIndex] : posters[index % posters.length];
+}
+
+function handlePosterError(event, index) {
+  event.target.src = posters[index % posters.length];
+}
+
+function formatScreeningTime(value) {
+  return new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
 }
 
 onMounted(async () => {
@@ -65,10 +74,42 @@ onMounted(async () => {
         <div v-else-if="error" class="state error">{{ error }}</div>
         <div v-else class="grid">
           <Card v-for="(movie, index) in movies" :key="movie.id" class="movie-card">
-            <template #header><img :src="getPoster(movie, index)" :alt="movie.title" /></template>
+            <template #header><img :src="getPoster(movie, index)" :alt="movie.title" @error="handlePosterError($event, index)" /></template>
             <template #title>{{ movie.title }}</template>
             <template #subtitle>{{ movie.genre }} · {{ movie.duration }} min</template>
-            <template #content><p>{{ movie.description }}</p></template>
+            <template #content>
+              <p class="movie-description">{{ movie.description }}</p>
+              <div class="movie-data">
+                <div class="movie-data-group">
+                  <span class="movie-data-label">Rating</span>
+                  <strong v-if="movie.rating" class="movie-rating">
+                    {{ Number(movie.rating.score).toFixed(1) }}/10
+                    <span>{{ movie.rating.voteCount.toLocaleString() }} votes</span>
+                  </strong>
+                  <span v-else class="movie-data-empty">Not generated yet</span>
+                </div>
+                <div class="movie-data-group">
+                  <span class="movie-data-label">Creators</span>
+                  <div v-if="movie.creators?.length" class="movie-data-list">
+                    <div v-for="creator in movie.creators" :key="creator.id" class="movie-data-item">
+                      <strong>{{ creator.name }}</strong><span>{{ creator.role }}</span>
+                    </div>
+                  </div>
+                  <span v-else class="movie-data-empty">Not generated yet</span>
+                </div>
+                <div class="movie-data-group">
+                  <span class="movie-data-label">Showing at</span>
+                  <div v-if="movie.screenings?.length" class="movie-data-list">
+                    <div v-for="screening in movie.screenings" :key="screening.id" class="movie-data-item">
+                      <strong>{{ screening.building }}</strong>
+                      <span>{{ screening.address }}, {{ screening.city }}</span>
+                      <span>{{ formatScreeningTime(screening.startsAt) }} · Hall {{ screening.hallNumber }} · €{{ Number(screening.ticketPrice).toFixed(2) }}</span>
+                    </div>
+                  </div>
+                  <span v-else class="movie-data-empty">Not generated yet</span>
+                </div>
+              </div>
+            </template>
             <template #footer>
               <div class="showtime-wrap">
                 <button class="showtime" type="button">
@@ -230,6 +271,48 @@ onMounted(async () => {
     line-height:1.5; 
     min-height:68px; 
   } 
+  .movie-data {
+    display:grid;
+    gap:14px;
+    margin-top:18px;
+    font-size:13px;
+  }
+  .movie-data-group {
+    display:grid;
+    gap:6px;
+  }
+  .movie-data-label {
+    color:#888;
+    font-size:11px;
+    text-transform:uppercase;
+    text-align: center;
+  }
+  .movie-data-list, .movie-data-item {
+    display:grid;
+    gap:4px;
+  }
+  .movie-data-item {
+    color:#aaa;
+    line-height:1.4;
+    text-align: center;
+  }
+  .movie-data-item strong {
+    color:#eee;
+    font-weight:600;
+  }
+  .movie-rating {
+    color:#f0c86b;
+    text-align: center;
+  }
+  .movie-rating span {
+    color:#999;
+    font-size:12px;
+    font-weight:400;
+    text-align: center;
+  }
+  .movie-data-empty {
+    color:#777;
+  }
   .state { 
     padding:50px; 
     border:1px dashed #333; 

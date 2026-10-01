@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "nest start --watch",
     "start": "node dist/main.js",
-    "build": "nest build"
+    "build": "nest build",
+    "movies:generate": "npm run build && node dist/movies/generate-movies.js"
   },
   "dependencies": {
     "@faker-js/faker": "^10.6.0",
