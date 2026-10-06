@@ -60,7 +60,7 @@ You can see the update logs in the `update-log.md`.
 ### Attention!
 1. Open the Docker Desktop app before the project initialization
 2. Activate every folder in different terminals (Recommended)
-3. If the frontend or backend node.js structure doesn't exist, you can recover it writing `npm install` command in the terminal
+3. If the frontend or backend node.js structure doesn't exist or work, you can recover it writing `npm install` command in the terminal
 4. To turn off the project, write `docker compose down` command in the terminal
 
 ## Manage Faker movies

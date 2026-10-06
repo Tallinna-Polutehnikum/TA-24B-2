@@ -20,14 +20,14 @@
 ## Attention!
 1. Open the Docker Desktop app before the project initialization
 2. Activate every folder in different terminals (Recommended)
-3. If the frontend or backend node.js structure doesn't exist, you can recover it writing `npm install` command in the terminal
+3. If the frontend or backend node.js structure doesn't exist or work, you can recover it writing `npm install` command in the terminal
 4. To turn off the project, write `docker compose down` command in the terminal
 
 
 
 
 
-## Manage Faker movies
+# Manage Faker movies
 The movies already in the project are kept unchanged. To create or refresh its random movie set, open a terminal in `backend` and run in new terminal or powershell: `npm run movies:generate`
 
 The command prints the generated titles and poster URLs. Posters and banners are random Picsum images, so an internet connection is required; they are not official movie artwork. Refresh the frontend page to see the updated list. Get a movie's `id` from `GET http://localhost:3000/movies`.

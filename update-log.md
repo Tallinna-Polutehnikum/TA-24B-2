@@ -28,6 +28,6 @@
 
 ## 06.10.2026
 - Extended the guide in `guide.md` with 'Manage Faker movies' chapter
-- 
+- The first prototype of seat selection page was created, but is still in under construction
 
 Bradar, what it this?

@@ -19,3 +19,9 @@ Invoke-RestMethod -Method Post -Uri "http://localhost:3000/movies" `
   -ContentType "application/json" -Body $body
 
 Invoke-RestMethod -Method Delete -Uri "http://localhost:3000/movies/7"
+
+# seatpicker.vue
+1. Обновить дизайн
+2. Сделать случайный выбор мест (Позже панель сис. админа)
+3. Добавить выбор кинотеатров и фильмов
+4. Выбор сеансов
