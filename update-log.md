@@ -30,4 +30,8 @@
 - Extended the guide in `guide.md` with 'Manage Faker movies' chapter
 - The first prototype of seat selection page was created, but is still in under construction
 
+## 08.10.2026
+- Made a function that shows you a full description of the movies and trailers. 
+- Updated App.vue and optimized a description window from b2test to main project.
+
 Bradar, what it this?

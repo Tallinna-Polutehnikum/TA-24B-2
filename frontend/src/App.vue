@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Tag from 'primevue/tag';
@@ -17,7 +17,42 @@ const movies = ref([]);
 const loading = ref(true);
 const error = ref('');
 const showSeatPicker = ref(false);
+const selectedMovie = ref(null);
+const selectedMovieIndex = ref(0);
+const previousBodyOverflow = ref('');
 const posters = [poster1, poster2, poster3, poster4, poster5, poster6];
+
+const trailerIds = {
+  'Crime Patrol 2: Drug Wars': 'qZ5h9foGi24',
+  'Rain Man': 'rrTQEP41NL4',
+  'Pokémon: the First Movie': 'hX-NHafvY5I',
+  '1917': 'UcmZN0Mbl04',
+};
+
+function getTrailerEmbedUrl(movie) {
+  const id = trailerIds[movie.title];
+  return id ? `https://www.youtube-nocookie.com/embed/${id}` : '';
+}
+
+function getTrailerSearchUrl(movie) {
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(`${movie.title} official trailer`)}`;
+}
+
+function openMovie(movie, index) {
+  if (!selectedMovie.value) previousBodyOverflow.value = document.body.style.overflow;
+  selectedMovie.value = movie;
+  selectedMovieIndex.value = index;
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMovie() {
+  selectedMovie.value = null;
+  document.body.style.overflow = previousBodyOverflow.value;
+}
+
+function handleModalKeydown(event) {
+  if (event.key === 'Escape' && selectedMovie.value) closeMovie();
+}
 
 function getPoster(movie, index) {
   if (movie.posterUrl?.startsWith('https://')) return movie.posterUrl;
@@ -35,9 +70,15 @@ function formatScreeningTime(value) {
 }
 
 onMounted(async () => {
+  window.addEventListener('keydown', handleModalKeydown);
   try { movies.value = await getMovies(); }
   catch (e) { error.value = 'Backend is not running yet. Start NestJS and refresh.'; }
   finally { loading.value = false; }
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleModalKeydown);
+  if (selectedMovie.value) document.body.style.overflow = previousBodyOverflow.value;
 });
 </script>
 
@@ -73,7 +114,7 @@ onMounted(async () => {
         <div v-if="loading" class="state">Loading movies from backend...</div>
         <div v-else-if="error" class="state error">{{ error }}</div>
         <div v-else class="grid">
-          <Card v-for="(movie, index) in movies" :key="movie.id" class="movie-card">
+          <Card v-for="(movie, index) in movies" :key="movie.id" class="movie-card clickable-card" @click="openMovie(movie, index)">
             <template #header><img :src="getPoster(movie, index)" :alt="movie.title" @error="handlePosterError($event, index)" /></template>
             <template #title>{{ movie.title }}</template>
             <template #subtitle>{{ movie.genre }} · {{ movie.duration }} min</template>
@@ -111,8 +152,11 @@ onMounted(async () => {
               </div>
             </template>
             <template #footer>
-              <div class="showtime-wrap">
-                <button class="showtime" type="button">
+              <div class="card-actions">
+                <button class="details-button" type="button" @click.stop="openMovie(movie, index)">
+                  <i class="pi pi-info-circle" aria-hidden="true"></i> Movie details
+                </button>
+                <button class="showtime" type="button" @click.stop>
                   <i class="pi pi-ticket" aria-hidden="true"></i> Choose showtime
                 </button>
               </div>
@@ -120,6 +164,50 @@ onMounted(async () => {
           </Card>
         </div>
       </section>
+
+      <div v-if="selectedMovie" class="movie-modal-backdrop" @click.self="closeMovie">
+        <article class="movie-modal" role="dialog" aria-modal="true" :aria-label="selectedMovie.title">
+          <button class="modal-close" type="button" aria-label="Close movie details" @click="closeMovie">×</button>
+          <div class="modal-layout">
+            <img class="modal-poster" :src="getPoster(selectedMovie, selectedMovieIndex)" :alt="selectedMovie.title" @error="handlePosterError($event, selectedMovieIndex)" />
+            <div class="modal-copy">
+              <span class="modal-genre">{{ selectedMovie.genre }} · {{ selectedMovie.duration }} min</span>
+              <h2>{{ selectedMovie.title }}</h2>
+              <h3>About the movie</h3>
+              <p class="modal-description">{{ selectedMovie.description || 'Description coming soon.' }}</p>
+              <div class="modal-meta">
+                <div>
+                  <span>Rating</span>
+                  <strong v-if="selectedMovie.rating">
+                    {{ Number(selectedMovie.rating.score).toFixed(1) }}/10
+                    <small>{{ Number(selectedMovie.rating.voteCount).toLocaleString() }} votes</small>
+                  </strong>
+                  <span v-else class="modal-empty">Not generated yet</span>
+                </div>
+                <div>
+                  <span>Creators</span>
+                  <div v-if="selectedMovie.creators?.length" class="modal-creators">
+                    <div v-for="creator in selectedMovie.creators" :key="creator.id">
+                      <strong>{{ creator.name }}</strong><small>{{ creator.role }}</small>
+                    </div>
+                  </div>
+                  <span v-else class="modal-empty">Not generated yet</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <section class="trailer-section">
+            <h3>Trailer</h3>
+            <div v-if="getTrailerEmbedUrl(selectedMovie)" class="trailer-frame">
+              <iframe :src="getTrailerEmbedUrl(selectedMovie)" :title="`${selectedMovie.title} trailer`" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+            <div v-else class="trailer-fallback">
+              <p>A direct trailer is not set for this project movie.</p>
+              <a :href="getTrailerSearchUrl(selectedMovie)" target="_blank" rel="noopener noreferrer"><i class="pi pi-youtube"></i> Find trailer on YouTube</a>
+            </div>
+          </section>
+        </article>
+      </div>
     </main>
     <footer class="footer">
       <div class="fleft">Bradar Cinema · School project</div>
@@ -351,17 +439,175 @@ onMounted(async () => {
     color:#070707;
     border-color: #fff;
   }
-  .showtime-wrap {
+  .card-actions {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
+    gap: 10px;
     width: 100%;
+  }
+  .card-actions button {
+    flex: 1 1 150px;
+  }
+  .details-button {
+    padding: 10px 16px;
+    border: 2px solid #fff;
+    border-radius: 24px;
+    background: #0a0a0a;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color .2s ease, color .2s ease;
+  }
+  .details-button:hover {
+    background: #fff;
+    color: #070707;
   }
   .movie-card .p-card-footer {
     display: flex;
     justify-content: center;
     padding: 12px 16px 18px;
   }
+  .clickable-card {
+    cursor: pointer;
+    transition: transform .2s ease, border-color .2s ease;
+  }
+  .clickable-card:hover {
+    transform: translateY(-4px);
+    border-color: #555;
+  }
+  .movie-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(0,0,0,.82);
+    backdrop-filter: blur(8px);
+  }
+  .movie-modal {
+    position: relative;
+    width: min(980px, 100%);
+    max-height: 90vh;
+    overflow: auto;
+    padding: 28px;
+    border: 1px solid #333;
+    border-radius: 20px;
+    background: #111;
+    box-shadow: 0 24px 80px rgba(0,0,0,.6);
+  }
+  .modal-close {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    z-index: 2;
+    width: 42px;
+    height: 42px;
+    border: 0;
+    border-radius: 50%;
+    background: #242424;
+    color: #fff;
+    font-size: 30px;
+    cursor: pointer;
+  }
+  .modal-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  .modal-poster {
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+    border-radius: 14px;
+  }
+  .modal-copy h2 {
+    margin: 6px 0 18px;
+    font-size: 38px;
+    overflow-wrap: anywhere;
+  }
+  .modal-copy h3, .trailer-section h3 {
+    margin: 18px 0 10px;
+    font-size: 20px;
+  }
+  .modal-genre, .modal-empty {
+    color: #999;
+  }
+  .modal-description {
+    color: #c5c5c5;
+    line-height: 1.7;
+    font-size: 16px;
+  }
+  .modal-meta {
+    display: grid;
+    gap: 14px;
+    margin-top: 18px;
+  }
+  .modal-meta > div {
+    display: grid;
+    grid-template-columns: 85px 1fr;
+    gap: 10px;
+    align-items: start;
+  }
+  .modal-meta > div > span:first-child {
+    color: #888;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+  .modal-meta strong {
+    color: #f0c86b;
+  }
+  .modal-meta small {
+    display: block;
+    color: #999;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: normal;
+  }
+  .modal-creators {
+    display: grid;
+    gap: 8px;
+  }
+  .modal-creators strong {
+    color: #eee;
+  }
+  .trailer-section {
+    margin-top: 28px;
+  }
+  .trailer-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #000;
+  }
+  .trailer-frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .trailer-fallback {
+    padding: 28px;
+    border: 1px dashed #444;
+    border-radius: 14px;
+    color: #aaa;
+    text-align: center;
+  }
+  .trailer-fallback a {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
+    padding: 10px 16px;
+    border-radius: 24px;
+    background: rgb(61,119,243);
+  }
  @media(max-width:700px){
-    .topbar{padding:12px 20px}.brand{width:100%; flex-wrap:wrap; gap:6px 16px}.logo-actions{width:100%; flex-wrap:wrap; gap:4px}.hero{padding:50px 20px}.content{padding:40px 20px}.movie-card img{height:280px}
+    .topbar{padding:12px 20px}.brand{width:100%; flex-wrap:wrap; gap:6px 16px}.logo-actions{width:100%; flex-wrap:wrap; gap:4px}.hero{padding:50px 20px}.content{padding:40px 20px}.movie-card img{height:280px}.movie-modal-backdrop{padding:10px}.movie-modal{padding:20px}.modal-layout{grid-template-columns:1fr}.modal-poster{max-width:220px;height:310px}.modal-copy h2{font-size:30px}.modal-meta>div{grid-template-columns:75px 1fr}
   }
 </style>
