@@ -31,7 +31,10 @@
 - The first prototype of seat selection page was created, but is still in under construction
 
 ## 08.10.2026
-- Made a function that shows you a full description of the movies and trailers. 
-- Updated App.vue and optimized a description window from b2test to main project.
+- Made a function that shows you a full description of the movies and trailers
+- Updated App.vue and optimized a description window from b2test to main project
+- Made a movie editor that provides you in developers only site (npm run dev) changed, delete and add movie right in the site
+- Made a movie editor to work in developer mode, in build and regular sites movie editor will be removed or hidden
+- Updated CSS file
 
 Bradar, what it this?

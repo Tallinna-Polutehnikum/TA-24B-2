@@ -28,13 +28,13 @@
 
 
 # Manage Faker movies
-The movies already in the project are kept unchanged. To create or refresh its random movie set, open a terminal in `backend` and run in new terminal or powershell: `npm run movies:generate`
+The movies already in the project are kept unchanged. To create or refresh its random movie set, open a terminal in the `backend` folder and run in new terminal or powershell: `npm run movies:generate`
 
-The command prints the generated titles and poster URLs. Posters and banners are random Picsum images, so an internet connection is required; they are not official movie artwork. Refresh the frontend page to see the updated list. Get a movie's `id` from `GET http://localhost:3000/movies`.
+The command prints generated titles and poster URLs. Posters and banners are random Picsum images, so an internet connection is required; they are not official movie artwork. Refresh the frontend page to see the updated list. Get a movie's `id` from `GET http://localhost:3000/movies`.
 
 The generation command creates or updates a rating and three creator credits for each active movie, exactly four cinema buildings, and two screenings per active movie. Backend startup creates the SQL tables but does not generate this data.
 
-To view the generated records in MySQL, connect to `apollo_kino` and run:
+To view generated records in MySQL, connect to `apollo-kino-mysql` and run:
 ```sql
 SELECT * FROM movie_rating;
 SELECT * FROM creator;
