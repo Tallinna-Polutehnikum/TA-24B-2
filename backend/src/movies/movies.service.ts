@@ -21,6 +21,21 @@ export interface MovieInput {
   bannerUrl?: string;
 }
 
+interface MovieRatingInput {
+  score: number;
+  voteCount: number;
+}
+
+interface MovieCreatorInput {
+  name: string;
+  role: string;
+}
+
+export interface MovieUpdateInput extends MovieInput {
+  rating?: MovieRatingInput | null;
+  creators?: MovieCreatorInput[];
+}
+
 @Injectable()
 export class MoviesService implements OnModuleInit {
   private readonly logger = new Logger(MoviesService.name);
@@ -58,6 +73,9 @@ export class MoviesService implements OnModuleInit {
     const em = this.em.fork();
     const existingGeneratedMovies = await em.find(Movie, { seedKey: { $like: 'faker-generated-v1-%' } });
     const generatedMoviesByKey = new Map(existingGeneratedMovies.map((movie) => [movie.seedKey, movie]));
+    const protectedMovies = await em.find(Movie, {}, { orderBy: { id: 'ASC' }, limit: 12 });
+    const protectedMovieIds = new Set(protectedMovies.map((movie) => movie.id));
+    const moviesToSeedRelatedData: Movie[] = [];
     const generatedMovies = Array.from({ length: movieCount }, (_, index) => {
       const seedKey = `faker-generated-v1-${index + 1}`;
       return this.makeGeneratedMovie(seedKey, {}, generatedMoviesByKey.get(seedKey));
@@ -66,9 +84,12 @@ export class MoviesService implements OnModuleInit {
     for (const data of generatedMovies) {
       const existingMovie = await em.findOne(Movie, { seedKey: data.seedKey });
       if (!existingMovie) {
-        em.persist(em.create(Movie, data));
-      } else if (regenerate && existingMovie.active) {
+        const movie = em.create(Movie, data);
+        em.persist(movie);
+        moviesToSeedRelatedData.push(movie);
+      } else if (regenerate && existingMovie.active && !protectedMovieIds.has(existingMovie.id)) {
         em.assign(existingMovie, data);
+        moviesToSeedRelatedData.push(existingMovie);
       }
     }
 
@@ -81,8 +102,9 @@ export class MoviesService implements OnModuleInit {
     }
 
     await em.flush();
-    const activeMovies = await em.find(Movie, { active: true });
-    await this.seedRelatedData(em, activeMovies);
+    if (moviesToSeedRelatedData.length > 0) {
+      await this.seedRelatedData(em, moviesToSeedRelatedData);
+    }
     const automaticMovies = await em.find(
       Movie,
       { seedKey: { $like: 'faker-generated-v1-%' }, active: true },
@@ -90,7 +112,7 @@ export class MoviesService implements OnModuleInit {
     );
     this.logger.log(`Faker generated ${automaticMovies.length} movies:\n${automaticMovies
       .map((movie) => `- ${movie.title} | ${movie.posterUrl}`)
-      .join('\n')}\nGenerated ratings and credits for ${activeMovies.length} movies, 4 cinema buildings, and ${activeMovies.length * 2} screenings.`);
+      .join('\n')}\nGenerated ratings and credits for ${moviesToSeedRelatedData.length} movies, 4 cinema buildings, and ${moviesToSeedRelatedData.length * 2} screenings.`);
     return em.find(Movie, { seedKey: { $like: 'faker-%' }, active: true }, { orderBy: { id: 'ASC' } });
   }
 
@@ -179,14 +201,101 @@ export class MoviesService implements OnModuleInit {
     return movie;
   }
 
-  async updateGeneratedMovie(id: number, input: unknown) {
-    const changes = this.validateMovieInput(input);
+  async updateMovie(id: number, input: unknown) {
+    if (!input || typeof input !== 'object' || Array.isArray(input)) {
+      throw new BadRequestException('Movie data must be a JSON object');
+    }
+
+    const values = input as Record<string, unknown>;
+    const allowedFields = new Set(['title', 'genre', 'duration', 'description', 'posterUrl', 'bannerUrl', 'rating', 'creators']);
+    for (const field of Object.keys(values)) {
+      if (!allowedFields.has(field)) throw new BadRequestException(`Field '${field}' cannot be changed`);
+    }
+    if (Object.keys(values).length === 0) throw new BadRequestException('At least one field is required');
+
+    const { rating, creators, ...movieFields } = values;
+    const changes = this.validateMovieInput(movieFields, true);
+    if (Object.hasOwn(values, 'rating') && rating !== null) {
+      if (!rating || typeof rating !== 'object' || Array.isArray(rating)) {
+        throw new BadRequestException('Rating must be an object or null');
+      }
+      const ratingValues = rating as Record<string, unknown>;
+      if (
+        typeof ratingValues.score !== 'number' ||
+        !Number.isFinite(ratingValues.score) ||
+        ratingValues.score < 0 ||
+        ratingValues.score > 10 ||
+        typeof ratingValues.voteCount !== 'number' ||
+        !Number.isSafeInteger(ratingValues.voteCount) ||
+        ratingValues.voteCount < 0
+      ) {
+        throw new BadRequestException('Rating score must be between 0 and 10 and vote count must be a non-negative integer');
+      }
+    }
+    if (Object.hasOwn(values, 'creators')) {
+      if (!Array.isArray(creators) || creators.length > 20) {
+        throw new BadRequestException('Creators must be an array containing at most 20 entries');
+      }
+      for (const creator of creators) {
+        if (!creator || typeof creator !== 'object' || Array.isArray(creator)) {
+          throw new BadRequestException('Each creator must include a name and role');
+        }
+        const creatorValues = creator as Record<string, unknown>;
+        if (
+          typeof creatorValues.name !== 'string' ||
+          creatorValues.name.trim().length === 0 ||
+          creatorValues.name.length > 160 ||
+          typeof creatorValues.role !== 'string' ||
+          creatorValues.role.trim().length === 0 ||
+          creatorValues.role.length > 80
+        ) {
+          throw new BadRequestException('Creator names and roles must be non-empty and within their length limits');
+        }
+      }
+    }
+
     const em = this.em.fork();
-    const movie = await em.findOne(Movie, { id, active: true, seedKey: { $like: 'faker-%' } });
-    if (!movie) throw new NotFoundException('Faker movie not found');
+    const movie = await em.findOne(Movie, { id, active: true });
+    if (!movie) throw new NotFoundException('Movie not found');
     em.assign(movie, changes);
+
+    if (Object.hasOwn(values, 'rating')) {
+      const existingRating = await em.findOne(MovieRating, { movie });
+      if (rating === null) {
+        if (existingRating) em.remove(existingRating);
+      } else if (existingRating) {
+        em.assign(existingRating, rating as MovieRatingInput);
+      } else {
+        em.persist(em.create(MovieRating, { movie, ...(rating as MovieRatingInput) }));
+      }
+    }
+
+    if (Object.hasOwn(values, 'creators')) {
+      const existingCredits = await em.find(MovieCreator, { movie }, { populate: ['creator'], orderBy: { id: 'ASC' } });
+      for (const [index, creatorData] of (creators as MovieCreatorInput[]).entries()) {
+        const existingCredit = existingCredits[index];
+        if (existingCredit) {
+          existingCredit.creator.name = creatorData.name.trim();
+          existingCredit.role = creatorData.role.trim();
+        } else {
+          const creator = em.create(Creator, {
+            seedKey: `manual-${randomUUID()}`,
+            name: creatorData.name.trim(),
+          });
+          em.persist(creator);
+          em.persist(em.create(MovieCreator, { movie, creator, role: creatorData.role.trim() }));
+        }
+      }
+      for (const credit of existingCredits.slice((creators as MovieCreatorInput[]).length)) {
+        em.remove(credit);
+      }
+    }
+
     await em.flush();
-    return movie;
+    const updatedMovies = await this.findAll();
+    const updatedMovie = updatedMovies.find((entry) => entry.id === id);
+    if (!updatedMovie) throw new NotFoundException('Movie not found');
+    return updatedMovie;
   }
 
   async deleteGeneratedMovie(id: number) {

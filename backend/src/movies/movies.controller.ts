@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
-import { MovieInput, MoviesService } from './movies.service';
+import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { MovieInput, MovieUpdateInput, MoviesService } from './movies.service';
 
 @Controller('movies')
 export class MoviesController {
@@ -19,8 +19,11 @@ export class MoviesController {
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() input: MovieInput) {
-    return this.movies.updateGeneratedMovie(id, input);
+  update(@Param('id', ParseIntPipe) id: number, @Body() input: MovieUpdateInput) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new ForbiddenException('Movie editing is only available outside production');
+    }
+    return this.movies.updateMovie(id, input);
   }
 
   @Delete(':id')

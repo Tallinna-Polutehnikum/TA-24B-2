@@ -57,6 +57,20 @@ You can see the update logs in the `update-log.md`.
     npm run dev
 ```
 
+### 4. How to run a build / regular user side of the site
+```In backend folder you have to run in terminal those commands:
+    cd C:\Users\admin\Desktop\B2Projekt\TA-24B-2\backend
+    npm run build
+    $env:NODE_ENV="production"
+    npm start
+```
+
+```Also in frontend there is commands to run a build:
+    cd C:\Users\admin\Desktop\B2Projekt\TA-24B-2\frontend
+    npm run build
+    npm run preview
+```
+
 ### Attention!
 1. Open the Docker Desktop app before the project initialization
 2. Activate every folder in different terminals (Recommended)

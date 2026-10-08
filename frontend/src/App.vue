@@ -3,7 +3,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Tag from 'primevue/tag';
-import { getMovies } from './services/api';
+import { getMovies, updateMovie } from './services/api';
 import poster1 from './assets/poster1.jpg';
 import poster2 from './assets/poster2.jpg';
 import poster3 from './assets/poster3.jpg';
@@ -20,6 +20,11 @@ const showSeatPicker = ref(false);
 const selectedMovie = ref(null);
 const selectedMovieIndex = ref(0);
 const previousBodyOverflow = ref('');
+const editingMovie = ref(false);
+const savingMovie = ref(false);
+const movieSaveError = ref('');
+const movieForm = ref(null);
+const canEditMovies = import.meta.env.DEV;
 const posters = [poster1, poster2, poster3, poster4, poster5, poster6];
 
 const trailerIds = {
@@ -47,7 +52,59 @@ function openMovie(movie, index) {
 
 function closeMovie() {
   selectedMovie.value = null;
+  editingMovie.value = false;
+  movieSaveError.value = '';
   document.body.style.overflow = previousBodyOverflow.value;
+}
+
+function startMovieEdit(movie) {
+  movieForm.value = {
+    title: movie.title,
+    genre: movie.genre,
+    duration: movie.duration,
+    description: movie.description ?? '',
+    posterUrl: movie.posterUrl ?? '',
+    bannerUrl: movie.bannerUrl ?? '',
+    ratingScore: movie.rating ? String(movie.rating.score) : '',
+    ratingVoteCount: movie.rating ? String(movie.rating.voteCount) : '',
+    creators: (movie.creators ?? []).map(({ name, role }) => ({ name, role })),
+  };
+  movieSaveError.value = '';
+  editingMovie.value = true;
+}
+
+function addCreator() {
+  movieForm.value.creators.push({ name: '', role: 'Director' });
+}
+
+async function saveMovieChanges() {
+  if (!selectedMovie.value || !movieForm.value || savingMovie.value) return;
+  savingMovie.value = true;
+  movieSaveError.value = '';
+  try {
+    const form = movieForm.value;
+    const ratingScore = String(form.ratingScore ?? '').trim();
+    const changes = {
+      title: form.title,
+      genre: form.genre,
+      duration: Number(form.duration),
+      description: form.description,
+      posterUrl: form.posterUrl,
+      bannerUrl: form.bannerUrl,
+      rating: ratingScore === ''
+        ? null
+        : { score: Number(ratingScore), voteCount: Number(form.ratingVoteCount) },
+      creators: form.creators,
+    };
+    const updatedMovie = await updateMovie(selectedMovie.value.id, changes);
+    movies.value = movies.value.map((movie) => movie.id === updatedMovie.id ? updatedMovie : movie);
+    selectedMovie.value = updatedMovie;
+    editingMovie.value = false;
+  } catch (error) {
+    movieSaveError.value = error instanceof Error ? error.message : 'Could not save movie changes.';
+  } finally {
+    savingMovie.value = false;
+  }
 }
 
 function handleModalKeydown(event) {
@@ -168,44 +225,78 @@ onUnmounted(() => {
       <div v-if="selectedMovie" class="movie-modal-backdrop" @click.self="closeMovie">
         <article class="movie-modal" role="dialog" aria-modal="true" :aria-label="selectedMovie.title">
           <button class="modal-close" type="button" aria-label="Close movie details" @click="closeMovie">×</button>
-          <div class="modal-layout">
-            <img class="modal-poster" :src="getPoster(selectedMovie, selectedMovieIndex)" :alt="selectedMovie.title" @error="handlePosterError($event, selectedMovieIndex)" />
-            <div class="modal-copy">
-              <span class="modal-genre">{{ selectedMovie.genre }} · {{ selectedMovie.duration }} min</span>
-              <h2>{{ selectedMovie.title }}</h2>
-              <h3>About the movie</h3>
-              <p class="modal-description">{{ selectedMovie.description || 'Description coming soon.' }}</p>
-              <div class="modal-meta">
-                <div>
-                  <span>Rating</span>
-                  <strong v-if="selectedMovie.rating">
-                    {{ Number(selectedMovie.rating.score).toFixed(1) }}/10
-                    <small>{{ Number(selectedMovie.rating.voteCount).toLocaleString() }} votes</small>
-                  </strong>
-                  <span v-else class="modal-empty">Not generated yet</span>
-                </div>
-                <div>
-                  <span>Creators</span>
-                  <div v-if="selectedMovie.creators?.length" class="modal-creators">
-                    <div v-for="creator in selectedMovie.creators" :key="creator.id">
-                      <strong>{{ creator.name }}</strong><small>{{ creator.role }}</small>
-                    </div>
+          <form v-if="canEditMovies && editingMovie" class="movie-edit-form" @submit.prevent="saveMovieChanges">
+            <h2>Edit movie</h2>
+            <div class="edit-fields">
+              <label>Title<input v-model="movieForm.title" required maxlength="160" /></label>
+              <label>Genre<input v-model="movieForm.genre" required maxlength="80" /></label>
+              <label>Duration (minutes)<input v-model.number="movieForm.duration" type="number" min="1" step="1" required /></label>
+              <label>Poster URL<input v-model="movieForm.posterUrl" maxlength="500" /></label>
+              <label>Banner URL<input v-model="movieForm.bannerUrl" maxlength="500" /></label>
+              <label class="edit-full-width">Description<textarea v-model="movieForm.description" required maxlength="5000" rows="3"></textarea></label>
+            </div>
+            <fieldset class="edit-rating">
+              <legend>Rating</legend>
+              <label>Score / 10<input v-model="movieForm.ratingScore" type="number" min="0" max="10" step="0.1" /></label>
+              <label>Vote count<input v-model="movieForm.ratingVoteCount" type="number" min="0" step="1" :required="movieForm.ratingScore !== ''" /></label>
+              <span class="edit-hint">Leave the score empty to remove the rating.</span>
+            </fieldset>
+            <fieldset class="edit-creators">
+              <legend>Creators</legend>
+              <div v-for="(creator, creatorIndex) in movieForm.creators" :key="creatorIndex" class="creator-edit-row">
+                <label>Name<input v-model="creator.name" required maxlength="160" /></label>
+                <label>Role<input v-model="creator.role" required maxlength="80" /></label>
+                <button class="remove-creator-button" type="button" aria-label="Remove creator" @click="movieForm.creators.splice(creatorIndex, 1)">Remove</button>
+              </div>
+              <button class="add-creator-button" type="button" @click="addCreator">+ Add creator</button>
+            </fieldset>
+            <p v-if="movieSaveError" class="edit-error" role="alert">{{ movieSaveError }}</p>
+            <div class="edit-actions">
+              <button class="details-button" type="button" :disabled="savingMovie" @click="editingMovie = false; movieSaveError = ''">Cancel</button>
+              <button class="showtime" type="submit" :disabled="savingMovie">{{ savingMovie ? 'Saving…' : 'Save changes' }}</button>
+            </div>
+          </form>
+          <template v-else>
+            <button v-if="canEditMovies" class="edit-movie-button" type="button" @click="startMovieEdit(selectedMovie)">Edit movie</button>
+            <div class="modal-layout">
+              <img class="modal-poster" :src="getPoster(selectedMovie, selectedMovieIndex)" :alt="selectedMovie.title" @error="handlePosterError($event, selectedMovieIndex)" />
+              <div class="modal-copy">
+                <span class="modal-genre">{{ selectedMovie.genre }} · {{ selectedMovie.duration }} min</span>
+                <h2>{{ selectedMovie.title }}</h2>
+                <h3>About the movie</h3>
+                <p class="modal-description">{{ selectedMovie.description || 'Description coming soon.' }}</p>
+                <div class="modal-meta">
+                  <div>
+                    <span>Rating</span>
+                    <strong v-if="selectedMovie.rating">
+                      {{ Number(selectedMovie.rating.score).toFixed(1) }}/10
+                      <small>{{ Number(selectedMovie.rating.voteCount).toLocaleString() }} votes</small>
+                    </strong>
+                    <span v-else class="modal-empty">Not generated yet</span>
                   </div>
-                  <span v-else class="modal-empty">Not generated yet</span>
+                  <div>
+                    <span>Creators</span>
+                    <div v-if="selectedMovie.creators?.length" class="modal-creators">
+                      <div v-for="creator in selectedMovie.creators" :key="creator.id">
+                        <strong>{{ creator.name }}</strong><small>{{ creator.role }}</small>
+                      </div>
+                    </div>
+                    <span v-else class="modal-empty">Not generated yet</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <section class="trailer-section">
-            <h3>Trailer</h3>
-            <div v-if="getTrailerEmbedUrl(selectedMovie)" class="trailer-frame">
-              <iframe :src="getTrailerEmbedUrl(selectedMovie)" :title="`${selectedMovie.title} trailer`" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-            </div>
-            <div v-else class="trailer-fallback">
-              <p>A direct trailer is not set for this project movie.</p>
-              <a :href="getTrailerSearchUrl(selectedMovie)" target="_blank" rel="noopener noreferrer"><i class="pi pi-youtube"></i> Find trailer on YouTube</a>
-            </div>
-          </section>
+            <section class="trailer-section">
+              <h3>Trailer</h3>
+              <div v-if="getTrailerEmbedUrl(selectedMovie)" class="trailer-frame">
+                <iframe :src="getTrailerEmbedUrl(selectedMovie)" :title="`${selectedMovie.title} trailer`" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+              </div>
+              <div v-else class="trailer-fallback">
+                <p>A direct trailer is not set for this project movie.</p>
+                <a :href="getTrailerSearchUrl(selectedMovie)" target="_blank" rel="noopener noreferrer"><i class="pi pi-youtube"></i> Find trailer on YouTube</a>
+              </div>
+            </section>
+          </template>
         </article>
       </div>
     </main>
@@ -346,18 +437,22 @@ onUnmounted(() => {
   .movie-card { 
     overflow:hidden; 
     background:#141414; 
-    border:1px solid #292929; 
+    border:1px solid #6b6b6b;
+    border-radius:10px;
   } 
   .movie-card img { 
-    width:100%; 
-    height:310px; 
+    width: 100%;
+    height:350px;
     object-fit:cover; 
     display:block; 
+    border-radius: 10px;
   } 
   .movie-card p { 
     color:#aaa; 
     line-height:1.5; 
     min-height:68px; 
+    text-align: center;
+    padding: 5px;
   } 
   .movie-data {
     display:grid;
@@ -389,7 +484,7 @@ onUnmounted(() => {
     font-weight:600;
   }
   .movie-rating {
-    color:#f0c86b;
+    color:#3285f1;
     text-align: center;
   }
   .movie-rating span {
@@ -491,9 +586,9 @@ onUnmounted(() => {
     width: min(980px, 100%);
     max-height: 90vh;
     overflow: auto;
-    padding: 28px;
-    border: 1px solid #333;
-    border-radius: 20px;
+    padding: 32px;
+    border: 3px solid #333;
+    border-radius: 10px;
     background: #111;
     box-shadow: 0 24px 80px rgba(0,0,0,.6);
   }
@@ -536,7 +631,7 @@ onUnmounted(() => {
     color: #999;
   }
   .modal-description {
-    color: #c5c5c5;
+    color: #f1ecec;
     line-height: 1.7;
     font-size: 16px;
   }
@@ -557,7 +652,7 @@ onUnmounted(() => {
     text-transform: uppercase;
   }
   .modal-meta strong {
-    color: #f0c86b;
+    color: #3285f1;
   }
   .modal-meta small {
     display: block;
@@ -607,7 +702,94 @@ onUnmounted(() => {
     border-radius: 24px;
     background: rgb(61,119,243);
   }
+  .edit-movie-button, .add-creator-button, .remove-creator-button {
+    padding: 9px 14px;
+    border: 1px solid #555;
+    border-radius: 20px;
+    background: #1b1b1b;
+    color: #fff;
+    cursor: pointer;
+  }
+  .edit-movie-button {
+    margin: 0 0 22px;
+  }
+  .edit-movie-button:hover, .add-creator-button:hover, .remove-creator-button:hover {
+    background: #292929;
+  }
+  .movie-edit-form h2 {
+    margin: 0 52px 22px 0;
+  }
+  .edit-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .movie-edit-form label {
+    display: grid;
+    gap: 7px;
+    color: #bbb;
+    font-size: 13px;
+  }
+  .movie-edit-form input, .movie-edit-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    background: #090909;
+    color: #fff;
+    font: inherit;
+  }
+  .movie-edit-form textarea {
+    resize: vertical;
+  }
+  .edit-full-width {
+    grid-column: 1 / -1;
+  }
+  .edit-rating, .edit-creators {
+    display: grid;
+    gap: 14px;
+    margin: 22px 0 0;
+    padding: 16px;
+    border: 1px solid #333;
+    border-radius: 10px;
+  }
+  .edit-rating {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .edit-rating legend, .edit-creators legend {
+    padding: 0 8px;
+    color: #ddd;
+  }
+  .edit-hint {
+    grid-column: 1 / -1;
+    color: #888;
+    font-size: 12px;
+  }
+  .creator-edit-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 12px;
+    align-items: end;
+  }
+  .add-creator-button {
+    justify-self: start;
+  }
+  .edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .edit-actions button:disabled {
+    cursor: wait;
+    opacity: .6;
+  }
+  .edit-error {
+    color: #ff9e9e;
+    overflow-wrap: anywhere;
+  }
  @media(max-width:700px){
-    .topbar{padding:12px 20px}.brand{width:100%; flex-wrap:wrap; gap:6px 16px}.logo-actions{width:100%; flex-wrap:wrap; gap:4px}.hero{padding:50px 20px}.content{padding:40px 20px}.movie-card img{height:280px}.movie-modal-backdrop{padding:10px}.movie-modal{padding:20px}.modal-layout{grid-template-columns:1fr}.modal-poster{max-width:220px;height:310px}.modal-copy h2{font-size:30px}.modal-meta>div{grid-template-columns:75px 1fr}
+    .topbar{padding:12px 20px}.brand{width:100%; flex-wrap:wrap; gap:6px 16px}.logo-actions{width:100%; flex-wrap:wrap; gap:4px}.hero{padding:50px 20px}.content{padding:40px 20px}.movie-card img{height:280px}.movie-modal-backdrop{padding:10px}.movie-modal{padding:20px}.modal-layout{grid-template-columns:1fr}.modal-poster{max-width:220px;height:310px}.modal-copy h2{font-size:30px}.modal-meta>div{grid-template-columns:75px 1fr}.edit-fields,.edit-rating{grid-template-columns:1fr}.edit-full-width,.edit-hint{grid-column:auto}.creator-edit-row{grid-template-columns:1fr 1fr}.remove-creator-button{grid-column:1 / -1;justify-self:start}
   }
 </style>
