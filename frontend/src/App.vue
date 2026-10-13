@@ -80,7 +80,7 @@ function addCreator() {
 }
 
 async function saveMovieChanges() {
-  if (!selectedMovie.value || !movieForm.value || savingMovie.value || uploadingPoster.value) return;
+  if (!selectedMovie.value || !movieForm.value || savingMovie.value || uploadingPoster.value) return; // Avoid double submit
   savingMovie.value = true;
   movieSaveError.value = '';
   try {
