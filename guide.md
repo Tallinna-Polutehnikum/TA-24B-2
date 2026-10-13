@@ -1,4 +1,4 @@
-# How to run a project:
+# How to run a project as developer:
 
 ## 1. Database folder
 ```bash or VSC terminal
@@ -17,13 +17,24 @@
     npm run dev
 ```
 
-## Attention!
-1. Open the Docker Desktop app before the project initialization
-2. Activate every folder in different terminals (Recommended)
-3. If the frontend or backend node.js structure doesn't exist or work, you can recover it writing `npm install` command in the terminal
-4. To turn off the project, write `docker compose down` command in the terminal
 
 
+# How to run a build / regular user side:
+
+## 1. Backend folder
+```bash in backend folder:
+    cd ..\kinoproject\backend
+    npm run build
+    $env:NODE_ENV="production"
+    npm start
+```
+
+## 2. Frontend folder
+```bash in frontend folder:
+    cd ..\kinoproject\frontend
+    npm run build
+    npm run preview
+```
 
 
 

@@ -37,4 +37,7 @@
 - Made a movie editor to work in developer mode, in build and regular sites movie editor will be removed or hidden
 - Updated CSS file
 
+# 13.10.2026
+- Polished `guide.md` and `README.md` files for better reading
+
 Bradar, what it this?

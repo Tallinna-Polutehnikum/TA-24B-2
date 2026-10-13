@@ -9,7 +9,7 @@ You can view the guide how to run a project below or separatly in the `guide.md`
 
 You can see the update logs in the `update-log.md`.
 
-## Stacks used:
+## Stacks used
 - Node.js
 - NestJS
 - MikroORM
@@ -17,7 +17,7 @@ You can see the update logs in the `update-log.md`.
 - Vue 3 + Vite
 - PrimeVue
 
-## What already works:
+## What already works
 - NestJS backend starts on port 3000.
 - MySQL runs with Docker Compose.
 - MikroORM connects to MySQL and creates/uses the `movie` table.
@@ -25,8 +25,7 @@ You can see the update logs in the `update-log.md`.
 - `GET /movies` returns movies from MySQL.
 - Vue + PrimeVue frontend loads those movies from the backend and displays them as cards.
 
-
-## Feature list:
+## Feature list
 - Movie list
 - Seat picker
 - movie detail view
@@ -38,47 +37,9 @@ You can see the update logs in the `update-log.md`.
 - Sales and account bonuses --later or unnecessarys
 - Different languages --later or unnecessary // hard mode
 
-## How to run a project:
 
-### 1. Database folder
-```bash or VSC terminal
-    docker compose up -d
-```
 
-### 2. Backend folder
-```bash or VSC terminal
-    cd backend
-    npm run dev
-```
-
-### 3. Frontend folder
-```bash or VSC terminal
-    cd frontend
-    npm run dev
-```
-
-### 4. How to run a build / regular user side of the site
-```In backend folder you have to run in terminal those commands:
-    cd C:\Users\admin\Desktop\B2Projekt\TA-24B-2\backend
-    npm run build
-    $env:NODE_ENV="production"
-    npm start
-```
-
-```Also in frontend there is commands to run a build:
-    cd C:\Users\admin\Desktop\B2Projekt\TA-24B-2\frontend
-    npm run build
-    npm run preview
-```
-
-### Attention!
-1. Open the Docker Desktop app before the project initialization
-2. Activate every folder in different terminals (Recommended)
-3. If the frontend or backend node.js structure doesn't exist or work, you can recover it writing `npm install` command in the terminal
-4. To turn off the project, write `docker compose down` command in the terminal
-
-## Manage Faker movies
-# How to run a project:
+# How to run a project as developer:
 
 ## 1. Database folder
 ```bash or VSC terminal
@@ -97,17 +58,28 @@ You can see the update logs in the `update-log.md`.
     npm run dev
 ```
 
-## Attention!
-1. Open the Docker Desktop app before the project initialization
-2. Activate every folder in different terminals (Recommended)
-3. If the frontend or backend node.js structure doesn't exist or work, you can recover it writing `npm install` command in the terminal
-4. To turn off the project, write `docker compose down` command in the terminal
+
+
+# How to run a build / regular user side:
+
+## 1. Backend folder
+```bash in backend folder:
+    cd ..\kinoproject\backend
+    npm run build
+    $env:NODE_ENV="production"
+    npm start
+```
+
+## 2. Frontend folder
+```bash in frontend folder:
+    cd ..\kinoproject\frontend
+    npm run build
+    npm run preview
+```
 
 
 
-
-
-## Manage Faker movies
+# Manage Faker movies
 The movies already in the project are kept unchanged. To create or refresh its random movie set, open a terminal in the `backend` folder and run in new terminal or powershell: `npm run movies:generate`
 
 The command prints generated titles and poster URLs. Posters and banners are random Picsum images, so an internet connection is required; they are not official movie artwork. Refresh the frontend page to see the updated list. Get a movie's `id` from `GET http://localhost:3000/movies`.
