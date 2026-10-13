@@ -22,6 +22,19 @@ export async function updateMovie(id, changes) {
   return response.json();
 }
 
+export async function createMovie(movie) {
+  const response = await fetch(`${API_URL}/movies/manual`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(movie),
+  });
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'Could not create movie');
+  }
+  return response.json();
+}
+
 export async function deleteMovie(id) {
   const response = await fetch(`${API_URL}/movies/${id}`, { method: 'DELETE' });
   if (!response.ok) {

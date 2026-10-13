@@ -19,6 +19,7 @@ export interface MovieInput {
   description?: string;
   posterUrl?: string;
   bannerUrl?: string;
+  trailerUrl?: string;
 }
 
 interface MovieRatingInput {
@@ -29,6 +30,14 @@ interface MovieRatingInput {
 interface MovieCreatorInput {
   name: string;
   role: string;
+}
+
+interface ValidatedMovieChanges {
+  movieFields: MovieInput;
+  hasRating: boolean;
+  rating?: MovieRatingInput | null;
+  hasCreators: boolean;
+  creators?: MovieCreatorInput[];
 }
 
 export interface MovieUpdateInput extends MovieInput {
@@ -50,20 +59,27 @@ export class MoviesService implements OnModuleInit {
     const em = this.em.fork();
     const movies = [
       { title: 'Crime Patrol', genre: 'Action', duration: 90, description: 'A FMV action movie about a cop that goes high to Delta Force rank and save the country from terrorists.', posterUrl: '/poster1.jpg', bannerUrl: '/banner1.jpg', active: true },
-      { title: 'Crime Patrol 2: Drug Wars', genre: 'Action', duration: 90, description: 'The cartel is spreading drugs across the whole country, but only you know how to stop them.', posterUrl: '/poster2.jpg', active: true },
-      { title: 'Rain Man', genre: 'Drama', duration: 134, description: 'A story about two brothers, one is a selfish car dealer and another with autistic abilities to calculate, but with father"s inherited money.', posterUrl: '/poster3.jpg', active: true },
-      { title: 'Pokémon: the First Movie', genre: 'Adventure', duration: 96, description: 'Witness the legendary battle of Mewtwo and mythical 151st Pokemon Mew. Who will prevail?', posterUrl: '/poster4.jpg', active: true },
-      { title: '1917', genre: 'Drama/War Action', duration: 119, description: 'A quiet tense history about two men, who is going to the long trip among bombs and artillery to save people in No man"s land from imminent death.', posterUrl: '/poster5.jpg', active: true },
+      { title: 'Crime Patrol 2: Drug Wars', genre: 'Action', duration: 90, description: 'The cartel is spreading drugs across the whole country, but only you know how to stop them.', posterUrl: '/poster2.jpg', trailerUrl: 'https://www.youtube.com/watch?v=qZ5h9foGi24', active: true },
+      { title: 'Rain Man', genre: 'Drama', duration: 134, description: 'A story about two brothers, one is a selfish car dealer and another with autistic abilities to calculate, but with father"s inherited money.', posterUrl: '/poster3.jpg', trailerUrl: 'https://www.youtube.com/watch?v=rrTQEP41NL4', active: true },
+      { title: 'Pokémon: the First Movie', genre: 'Adventure', duration: 96, description: 'Witness the legendary battle of Mewtwo and mythical 151st Pokemon Mew. Who will prevail?', posterUrl: '/poster4.jpg', trailerUrl: 'https://www.youtube.com/watch?v=hX-NHafvY5I', active: true },
+      { title: '1917', genre: 'Drama/War Action', duration: 119, description: 'A quiet tense history about two men, who is going to the long trip among bombs and artillery to save people in No man"s land from imminent death.', posterUrl: '/poster5.jpg', trailerUrl: 'https://www.youtube.com/watch?v=UcmZN0Mbl04', active: true },
       { title: 'Re:Zero Tallinn Edition', genre: 'Anime', duration: 1000, description: 'DID YOU SAY STAIRS?! *feels the aura*.', posterUrl: '/poster6.jpg', active: true }
     ];
     for (const data of movies) {
       const existingMovie = await em.findOne(Movie, { posterUrl: data.posterUrl });
       if (!existingMovie) {
         em.persist(em.create(Movie, data));
+      } else if (existingMovie.trailerUrl == null && data.trailerUrl) {
+        existingMovie.trailerUrl = data.trailerUrl;
       }
     }
 
     await em.flush();
+    const mainMovies = await em.find(Movie, {
+      posterUrl: { $in: movies.map(({ posterUrl }) => posterUrl) },
+      active: true,
+    }, { orderBy: { id: 'ASC' } });
+    await this.seedRelatedData(em, mainMovies, false);
   }
 
   async seedGeneratedMovies(regenerate: boolean) {
@@ -73,8 +89,6 @@ export class MoviesService implements OnModuleInit {
     const em = this.em.fork();
     const existingGeneratedMovies = await em.find(Movie, { seedKey: { $like: 'faker-generated-v1-%' } });
     const generatedMoviesByKey = new Map(existingGeneratedMovies.map((movie) => [movie.seedKey, movie]));
-    const protectedMovies = await em.find(Movie, {}, { orderBy: { id: 'ASC' }, limit: 12 });
-    const protectedMovieIds = new Set(protectedMovies.map((movie) => movie.id));
     const moviesToSeedRelatedData: Movie[] = [];
     const generatedMovies = Array.from({ length: movieCount }, (_, index) => {
       const seedKey = `faker-generated-v1-${index + 1}`;
@@ -87,7 +101,7 @@ export class MoviesService implements OnModuleInit {
         const movie = em.create(Movie, data);
         em.persist(movie);
         moviesToSeedRelatedData.push(movie);
-      } else if (regenerate && existingMovie.active && !protectedMovieIds.has(existingMovie.id)) {
+      } else if (regenerate && existingMovie.active) {
         em.assign(existingMovie, data);
         moviesToSeedRelatedData.push(existingMovie);
       }
@@ -101,6 +115,14 @@ export class MoviesService implements OnModuleInit {
       }
     }
 
+    if (regenerate) {
+      const mainMovies = await em.find(Movie, {
+        posterUrl: { $in: ['/poster1.jpg', '/poster2.jpg', '/poster3.jpg', '/poster4.jpg', '/poster5.jpg', '/poster6.jpg'] },
+        active: true,
+      });
+      moviesToSeedRelatedData.push(...mainMovies);
+    }
+
     await em.flush();
     if (moviesToSeedRelatedData.length > 0) {
       await this.seedRelatedData(em, moviesToSeedRelatedData);
@@ -112,11 +134,11 @@ export class MoviesService implements OnModuleInit {
     );
     this.logger.log(`Faker generated ${automaticMovies.length} movies:\n${automaticMovies
       .map((movie) => `- ${movie.title} | ${movie.posterUrl}`)
-      .join('\n')}\nGenerated ratings and credits for ${moviesToSeedRelatedData.length} movies, 4 cinema buildings, and ${moviesToSeedRelatedData.length * 2} screenings.`);
+      .join('\n')}\nRefreshed ratings, creators, and screenings for ${moviesToSeedRelatedData.length} movies, including the built-in movies.`);
     return em.find(Movie, { seedKey: { $like: 'faker-%' }, active: true }, { orderBy: { id: 'ASC' } });
   }
 
-  private async seedRelatedData(em: EntityManager, movies: Movie[]) {
+  private async seedRelatedData(em: EntityManager, movies: Movie[], refreshExisting = true) {
     const buildings: CinemaBuilding[] = [];
     for (let index = 0; index < 4; index += 1) {
       const seedKey = `faker-building-v1-${index + 1}`;
@@ -127,8 +149,10 @@ export class MoviesService implements OnModuleInit {
         hallCount: faker.number.int({ min: 3, max: 12 }),
       };
       const existing = await em.findOne(CinemaBuilding, { seedKey });
-      if (existing) {
+      if (existing && refreshExisting) {
         em.assign(existing, data);
+        buildings.push(existing);
+      } else if (existing) {
         buildings.push(existing);
       } else {
         const building = em.create(CinemaBuilding, { seedKey, ...data });
@@ -146,9 +170,9 @@ export class MoviesService implements OnModuleInit {
         score: faker.number.float({ min: 1, max: 10, fractionDigits: 1 }),
         voteCount: faker.number.int({ min: 50, max: 50000 }),
       };
-      if (existingRating) {
+      if (existingRating && refreshExisting) {
         em.assign(existingRating, ratingData);
-      } else {
+      } else if (!existingRating) {
         em.persist(em.create(MovieRating, { movie, ...ratingData }));
       }
 
@@ -156,14 +180,16 @@ export class MoviesService implements OnModuleInit {
         const seedKey = `faker-creator-movie-${movie.id}-${creatorIndex + 1}`;
         const existingCreator = await em.findOne(Creator, { seedKey });
         const creator = existingCreator
-          ? em.assign(existingCreator, { name: faker.person.fullName() })
+          ? refreshExisting
+            ? em.assign(existingCreator, { name: faker.person.fullName() })
+            : existingCreator
           : em.create(Creator, { seedKey, name: faker.person.fullName() });
         if (!existingCreator) em.persist(creator);
 
         const existingCredit = await em.findOne(MovieCreator, { movie, creator });
-        if (existingCredit) {
+        if (existingCredit && refreshExisting) {
           existingCredit.role = creatorRoles[creatorIndex];
-        } else {
+        } else if (!existingCredit) {
           em.persist(em.create(MovieCreator, { movie, creator, role: creatorRoles[creatorIndex] }));
         }
       }
@@ -171,6 +197,8 @@ export class MoviesService implements OnModuleInit {
       for (let screeningIndex = 0; screeningIndex < 2; screeningIndex += 1) {
         const seedKey = `faker-screening-v1-${movie.id}-${screeningIndex + 1}`;
         const building = buildings[(movieIndex + screeningIndex) % buildings.length];
+        const existingScreening = await em.findOne(Screening, { seedKey });
+        if (existingScreening && !refreshExisting) continue;
         const data = {
           movie,
           building,
@@ -179,7 +207,6 @@ export class MoviesService implements OnModuleInit {
           language: faker.helpers.arrayElement(['English', 'Estonian', 'Russian']),
           ticketPrice: faker.number.float({ min: 6, max: 18, fractionDigits: 2 }),
         };
-        const existingScreening = await em.findOne(Screening, { seedKey });
         if (existingScreening) {
           em.assign(existingScreening, data);
         } else {
@@ -201,20 +228,61 @@ export class MoviesService implements OnModuleInit {
     return movie;
   }
 
+  async createManualMovie(input: unknown) {
+    const changes = this.validateMovieChanges(input, ['title', 'genre', 'duration', 'description']);
+    const { title, genre, duration, description, ...optionalFields } = changes.movieFields;
+    if (
+      typeof title !== 'string' ||
+      typeof genre !== 'string' ||
+      typeof duration !== 'number' ||
+      typeof description !== 'string'
+    ) {
+      throw new BadRequestException('Title, genre, duration, and description are required');
+    }
+    const em = this.em.fork();
+    const movie = em.create(Movie, { ...optionalFields, title, genre, duration, description, active: true });
+    em.persist(movie);
+    await this.applyMovieRelations(em, movie, changes, true);
+    await em.flush();
+
+    const createdMovie = (await this.findAll()).find((entry) => entry.id === movie.id);
+    if (!createdMovie) throw new NotFoundException('Movie not found');
+    return createdMovie;
+  }
+
   async updateMovie(id: number, input: unknown) {
+    const changes = this.validateMovieChanges(input);
+    const em = this.em.fork();
+    const movie = await em.findOne(Movie, { id, active: true });
+    if (!movie) throw new NotFoundException('Movie not found');
+    em.assign(movie, changes.movieFields);
+    await this.applyMovieRelations(em, movie, changes);
+    await em.flush();
+
+    const updatedMovie = (await this.findAll()).find((entry) => entry.id === id);
+    if (!updatedMovie) throw new NotFoundException('Movie not found');
+    return updatedMovie;
+  }
+
+  private validateMovieChanges(input: unknown, requiredFields: string[] = []): ValidatedMovieChanges {
     if (!input || typeof input !== 'object' || Array.isArray(input)) {
       throw new BadRequestException('Movie data must be a JSON object');
     }
 
     const values = input as Record<string, unknown>;
-    const allowedFields = new Set(['title', 'genre', 'duration', 'description', 'posterUrl', 'bannerUrl', 'rating', 'creators']);
+    const allowedFields = new Set(['title', 'genre', 'duration', 'description', 'posterUrl', 'bannerUrl', 'trailerUrl', 'rating', 'creators']);
     for (const field of Object.keys(values)) {
       if (!allowedFields.has(field)) throw new BadRequestException(`Field '${field}' cannot be changed`);
     }
     if (Object.keys(values).length === 0) throw new BadRequestException('At least one field is required');
 
     const { rating, creators, ...movieFields } = values;
-    const changes = this.validateMovieInput(movieFields, true);
+    const validatedMovieFields = this.validateMovieInput(movieFields, true);
+    for (const field of requiredFields) {
+      if (!Object.hasOwn(movieFields, field)) {
+        throw new BadRequestException(`Field '${field}' is required`);
+      }
+    }
     if (Object.hasOwn(values, 'rating') && rating !== null) {
       if (!rating || typeof rating !== 'object' || Array.isArray(rating)) {
         throw new BadRequestException('Rating must be an object or null');
@@ -254,25 +322,37 @@ export class MoviesService implements OnModuleInit {
       }
     }
 
-    const em = this.em.fork();
-    const movie = await em.findOne(Movie, { id, active: true });
-    if (!movie) throw new NotFoundException('Movie not found');
-    em.assign(movie, changes);
+    return {
+      movieFields: validatedMovieFields,
+      hasRating: Object.hasOwn(values, 'rating'),
+      rating: rating as MovieRatingInput | null | undefined,
+      hasCreators: Object.hasOwn(values, 'creators'),
+      creators: creators as MovieCreatorInput[] | undefined,
+    };
+  }
 
-    if (Object.hasOwn(values, 'rating')) {
-      const existingRating = await em.findOne(MovieRating, { movie });
-      if (rating === null) {
+  private async applyMovieRelations(em: EntityManager, movie: Movie, changes: ValidatedMovieChanges, isNew = false) {
+    if (changes.hasRating) {
+      const existingRating = isNew ? null : await em.findOne(MovieRating, { movie });
+      if (changes.rating === null) {
         if (existingRating) em.remove(existingRating);
-      } else if (existingRating) {
-        em.assign(existingRating, rating as MovieRatingInput);
       } else {
-        em.persist(em.create(MovieRating, { movie, ...(rating as MovieRatingInput) }));
+        const rating = changes.rating;
+        if (!rating) throw new BadRequestException('Rating must be an object or null');
+        if (existingRating) {
+          em.assign(existingRating, rating);
+        } else {
+          em.persist(em.create(MovieRating, { movie, ...rating }));
+        }
       }
     }
 
-    if (Object.hasOwn(values, 'creators')) {
-      const existingCredits = await em.find(MovieCreator, { movie }, { populate: ['creator'], orderBy: { id: 'ASC' } });
-      for (const [index, creatorData] of (creators as MovieCreatorInput[]).entries()) {
+    if (changes.hasCreators) {
+      const existingCredits = isNew
+        ? []
+        : await em.find(MovieCreator, { movie }, { populate: ['creator'], orderBy: { id: 'ASC' } });
+      const creatorList = changes.creators!;
+      for (const [index, creatorData] of creatorList.entries()) {
         const existingCredit = existingCredits[index];
         if (existingCredit) {
           existingCredit.creator.name = creatorData.name.trim();
@@ -286,16 +366,10 @@ export class MoviesService implements OnModuleInit {
           em.persist(em.create(MovieCreator, { movie, creator, role: creatorData.role.trim() }));
         }
       }
-      for (const credit of existingCredits.slice((creators as MovieCreatorInput[]).length)) {
+      for (const credit of existingCredits.slice(creatorList.length)) {
         em.remove(credit);
       }
     }
-
-    await em.flush();
-    const updatedMovies = await this.findAll();
-    const updatedMovie = updatedMovies.find((entry) => entry.id === id);
-    if (!updatedMovie) throw new NotFoundException('Movie not found');
-    return updatedMovie;
   }
 
   async deleteMovie(id: number) {
@@ -342,7 +416,7 @@ export class MoviesService implements OnModuleInit {
 
     const values = input as Record<string, unknown>;
     const entries = Object.entries(values);
-    const allowedFields = new Set(['title', 'genre', 'duration', 'description', 'posterUrl', 'bannerUrl']);
+    const allowedFields = new Set(['title', 'genre', 'duration', 'description', 'posterUrl', 'bannerUrl', 'trailerUrl']);
     if (!allowEmpty && entries.length === 0) throw new BadRequestException('At least one field is required');
 
     for (const [field, value] of entries) {
@@ -354,8 +428,11 @@ export class MoviesService implements OnModuleInit {
         continue;
       }
 
-      if (field === 'posterUrl' || field === 'bannerUrl') {
+      if (field === 'posterUrl' || field === 'bannerUrl' || field === 'trailerUrl') {
         if (typeof value !== 'string' || value.length > 500) throw new BadRequestException(`Invalid value for '${field}'`);
+        if (field === 'trailerUrl' && value !== '' && !this.isYouTubeTrailerUrl(value)) {
+          throw new BadRequestException('Trailer URL must be a YouTube video link');
+        }
         continue;
       }
 
@@ -366,6 +443,20 @@ export class MoviesService implements OnModuleInit {
     }
 
     return values as MovieInput;
+  }
+
+  private isYouTubeTrailerUrl(value: string) {
+    try {
+      const url = new URL(value);
+      const allowedHosts = new Set(['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be', 'www.youtube-nocookie.com', 'youtube-nocookie.com']);
+      if (!['http:', 'https:'].includes(url.protocol) || !allowedHosts.has(url.hostname)) return false;
+      const videoId = url.hostname === 'youtu.be'
+        ? url.pathname.split('/').filter(Boolean)[0]
+        : url.searchParams.get('v') ?? url.pathname.split('/').filter(Boolean).at(-1);
+      return Boolean(videoId && /^[\w-]{11}$/.test(videoId));
+    } catch {
+      return false;
+    }
   }
 
   async findAll() {
@@ -419,6 +510,7 @@ export class MoviesService implements OnModuleInit {
         description: movie.description,
         posterUrl: movie.posterUrl,
         bannerUrl: movie.bannerUrl,
+        trailerUrl: movie.trailerUrl,
         rating: rating ? { score: rating.score, voteCount: rating.voteCount } : null,
         creators: creditsByMovie.get(movie.id) ?? [],
         screenings: screeningsByMovie.get(movie.id) ?? [],

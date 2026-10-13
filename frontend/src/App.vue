@@ -3,7 +3,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Tag from 'primevue/tag';
-import { deleteMovie, getAssetUrl, getMovies, updateMovie, uploadMoviePoster } from './services/api';
+import { createMovie, deleteMovie, getAssetUrl, getMovies, updateMovie, uploadMoviePoster } from './services/api';
 import poster1 from './assets/poster1.jpg';
 import poster2 from './assets/poster2.jpg';
 import poster3 from './assets/poster3.jpg';
@@ -21,6 +21,7 @@ const selectedMovie = ref(null);
 const selectedMovieIndex = ref(0);
 const previousBodyOverflow = ref('');
 const editingMovie = ref(false);
+const creatingMovie = ref(false);
 const savingMovie = ref(false);
 const deletingMovie = ref(false);
 const movieSaveError = ref('');
@@ -30,16 +31,20 @@ const uploadingPoster = ref(false);
 const canEditMovies = import.meta.env.DEV;
 const posters = [poster1, poster2, poster3, poster4, poster5, poster6];
 
-const trailerIds = {
-  'Crime Patrol 2: Drug Wars': 'qZ5h9foGi24',
-  'Rain Man': 'rrTQEP41NL4',
-  'Pokémon: the First Movie': 'hX-NHafvY5I',
-  '1917': 'UcmZN0Mbl04',
-};
-
 function getTrailerEmbedUrl(movie) {
-  const id = trailerIds[movie.title];
-  return id ? `https://www.youtube-nocookie.com/embed/${id}` : '';
+  if (!movie.trailerUrl) return '';
+  let url;
+  try {
+    url = new URL(movie.trailerUrl);
+  } catch {
+    return '';
+  }
+  const supportedHosts = ['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be', 'youtube-nocookie.com', 'www.youtube-nocookie.com'];
+  if (!['http:', 'https:'].includes(url.protocol) || !supportedHosts.includes(url.hostname)) return '';
+  const id = url.hostname === 'youtu.be'
+    ? url.pathname.split('/').filter(Boolean)[0]
+    : url.searchParams.get('v') ?? url.pathname.split('/').filter(Boolean).at(-1);
+  return id && /^[\w-]{11}$/.test(id) ? `https://www.youtube-nocookie.com/embed/${id}` : '';
 }
 
 function getTrailerSearchUrl(movie) {
@@ -56,11 +61,35 @@ function openMovie(movie, index) {
 function closeMovie() {
   selectedMovie.value = null;
   editingMovie.value = false;
+  creatingMovie.value = false;
   movieSaveError.value = '';
   document.body.style.overflow = previousBodyOverflow.value;
 }
 
+function startMovieCreate() {
+  if (!selectedMovie.value) previousBodyOverflow.value = document.body.style.overflow;
+  selectedMovie.value = { title: 'New movie', posterUrl: '' };
+  selectedMovieIndex.value = 0;
+  movieForm.value = {
+    title: '',
+    genre: '',
+    duration: 90,
+    description: '',
+    posterUrl: '',
+    bannerUrl: '',
+    trailerUrl: '',
+    ratingScore: '',
+    ratingVoteCount: '',
+    creators: [],
+  };
+  movieSaveError.value = '';
+  creatingMovie.value = true;
+  editingMovie.value = true;
+  document.body.style.overflow = 'hidden';
+}
+
 function startMovieEdit(movie) {
+  creatingMovie.value = false;
   movieForm.value = {
     title: movie.title,
     genre: movie.genre,
@@ -68,6 +97,7 @@ function startMovieEdit(movie) {
     description: movie.description ?? '',
     posterUrl: movie.posterUrl ?? '',
     bannerUrl: movie.bannerUrl ?? '',
+    trailerUrl: movie.trailerUrl ?? '',
     ratingScore: movie.rating ? String(movie.rating.score) : '',
     ratingVoteCount: movie.rating ? String(movie.rating.voteCount) : '',
     creators: (movie.creators ?? []).map(({ name, role }) => ({ name, role })),
@@ -76,12 +106,21 @@ function startMovieEdit(movie) {
   editingMovie.value = true;
 }
 
+function cancelMovieEdit() {
+  if (creatingMovie.value) {
+    closeMovie();
+    return;
+  }
+  editingMovie.value = false;
+  movieSaveError.value = '';
+}
+
 function addCreator() {
   movieForm.value.creators.push({ name: '', role: 'Director' });
 }
 
 async function saveMovieChanges() {
-  if (!selectedMovie.value || !movieForm.value || savingMovie.value || deletingMovie.value || uploadingPoster.value) return; // Avoid double submit
+  if ((!creatingMovie.value && !selectedMovie.value) || !movieForm.value || savingMovie.value || deletingMovie.value || uploadingPoster.value) return;
   savingMovie.value = true;
   movieSaveError.value = '';
   try {
@@ -94,14 +133,25 @@ async function saveMovieChanges() {
       description: form.description,
       posterUrl: form.posterUrl,
       bannerUrl: form.bannerUrl,
+      trailerUrl: form.trailerUrl.trim(),
       rating: ratingScore === ''
         ? null
         : { score: Number(ratingScore), voteCount: Number(form.ratingVoteCount) },
       creators: form.creators,
     };
-    const updatedMovie = await updateMovie(selectedMovie.value.id, changes);
-    movies.value = movies.value.map((movie) => movie.id === updatedMovie.id ? updatedMovie : movie);
-    selectedMovie.value = updatedMovie;
+    if (creatingMovie.value) {
+      const newMovie = await createMovie(changes);
+      movies.value = [...movies.value, newMovie];
+      if (creatingMovie.value) {
+        selectedMovie.value = newMovie;
+        selectedMovieIndex.value = movies.value.length - 1;
+        creatingMovie.value = false;
+      }
+    } else {
+      const updatedMovie = await updateMovie(selectedMovie.value.id, changes);
+      movies.value = movies.value.map((movie) => movie.id === updatedMovie.id ? updatedMovie : movie);
+      selectedMovie.value = updatedMovie;
+    }
     editingMovie.value = false;
   } catch (error) {
     movieSaveError.value = error instanceof Error ? error.message : 'Could not save movie changes.';
@@ -209,7 +259,13 @@ onUnmounted(() => {
       </section>
 
       <section id="movies" class="content">
-        <div class="section-heading"><div><h3>Top Movies</h3></div><span>{{ movies.length }} movies</span></div>
+        <div class="section-heading">
+          <div><h3>Top Movies</h3></div>
+          <div class="movie-heading-actions">
+            <span>{{ movies.length }} movies</span>
+            <button v-if="canEditMovies" class="edit-movie-button add-movie-button" type="button" @click="startMovieCreate">+ Add movie</button>
+          </div>
+        </div>
         <div v-if="loading" class="state">Loading movies from backend...</div>
         <div v-else-if="error" class="state error">{{ error }}</div>
         <div v-else class="grid">
@@ -264,11 +320,11 @@ onUnmounted(() => {
         </div>
       </section>
 
-      <div v-if="selectedMovie" class="movie-modal-backdrop" @click.self="closeMovie">
+      <div v-if="selectedMovie || creatingMovie" class="movie-modal-backdrop" @click.self="closeMovie">
         <article class="movie-modal" role="dialog" aria-modal="true" :aria-label="selectedMovie.title">
           <button class="modal-close" type="button" aria-label="Close movie details" @click="closeMovie">×</button>
           <form v-if="canEditMovies && editingMovie" class="movie-edit-form" @submit.prevent="saveMovieChanges">
-            <h2>Edit movie</h2>
+            <h2>{{ creatingMovie ? 'Add movie' : 'Edit movie' }}</h2>
             <div class="edit-fields">
               <label>Title<input v-model="movieForm.title" required maxlength="160" /></label>
               <label>Genre<input v-model="movieForm.genre" required maxlength="80" /></label>
@@ -286,6 +342,7 @@ onUnmounted(() => {
                 </div>
               </div>
               <label>Banner URL<input v-model="movieForm.bannerUrl" maxlength="500" /></label>
+              <label class="edit-full-width">Trailer URL<input v-model="movieForm.trailerUrl" type="url" maxlength="500" placeholder="https://www.youtube.com/watch?v=…" /></label>
               <label class="edit-full-width">Description<textarea v-model="movieForm.description" required maxlength="5000" rows="3"></textarea></label>
             </div>
             <fieldset class="edit-rating">
@@ -305,9 +362,9 @@ onUnmounted(() => {
             </fieldset>
             <p v-if="movieSaveError" class="edit-error" role="alert">{{ movieSaveError }}</p>
             <div class="edit-actions">
-              <button class="delete-movie-button" type="button" :disabled="savingMovie || deletingMovie || uploadingPoster" @click="removeMovie">{{ deletingMovie ? 'Deleting…' : 'Delete movie' }}</button>
-              <button class="details-button" type="button" :disabled="savingMovie || deletingMovie || uploadingPoster" @click="editingMovie = false; movieSaveError = ''">Cancel</button>
-              <button class="showtime" type="submit" :disabled="savingMovie || deletingMovie || uploadingPoster">{{ uploadingPoster ? 'Uploading poster…' : savingMovie ? 'Saving…' : 'Save changes' }}</button>
+              <button v-if="!creatingMovie" class="delete-movie-button" type="button" :disabled="savingMovie || deletingMovie || uploadingPoster" @click="removeMovie">{{ deletingMovie ? 'Deleting…' : 'Delete movie' }}</button>
+              <button class="details-button" type="button" :disabled="savingMovie || deletingMovie || uploadingPoster" @click="cancelMovieEdit">Cancel</button>
+              <button class="showtime" type="submit" :disabled="savingMovie || deletingMovie || uploadingPoster">{{ uploadingPoster ? 'Uploading poster…' : savingMovie ? (creatingMovie ? 'Creating…' : 'Saving…') : creatingMovie ? 'Add movie' : 'Save changes' }}</button>
             </div>
           </form>
           <template v-else>
@@ -482,6 +539,14 @@ onUnmounted(() => {
   } 
   .section-heading > span { 
     color:#888; 
+  }
+  .movie-heading-actions {
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .movie-heading-actions > span {
+    color:#888;
   }
   .grid { 
     display:grid; 
@@ -767,6 +832,9 @@ onUnmounted(() => {
   .edit-movie-button {
     margin: 0 0 22px;
   }
+  .add-movie-button {
+    margin: 0;
+  }
   .edit-movie-button:hover, .add-creator-button:hover, .remove-creator-button:hover {
     background: #292929;
   }
@@ -877,6 +945,6 @@ onUnmounted(() => {
     overflow-wrap: anywhere;
   }
  @media(max-width:700px){
-    .topbar{padding:12px 20px}.brand{width:100%; flex-wrap:wrap; gap:6px 16px}.logo-actions{width:100%; flex-wrap:wrap; gap:4px}.hero{padding:50px 20px}.content{padding:40px 20px}.movie-card img{height:280px}.movie-modal-backdrop{padding:10px}.movie-modal{padding:20px}.modal-layout{grid-template-columns:1fr}.modal-poster{max-width:220px;height:310px}.modal-copy h2{font-size:30px}.modal-meta>div{grid-template-columns:75px 1fr}.edit-fields,.edit-rating{grid-template-columns:1fr}.edit-full-width,.edit-hint{grid-column:auto}.creator-edit-row{grid-template-columns:1fr 1fr}.remove-creator-button{grid-column:1 / -1;justify-self:start}
+    .topbar{padding:12px 20px}.brand{width:100%; flex-wrap:wrap; gap:6px 16px}.logo-actions{width:100%; flex-wrap:wrap; gap:4px}.hero{padding:50px 20px}.content{padding:40px 20px}.movie-card img{height:280px}.movie-modal-backdrop{padding:10px}.movie-modal{padding:20px}.modal-layout{grid-template-columns:1fr}.modal-poster{max-width:220px;height:310px}.modal-copy h2{font-size:30px}.modal-meta>div{grid-template-columns:75px 1fr}.edit-fields,.edit-rating{grid-template-columns:1fr}.edit-full-width,.edit-hint{grid-column:auto}.creator-edit-row{grid-template-columns:1fr 1fr}.remove-creator-button{grid-column:1 / -1;justify-self:start}.movie-heading-actions{gap:8px; flex-wrap:wrap; justify-content:flex-end}
   }
 </style>

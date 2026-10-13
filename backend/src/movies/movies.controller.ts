@@ -32,6 +32,14 @@ export class MoviesController {
     return this.movies.createGeneratedMovie(input);
   }
 
+  @Post('manual')
+  createManual(@Body() input: MovieUpdateInput) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new ForbiddenException('Movie editing is only available outside production');
+    }
+    return this.movies.createManualMovie(input);
+  }
+
   @Post('poster')
   @UseInterceptors(FileInterceptor('poster', {
     storage: diskStorage({

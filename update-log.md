@@ -40,5 +40,10 @@
 # 13.10.2026
 - Polished `guide.md` and `README.md` files for better reading
 - Add delete films function
+- Edited `README.md` for simple explation
+- Add add movie function for its button in the up-right corner above the movie list.
+- Fixed faker movie generation
+- Now you can simply delete faked movie by using visual MOVIE EDITOR (Edit Movie) button. 
+- Add banner browser function (for browsing banner files)
 
 Bradar, what it this?
