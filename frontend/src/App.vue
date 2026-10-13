@@ -3,7 +3,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Tag from 'primevue/tag';
-import { getMovies, updateMovie } from './services/api';
+import { getAssetUrl, getMovies, updateMovie, uploadMoviePoster } from './services/api';
 import poster1 from './assets/poster1.jpg';
 import poster2 from './assets/poster2.jpg';
 import poster3 from './assets/poster3.jpg';
@@ -24,6 +24,8 @@ const editingMovie = ref(false);
 const savingMovie = ref(false);
 const movieSaveError = ref('');
 const movieForm = ref(null);
+const posterFileInput = ref(null);
+const uploadingPoster = ref(false);
 const canEditMovies = import.meta.env.DEV;
 const posters = [poster1, poster2, poster3, poster4, poster5, poster6];
 
@@ -78,7 +80,7 @@ function addCreator() {
 }
 
 async function saveMovieChanges() {
-  if (!selectedMovie.value || !movieForm.value || savingMovie.value) return;
+  if (!selectedMovie.value || !movieForm.value || savingMovie.value || uploadingPoster.value) return;
   savingMovie.value = true;
   movieSaveError.value = '';
   try {
@@ -107,12 +109,33 @@ async function saveMovieChanges() {
   }
 }
 
+async function uploadPoster(event) {
+  const input = event.target;
+  const file = input.files?.[0];
+  const form = movieForm.value;
+  input.value = '';
+  if (!file || !form || uploadingPoster.value) return;
+
+  uploadingPoster.value = true;
+  movieSaveError.value = '';
+  try {
+    const uploadedPoster = await uploadMoviePoster(file);
+    if (movieForm.value === form) form.posterUrl = uploadedPoster.posterUrl;
+  } catch (error) {
+    movieSaveError.value = error instanceof Error ? error.message : 'Could not upload poster.';
+  } finally {
+    uploadingPoster.value = false;
+  }
+}
+
 function handleModalKeydown(event) {
   if (event.key === 'Escape' && selectedMovie.value) closeMovie();
 }
 
 function getPoster(movie, index) {
-  if (movie.posterUrl?.startsWith('https://')) return movie.posterUrl;
+  if (movie.posterUrl?.startsWith('https://') || movie.posterUrl?.startsWith('http://') || movie.posterUrl?.startsWith('/uploads/')) {
+    return getAssetUrl(movie.posterUrl);
+  }
   const posterName = movie.posterUrl?.split('/').pop();
   const posterIndex = posters.findIndex((poster) => posterName === `poster${posters.indexOf(poster) + 1}.jpg`);
   return posterIndex >= 0 ? posters[posterIndex] : posters[index % posters.length];
@@ -232,6 +255,17 @@ onUnmounted(() => {
               <label>Genre<input v-model="movieForm.genre" required maxlength="80" /></label>
               <label>Duration (minutes)<input v-model.number="movieForm.duration" type="number" min="1" step="1" required /></label>
               <label>Poster URL<input v-model="movieForm.posterUrl" maxlength="500" /></label>
+              <div class="poster-upload edit-full-width">
+                <span>Poster image</span>
+                <div class="poster-upload-controls">
+                  <img :src="getPoster({ ...selectedMovie, posterUrl: movieForm.posterUrl }, selectedMovieIndex)" :alt="`${movieForm.title} poster preview`" />
+                  <input ref="posterFileInput" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" @change="uploadPoster" />
+                  <button class="details-button" type="button" :disabled="uploadingPoster || savingMovie" @click="posterFileInput?.click()">
+                    {{ uploadingPoster ? 'Uploading…' : 'Browse file' }}
+                  </button>
+                  <span class="edit-hint">JPEG, PNG, or WebP. Maximum 5 MB.</span>
+                </div>
+              </div>
               <label>Banner URL<input v-model="movieForm.bannerUrl" maxlength="500" /></label>
               <label class="edit-full-width">Description<textarea v-model="movieForm.description" required maxlength="5000" rows="3"></textarea></label>
             </div>
@@ -252,8 +286,8 @@ onUnmounted(() => {
             </fieldset>
             <p v-if="movieSaveError" class="edit-error" role="alert">{{ movieSaveError }}</p>
             <div class="edit-actions">
-              <button class="details-button" type="button" :disabled="savingMovie" @click="editingMovie = false; movieSaveError = ''">Cancel</button>
-              <button class="showtime" type="submit" :disabled="savingMovie">{{ savingMovie ? 'Saving…' : 'Save changes' }}</button>
+              <button class="details-button" type="button" :disabled="savingMovie || uploadingPoster" @click="editingMovie = false; movieSaveError = ''">Cancel</button>
+              <button class="showtime" type="submit" :disabled="savingMovie || uploadingPoster">{{ uploadingPoster ? 'Uploading poster…' : savingMovie ? 'Saving…' : 'Save changes' }}</button>
             </div>
           </form>
           <template v-else>
@@ -742,6 +776,27 @@ onUnmounted(() => {
   }
   .movie-edit-form textarea {
     resize: vertical;
+  }
+  .poster-upload {
+    display: grid;
+    gap: 7px;
+    color: #bbb;
+    font-size: 13px;
+  }
+  .poster-upload-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+  .poster-upload-controls img {
+    width: 64px;
+    height: 90px;
+    border-radius: 6px;
+    object-fit: cover;
+  }
+  .visually-hidden {
+    display: none;
   }
   .edit-full-width {
     grid-column: 1 / -1;

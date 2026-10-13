@@ -1,5 +1,19 @@
-import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, UploadedFile, UseInterceptors, BadRequestException } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { randomUUID } from 'node:crypto';
+import { mkdirSync } from 'node:fs';
+import { extname, join } from 'node:path';
 import { MovieInput, MovieUpdateInput, MoviesService } from './movies.service';
+
+const uploadDirectory = join(__dirname, '..', '..', 'uploads');
+const imageExtensions: Record<string, string> = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/webp': '.webp',
+};
+
+mkdirSync(uploadDirectory, { recursive: true });
 
 @Controller('movies')
 export class MoviesController {
@@ -16,6 +30,30 @@ export class MoviesController {
   @Post()
   create(@Body() input: MovieInput) {
     return this.movies.createGeneratedMovie(input);
+  }
+
+  @Post('poster')
+  @UseInterceptors(FileInterceptor('poster', {
+    storage: diskStorage({
+      destination: uploadDirectory,
+      filename: (_request, file, callback) => {
+        callback(null, `${randomUUID()}${imageExtensions[file.mimetype] ?? extname(file.originalname)}`);
+      },
+    }),
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (_request, file, callback) => {
+      if (process.env.NODE_ENV === 'production') {
+        return callback(new ForbiddenException('Movie editing is only available outside production'), false);
+      }
+      if (!imageExtensions[file.mimetype]) {
+        return callback(new BadRequestException('Poster must be a JPEG, PNG, or WebP image.'), false);
+      }
+      callback(null, true);
+    },
+  }))
+  uploadPoster(@UploadedFile() file: { filename: string } | undefined) {
+    if (!file) throw new BadRequestException('Choose a poster image to upload.');
+    return { posterUrl: `/uploads/${file.filename}` };
   }
 
   @Patch(':id')

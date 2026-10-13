@@ -1,4 +1,8 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+export function getAssetUrl(path) {
+  return path?.startsWith('/uploads/') ? `${API_URL}${path}` : path;
+}
+
 export async function getMovies() {
   const response = await fetch(`${API_URL}/movies`);
   if (!response.ok) throw new Error('Could not load movies');
@@ -14,6 +18,20 @@ export async function updateMovie(id, changes) {
   if (!response.ok) {
     const message = await response.text();
     throw new Error(message || 'Could not save movie changes');
+  }
+  return response.json();
+}
+
+export async function uploadMoviePoster(file) {
+  const formData = new FormData();
+  formData.append('poster', file);
+  const response = await fetch(`${API_URL}/movies/poster`, {
+    method: 'POST',
+    body: formData,
+  });
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'Could not upload poster');
   }
   return response.json();
 }

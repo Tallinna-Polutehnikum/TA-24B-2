@@ -11,6 +11,7 @@ dist/
 build/
 out/
 runtime/
+uploads/
 
 # Logs
 *.log
