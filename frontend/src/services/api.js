@@ -22,6 +22,15 @@ export async function updateMovie(id, changes) {
   return response.json();
 }
 
+export async function deleteMovie(id) {
+  const response = await fetch(`${API_URL}/movies/${id}`, { method: 'DELETE' });
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'Could not delete movie');
+  }
+  return response.json();
+}
+
 export async function uploadMoviePoster(file) {
   const formData = new FormData();
   formData.append('poster', file);

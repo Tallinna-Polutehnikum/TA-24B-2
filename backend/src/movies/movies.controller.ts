@@ -66,7 +66,10 @@ export class MoviesController {
 
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
-    return this.movies.deleteGeneratedMovie(id);
+    if (process.env.NODE_ENV === 'production') {
+      throw new ForbiddenException('Movie editing is only available outside production');
+    }
+    return this.movies.deleteMovie(id);
   }
 
   @Get(':id')

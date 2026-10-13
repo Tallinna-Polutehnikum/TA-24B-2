@@ -67,7 +67,7 @@ export class MoviesService implements OnModuleInit {
   }
 
   async seedGeneratedMovies(regenerate: boolean) {
-    const configuredCount = Number.parseInt(process.env.MOVIE_COUNT ?? '6', 10);
+    const configuredCount = Number.parseInt(process.env.MOVIE_COUNT ?? '20', 10);
     const movieCount = Number.isSafeInteger(configuredCount) && configuredCount > 0 ? configuredCount : 6;
     faker.seed(randomInt(0, 2 ** 32));
     const em = this.em.fork();
@@ -298,10 +298,10 @@ export class MoviesService implements OnModuleInit {
     return updatedMovie;
   }
 
-  async deleteGeneratedMovie(id: number) {
+  async deleteMovie(id: number) {
     const em = this.em.fork();
-    const movie = await em.findOne(Movie, { id, active: true, seedKey: { $like: 'faker-%' } });
-    if (!movie) throw new NotFoundException('Faker movie not found');
+    const movie = await em.findOne(Movie, { id, active: true });
+    if (!movie) throw new NotFoundException('Movie not found');
     movie.active = false;
     await em.flush();
     return movie;

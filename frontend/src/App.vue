@@ -3,7 +3,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Tag from 'primevue/tag';
-import { getAssetUrl, getMovies, updateMovie, uploadMoviePoster } from './services/api';
+import { deleteMovie, getAssetUrl, getMovies, updateMovie, uploadMoviePoster } from './services/api';
 import poster1 from './assets/poster1.jpg';
 import poster2 from './assets/poster2.jpg';
 import poster3 from './assets/poster3.jpg';
@@ -22,6 +22,7 @@ const selectedMovieIndex = ref(0);
 const previousBodyOverflow = ref('');
 const editingMovie = ref(false);
 const savingMovie = ref(false);
+const deletingMovie = ref(false);
 const movieSaveError = ref('');
 const movieForm = ref(null);
 const posterFileInput = ref(null);
@@ -80,7 +81,7 @@ function addCreator() {
 }
 
 async function saveMovieChanges() {
-  if (!selectedMovie.value || !movieForm.value || savingMovie.value || uploadingPoster.value) return; // Avoid double submit
+  if (!selectedMovie.value || !movieForm.value || savingMovie.value || deletingMovie.value || uploadingPoster.value) return; // Avoid double submit
   savingMovie.value = true;
   movieSaveError.value = '';
   try {
@@ -106,6 +107,24 @@ async function saveMovieChanges() {
     movieSaveError.value = error instanceof Error ? error.message : 'Could not save movie changes.';
   } finally {
     savingMovie.value = false;
+  }
+}
+
+async function removeMovie() {
+  if (!selectedMovie.value || savingMovie.value || deletingMovie.value || uploadingPoster.value) return;
+  const movie = selectedMovie.value;
+  if (!window.confirm(`Delete "${movie.title}"?`)) return;
+
+  deletingMovie.value = true;
+  movieSaveError.value = '';
+  try {
+    await deleteMovie(movie.id);
+    movies.value = movies.value.filter((entry) => entry.id !== movie.id);
+    if (selectedMovie.value?.id === movie.id) closeMovie();
+  } catch (error) {
+    movieSaveError.value = error instanceof Error ? error.message : 'Could not delete movie.';
+  } finally {
+    deletingMovie.value = false;
   }
 }
 
@@ -260,7 +279,7 @@ onUnmounted(() => {
                 <div class="poster-upload-controls">
                   <img :src="getPoster({ ...selectedMovie, posterUrl: movieForm.posterUrl }, selectedMovieIndex)" :alt="`${movieForm.title} poster preview`" />
                   <input ref="posterFileInput" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" @change="uploadPoster" />
-                  <button class="details-button" type="button" :disabled="uploadingPoster || savingMovie" @click="posterFileInput?.click()">
+                  <button class="details-button" type="button" :disabled="uploadingPoster || savingMovie || deletingMovie" @click="posterFileInput?.click()">
                     {{ uploadingPoster ? 'Uploading…' : 'Browse file' }}
                   </button>
                   <span class="edit-hint">JPEG, PNG, or WebP. Maximum 5 MB.</span>
@@ -286,8 +305,9 @@ onUnmounted(() => {
             </fieldset>
             <p v-if="movieSaveError" class="edit-error" role="alert">{{ movieSaveError }}</p>
             <div class="edit-actions">
-              <button class="details-button" type="button" :disabled="savingMovie || uploadingPoster" @click="editingMovie = false; movieSaveError = ''">Cancel</button>
-              <button class="showtime" type="submit" :disabled="savingMovie || uploadingPoster">{{ uploadingPoster ? 'Uploading poster…' : savingMovie ? 'Saving…' : 'Save changes' }}</button>
+              <button class="delete-movie-button" type="button" :disabled="savingMovie || deletingMovie || uploadingPoster" @click="removeMovie">{{ deletingMovie ? 'Deleting…' : 'Delete movie' }}</button>
+              <button class="details-button" type="button" :disabled="savingMovie || deletingMovie || uploadingPoster" @click="editingMovie = false; movieSaveError = ''">Cancel</button>
+              <button class="showtime" type="submit" :disabled="savingMovie || deletingMovie || uploadingPoster">{{ uploadingPoster ? 'Uploading poster…' : savingMovie ? 'Saving…' : 'Save changes' }}</button>
             </div>
           </form>
           <template v-else>
@@ -835,6 +855,18 @@ onUnmounted(() => {
     justify-content: flex-end;
     gap: 12px;
     margin-top: 20px;
+  }
+  .delete-movie-button {
+    margin-right: auto;
+    padding: 10px 16px;
+    border: 2px solid #b33;
+    border-radius: 24px;
+    background: #260909;
+    color: #fff;
+    cursor: pointer;
+  }
+  .delete-movie-button:hover:not(:disabled) {
+    background: #8b1717;
   }
   .edit-actions button:disabled {
     cursor: wait;
