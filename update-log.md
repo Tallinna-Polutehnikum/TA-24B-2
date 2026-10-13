@@ -33,11 +33,12 @@
 ## 08.10.2026
 - Made a function that shows you a full description of the movies and trailers
 - Updated App.vue and optimized a description window from b2test to main project
-- Made a movie editor that provides you in developers only site (npm run dev) changed, delete and add movie right in the site
+- Made a movie editor that provides you changing movie description in the dev mode (npm run dev)
 - Made a movie editor to work in developer mode, in build and regular sites movie editor will be removed or hidden
 - Updated CSS file
 
 # 13.10.2026
 - Polished `guide.md` and `README.md` files for better reading
+- Add delete films function
 
 Bradar, what it this?
