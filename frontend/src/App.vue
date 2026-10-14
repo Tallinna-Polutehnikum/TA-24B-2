@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Tag from 'primevue/tag';
@@ -11,9 +12,10 @@ import poster4 from './assets/poster4.jpg';
 import poster5 from './assets/poster5.jpg';
 import poster6 from './assets/poster6.jpg'; 
 import banner from './assets/banner1.jpg';
-import seatpicker from './seatpicker.vue';
+import seatpicker from './SeatPicker.vue';
 
 const movies = ref([]);
+const router = useRouter();
 const loading = ref(true);
 const error = ref('');
 const showSeatPicker = ref(false);
@@ -218,6 +220,18 @@ function formatScreeningTime(value) {
   return new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
 }
 
+const selectedBookingMovie = ref(null)
+
+function openSeatPicker(movie = null) {
+  selectedBookingMovie.value = movie
+  showSeatPicker.value = true
+}
+
+async function openCheckout(booking) {
+  sessionStorage.setItem('pendingBooking', JSON.stringify(booking));
+  await router.push('/checkout');
+}
+
 onMounted(async () => {
   window.addEventListener('keydown', handleModalKeydown);
   try { movies.value = await getMovies(); }
@@ -238,7 +252,7 @@ onUnmounted(() => {
         <a href="#bradarcinema.ee" class="logo" aria-label="Go to main screen" @click="showSeatPicker = false">BRADAR <span>CINEMA</span></a>
         <nav class="logo-actions" aria-label="Main navigation">
           <Button class="nav-button" as="a" href="#movies" label="Movies" size="small" text @click="showSeatPicker = false" />
-          <Button class="nav-button" label="Theaters" size="small" text @click="showSeatPicker = true" />
+          <Button class="nav-button" label="Buy tickets" size="small" text @click="openSeatPicker()" />
           <Button class="nav-button" as="a" href="#about-us" label="About Us" size="small" text @click="showSeatPicker = false" />
           <Button class="nav-button" as="a" href="log-in" label="Log In" size="small" outlined />
         </nav>
@@ -246,7 +260,7 @@ onUnmounted(() => {
     </header>
 
     <main v-if="showSeatPicker">
-      <seatpicker />
+      <seatpicker :movie="selectedBookingMovie" :movies="movies" @close="showSeatPicker = false" @checkout="openCheckout" />
     </main>
     <main v-else>
       <section class="hero" :style="{ backgroundImage: `linear-gradient(90deg,rgba(0,0,0,.9),rgba(0,0,0,.35)), url(${banner})` }">
@@ -293,17 +307,6 @@ onUnmounted(() => {
                   </div>
                   <span v-else class="movie-data-empty">Not generated yet</span>
                 </div>
-                <div class="movie-data-group">
-                  <span class="movie-data-label">Showing at</span>
-                  <div v-if="movie.screenings?.length" class="movie-data-list">
-                    <div v-for="screening in movie.screenings" :key="screening.id" class="movie-data-item">
-                      <strong>{{ screening.building }}</strong>
-                      <span>{{ screening.address }}, {{ screening.city }}</span>
-                      <span>{{ formatScreeningTime(screening.startsAt) }} · Hall {{ screening.hallNumber }} · €{{ Number(screening.ticketPrice).toFixed(2) }}</span>
-                    </div>
-                  </div>
-                  <span v-else class="movie-data-empty">Not generated yet</span>
-                </div>
               </div>
             </template>
             <template #footer>
@@ -311,8 +314,9 @@ onUnmounted(() => {
                 <button class="details-button" type="button" @click.stop="openMovie(movie, index)">
                   <i class="pi pi-info-circle" aria-hidden="true"></i> Movie details
                 </button>
-                <button class="showtime" type="button" @click.stop>
-                  <i class="pi pi-ticket" aria-hidden="true"></i> Choose showtime
+                <button class="showtime" type="button" @click.stop="openSeatPicker(movie)">
+                  <i class="pi pi-ticket" aria-hidden="true"></i>
+                  Choose showtime
                 </button>
               </div>
             </template>
@@ -508,7 +512,7 @@ onUnmounted(() => {
   .hero-copy { 
     max-width:620px; 
   } 
-  h1 { 
+  .page h1 { 
     font-size:clamp(42px,6vw,76px); 
     line-height:.95; 
     margin:18px 0; 
@@ -529,11 +533,11 @@ onUnmounted(() => {
     align-items:end; 
     margin-bottom:28px; 
   } 
-  small { 
+  .page small { 
     color:#999; 
     letter-spacing:.15em; 
   } 
-  h2 { 
+  .page h2 { 
     font-size:34px; 
     margin:5px 0 0; 
   } 
@@ -857,7 +861,7 @@ onUnmounted(() => {
     box-sizing: border-box;
     padding: 10px 12px;
     border: 1px solid #444;
-    border-radius: 8px;
+    border-radius: 3px;
     background: #090909;
     color: #fff;
     font: inherit;
@@ -946,5 +950,128 @@ onUnmounted(() => {
   }
  @media(max-width:700px){
     .topbar{padding:12px 20px}.brand{width:100%; flex-wrap:wrap; gap:6px 16px}.logo-actions{width:100%; flex-wrap:wrap; gap:4px}.hero{padding:50px 20px}.content{padding:40px 20px}.movie-card img{height:280px}.movie-modal-backdrop{padding:10px}.movie-modal{padding:20px}.modal-layout{grid-template-columns:1fr}.modal-poster{max-width:220px;height:310px}.modal-copy h2{font-size:30px}.modal-meta>div{grid-template-columns:75px 1fr}.edit-fields,.edit-rating{grid-template-columns:1fr}.edit-full-width,.edit-hint{grid-column:auto}.creator-edit-row{grid-template-columns:1fr 1fr}.remove-creator-button{grid-column:1 / -1;justify-self:start}.movie-heading-actions{gap:8px; flex-wrap:wrap; justify-content:flex-end}
+  }
+  :root {
+    color-scheme: dark;
+    --cinema-page: #090909;
+    --cinema-surface: #141414;
+    --cinema-surface-raised: #1b1b1b;
+    --cinema-border: #292929;
+    --cinema-text: #f5f5f5;
+    --cinema-muted: #999;
+    --cinema-accent: #3d77f3;
+    --cinema-accent-hover: #2f65d5;
+    --cinema-font-body: "DM Sans", sans-serif;
+    --cinema-font-heading: "Outfit", sans-serif;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    min-width: 320px;
+    background: var(--cinema-page);
+  }
+
+  body {
+    min-width: 320px;
+    min-height: 100vh;
+    background: radial-gradient(circle at 80% 0%, #222 0, var(--cinema-page) 40%);
+    background-attachment: fixed;
+    color: var(--cinema-text);
+    font-family: var(--cinema-font-body);
+  }
+
+  #app {
+    min-height: 100vh;
+  }
+
+  button, input, select, textarea {
+    font-family: inherit;
+  }
+
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--cinema-accent);
+    outline-offset: 2px;
+  }
+  .page {
+    background: transparent;
+  }
+
+  .page .movie-card,
+  .page .movie-modal {
+    border-radius: 4px;
+  }
+
+  .page .movie-card img,
+  .page .modal-poster,
+  .page .trailer-frame,
+  .page .trailer-fallback {
+    border-radius: 4px;
+  }
+
+  .page .showtime,
+  .page .details-button,
+  .page .edit-movie-button,
+  .page .add-creator-button,
+  .page .remove-creator-button,
+  .page .delete-movie-button {
+    border-radius: 3px;
+  }
+
+  .page .movie-card {
+    border-color: var(--cinema-border);
+    background: var(--cinema-surface);
+  }
+
+  .page .showtime {
+    border-color: var(--cinema-accent);
+    background: var(--cinema-accent);
+  }
+
+  .page .showtime:hover {
+    border-color: var(--cinema-accent-hover);
+    background: var(--cinema-accent-hover);
+    color: var(--cinema-text);
+  }
+  .section-label {
+    display: block;
+    color: var(--cinema-accent);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .continue-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 12px 20px;
+    border: 1px solid var(--cinema-accent);
+    border-radius: 3px;
+    background: var(--cinema-accent);
+    color: #fff;
+    font: 600 14px var(--cinema-font-body);
+    cursor: pointer;
+    transition: background .2s, border-color .2s, transform .2s;
+  }
+
+  .continue-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    border-color: var(--cinema-accent-hover);
+    background: var(--cinema-accent-hover);
+  }
+
+  .continue-button:disabled {
+    border-color: #333;
+    background: #202020;
+    color: #777;
+    cursor: not-allowed;
   }
 </style>

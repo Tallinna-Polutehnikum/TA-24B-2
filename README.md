@@ -28,6 +28,7 @@ You can see the update logs in the `update-log.md`.
 ## Feature list
 - Movie list
 - Seat picker
+- Checkout
 - movie detail view
 - link to your ticket
 - Club benefits
@@ -79,11 +80,9 @@ You can see the update logs in the `update-log.md`.
 
 
 
-# To manage movies and generate them in one second:
+## How to manage movies and generate them in one second:
 The movies already in the project are kept unchanged. To create or refresh its random movie set, open a terminal in the `backend` folder and run in new terminal or powershell: `npm run movies:generate`
 
 As a developer, service or as a admin, you can simply change, add or delete movie in visual editor in project's developer mode. 
 
-To run developer mode is literally npm run dev (Guide #How to run project as developer) and then in main page you can find the Add Movie button
-and also if you want to edit the movie, below the movie's description there is a button Edit Movie, so there you can edit everything and delete the movie, if
-it is necessary for the company and the administrator. 
+To run developer mode is literally npm run dev (Guide #How to run project as developer) and then in main page you can find the Add Movie button and also if you want to edit the movie, below the movie's description there is a button Edit Movie, so there you can edit everything and delete the movie, if it is necessary for the company and the administrator. 

@@ -41,9 +41,16 @@
 - Polished `guide.md` and `README.md` files for better reading
 - Add delete films function
 - Edited `README.md` for simple explation
-- Add add movie function for its button in the up-right corner above the movie list.
+- Added add movie function
 - Fixed faker movie generation
-- Now you can simply delete faked movie by using visual MOVIE EDITOR (Edit Movie) button. 
-- Add banner browser function (for browsing banner files)
+- Made simplier delete faked movie by using visual MOVIE EDITOR (Edit Movie) button 
+- Added banner browser function (for browsing banner files)
+
+# 14.10.2026
+- Added "Buy tickets" option on the header
+- Added cinemas in the project
+- Added option to choose a film, cinema, time and seats to buy a ticket
+- Added a checkout, which shows user's picks (It's still under construction)
+- Refreshed the cinema website desing
 
 Bradar, what it this?

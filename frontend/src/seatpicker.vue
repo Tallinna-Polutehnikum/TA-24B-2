@@ -1,130 +1,227 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { getAssetUrl } from './services/api'
+import banner from './assets/banner1.jpg'
+import poster1 from './assets/poster1.jpg'
+import poster2 from './assets/poster2.jpg'
+import poster3 from './assets/poster3.jpg'
+import poster4 from './assets/poster4.jpg'
+import poster5 from './assets/poster5.jpg'
+import poster6 from './assets/poster6.jpg'
 
-const movie = ref('Interstellar')
-const cinema = ref('Apollo Kino')
-const date = ref('6th October')
-const time = ref('19:30')
+const props = defineProps({
+  movie: { type: Object, default: null },
+  movies: { type: Array, default: () => [] }
+})
+
+const emit = defineEmits(['close', 'checkout'])
 const rows = 7
 const seatsPerRow = 10
-const pricePerSeat = 8.5
+const posters = [poster1, poster2, poster3, poster4, poster5, poster6]
+const selectedMovie = ref(props.movie)
+const selectedCinema = ref('')
+const selectedDate = ref('')
+const selectedScreeningId = ref('')
 const selectedSeats = ref([])
-const occupiedSeats = ref([
-  '1-3',
-  '1-4',
-  '2-7',
-  '3-2',
-  '3-8',
-  '4-5',
-  '4-6',
-  '5-1',
-  '6-9',
-  '7-4'
-])
 
-function seatId(row, seat) {
-  return `${row}-${seat}`
+const screenings = computed(() => selectedMovie.value?.screenings ?? [])
+const cinemas = computed(() => [...new Map(
+  screenings.value.map(screening => [screening.building, {
+    name: screening.building,
+    city: screening.city,
+    address: screening.address
+  }])
+).values()])
+const cinemaScreenings = computed(() => screenings.value
+  .filter(screening => screening.building === selectedCinema.value)
+  .sort((first, second) => new Date(first.startsAt) - new Date(second.startsAt)))
+
+function getDateKey(value) {
+  const date = new Date(value)
+  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-')
+}
+
+const dates = computed(() => [...new Set(cinemaScreenings.value.map(screening => getDateKey(screening.startsAt)))])
+const dateScreenings = computed(() => cinemaScreenings.value.filter(
+  screening => getDateKey(screening.startsAt) === selectedDate.value
+))
+const selectedScreening = computed(() => dateScreenings.value.find(
+  screening => String(screening.id) === String(selectedScreeningId.value)
+))
+const occupiedSeats = computed(() => {
+  if (!selectedScreening.value) return new Set()
+
+  let seed = Math.imul(Number(selectedScreening.value.id) || 1, 2654435761) >>> 0
+  const count = 9 + (seed % 15)
+  const seats = new Set()
+
+  while (seats.size < count) {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0
+    const row = (seed % rows) + 1
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0
+    const seat = (seed % seatsPerRow) + 1
+    seats.add(`${row}-${seat}`)
+  }
+
+  return seats
+})
+const totalPrice = computed(() => selectedSeats.value.length * Number(selectedScreening.value?.ticketPrice ?? 0))
+const movieIndex = computed(() => props.movies.findIndex(movie => movie.id === selectedMovie.value?.id))
+
+function getImage(movie, index = 0) {
+  const value = movie?.bannerUrl || movie?.posterUrl
+  if (value?.startsWith('https://') || value?.startsWith('http://') || value?.startsWith('/uploads/')) {
+    return getAssetUrl(value)
+  }
+
+  if (value?.endsWith('banner1.jpg')) return banner
+
+  const match = value?.match(/poster([1-6])\.jpg$/)
+  return match ? posters[Number(match[1]) - 1] : posters[Math.max(index, 0) % posters.length]
+}
+
+function selectMovie(movie) {
+  selectedMovie.value = movie
+  selectedCinema.value = ''
+  selectedDate.value = ''
+  selectedScreeningId.value = ''
+  selectedSeats.value = []
+}
+
+function selectScreening(screening) {
+  selectedScreeningId.value = String(screening.id)
+  selectedSeats.value = []
 }
 
 function isOccupied(row, seat) {
-  return occupiedSeats.value.includes(seatId(row, seat))
+  return occupiedSeats.value.has(`${row}-${seat}`)
 }
 
 function isSelected(row, seat) {
-  return selectedSeats.value.some(
-    selected => selected.row === row && selected.seat === seat
-  )
+  return selectedSeats.value.some(selected => selected.row === row && selected.seat === seat)
 }
 
 function toggleSeat(row, seat) {
   if (isOccupied(row, seat)) return
-
-  if (isSelected(row, seat)) {
-    selectedSeats.value = selectedSeats.value.filter(
-      selected => !(selected.row === row && selected.seat === seat)
-    )
-  } else {
-    selectedSeats.value.push({ row, seat })
-  }
+  selectedSeats.value = isSelected(row, seat)
+    ? selectedSeats.value.filter(selected => selected.row !== row || selected.seat !== seat)
+    : [...selectedSeats.value, { row, seat }]
 }
 
-function seatClass(row, seat) {
-  return {
-    occupied: isOccupied(row, seat),
-    selected: isSelected(row, seat)
-  }
+function continueToCheckout() {
+  if (!selectedMovie.value || !selectedScreening.value || selectedSeats.value.length === 0) return
+  emit('checkout', {
+    movie: selectedMovie.value,
+    screening: selectedScreening.value,
+    seats: selectedSeats.value,
+    totalPrice: totalPrice.value
+  })
 }
 
-const totalPrice = computed(() => selectedSeats.value.length * pricePerSeat)
+watch(() => props.movie, movie => {
+  if (movie) selectMovie(movie)
+}, { immediate: true })
 
-function continueBooking() {
-  console.log('Selected seats:', selectedSeats.value)
-  console.log('Total price:', totalPrice.value)
-}
+watch(selectedCinema, () => {
+  selectedDate.value = dates.value[0] ?? ''
+  selectedScreeningId.value = ''
+  selectedSeats.value = []
+})
+
+watch(selectedDate, () => {
+  selectedScreeningId.value = ''
+  selectedSeats.value = []
+})
 </script>
 <template>
   <section class="booking-section">
-    <div class="booking-header">
-      <span class="section-label">TICKETS</span>
-      <h1>Choose your seats</h1>
-      <p>Choose your suitable seats in the hall</p>
+    <button class="booking-back" type="button" @click="emit('close')">← Back to movies</button>
+
+    <div v-if="!selectedMovie" class="movie-selection">
+      <div class="booking-header">
+        <span class="section-label">TICKETS</span>
+        <h1>Choose a movie</h1>
+        <p>Select a movie to see cinemas and available screenings.</p>
+      </div>
+      <div v-if="movies.length" class="movie-selection-grid">
+        <button v-for="(movie, index) in movies" :key="movie.id" class="movie-choice" type="button" @click="selectMovie(movie)">
+          <img :src="getImage(movie, index)" :alt="movie.title" />
+          <span>{{ movie.title }}</span>
+          <small>{{ movie.genre }} · {{ movie.duration }} min</small>
+        </button>
+      </div>
+      <p v-else class="booking-empty">No movies are available right now.</p>
     </div>
 
-    <div class="session-info">
-      <div><span>Movie</span><strong>{{ movie }}</strong></div>
-      <div><span>Cinema</span><strong>{{ cinema }}</strong></div>
-      <div><span>Date</span><strong>{{ date }}</strong></div>
-      <div><span>Time</span><strong>{{ time }}</strong></div>
-    </div>
-
-    <div class="hall">
-      <div class="screen"><span>SCREEN</span></div>
-
-      <div class="seats">
-        <div v-for="row in rows" :key="row" class="seat-row">
-          <span class="row-number">{{ row }}</span>
-          <button
-            v-for="seat in seatsPerRow"
-            :key="`${row}-${seat}`"
-            class="seat"
-            :class="seatClass(row, seat)"
-            :disabled="isOccupied(row, seat)"
-            :aria-label="`Row ${row}, Seat ${seat}`"
-            type="button"
-            @click="toggleSeat(row, seat)"
-          >{{ seat }}</button>
-          <span class="row-number">{{ row }}</span>
+    <template v-else>
+      <header class="movie-banner" :style="{ backgroundImage: `linear-gradient(90deg, rgba(0,0,0,.92), rgba(0,0,0,.25)), url('${getImage(selectedMovie, movieIndex)}')` }">
+        <div>
+          <span class="section-label">{{ selectedMovie.genre }} · {{ selectedMovie.duration }} MIN</span>
+          <h1>{{ selectedMovie.title }}</h1>
+          <button class="change-movie" type="button" @click="selectMovie(null)">Choose another movie</button>
         </div>
-      </div>
+      </header>
 
-      <div class="legend">
-        <div><span class="legend-seat free"></span>Free</div>
-        <div><span class="legend-seat selected"></span>Selected</div>
-        <div><span class="legend-seat occupied"></span>Occupied</div>
-      </div>
-    </div>
+      <section class="booking-step">
+        <div class="step-heading">
+          <span>01</span>
+          <div><h2>Choose a screening</h2><p>Select a cinema, date and available showtime.</p></div>
+        </div>
+        <div class="booking-filters">
+          <label class="filter-field">
+            <span>Cinema</span>
+            <select v-model="selectedCinema">
+              <option disabled value="">Choose cinema</option>
+              <option v-for="cinema in cinemas" :key="cinema.name" :value="cinema.name">{{ cinema.name }} · {{ cinema.city }}</option>
+            </select>
+          </label>
+          <label class="filter-field">
+            <span>Date</span>
+            <select v-model="selectedDate" :disabled="!selectedCinema">
+              <option disabled value="">Choose date</option>
+              <option v-for="date in dates" :key="date" :value="date">{{ new Date(`${date}T12:00:00`).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'long' }) }}</option>
+            </select>
+          </label>
+        </div>
+        <div v-if="selectedCinema && dateScreenings.length" class="showtime-list">
+          <button v-for="screening in dateScreenings" :key="screening.id" type="button" class="showtime-button" :class="{ active: String(screening.id) === String(selectedScreeningId) }" @click="selectScreening(screening)">
+            <strong>{{ new Date(screening.startsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}</strong>
+            <span>Hall {{ screening.hallNumber }} · {{ screening.language }}</span>
+            <b>€{{ Number(screening.ticketPrice).toFixed(2) }}</b>
+          </button>
+        </div>
+        <p v-else-if="selectedCinema" class="booking-empty">No screenings are available for this date.</p>
+        <p v-else-if="selectedMovie.screenings?.length === 0" class="booking-empty">No screenings are available for this movie.</p>
+      </section>
 
-    <div class="booking-summary">
-      <div class="selected-info">
-        <span>Selected seats</span>
-        <strong v-if="selectedSeats.length">
-          {{ selectedSeats.map(seat => `${seat.row}-${seat.seat}`).join(', ') }}
-        </strong>
-        <strong v-else>—</strong>
-      </div>
+      <section v-if="selectedScreening" class="booking-step seat-step">
+        <div class="step-heading">
+          <span>02</span>
+          <div><h2>Choose your seats</h2><p>{{ selectedScreening.building }} · Hall {{ selectedScreening.hallNumber }} · {{ new Date(selectedScreening.startsAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) }}</p></div>
+        </div>
+        <div class="hall">
+          <div class="screen"><span>SCREEN</span></div>
+          <div class="seats">
+            <div v-for="row in rows" :key="row" class="seat-row">
+              <span class="row-number">{{ row }}</span>
+              <button v-for="seat in seatsPerRow" :key="`${row}-${seat}`" class="seat" :class="{ selected: isSelected(row, seat), occupied: isOccupied(row, seat) }" :disabled="isOccupied(row, seat)" :aria-label="`Row ${row}, seat ${seat}${isOccupied(row, seat) ? ', occupied' : ''}`" type="button" @click="toggleSeat(row, seat)">{{ seat }}</button>
+              <span class="row-number">{{ row }}</span>
+            </div>
+          </div>
+          <div class="legend">
+            <div><span class="legend-seat free"></span>Available</div>
+            <div><span class="legend-seat selected"></span>Selected</div>
+            <div><span class="legend-seat occupied"></span>Occupied</div>
+          </div>
+        </div>
+      </section>
 
-      <div class="price">
-        <span>Total</span>
-        <strong>€{{ totalPrice.toFixed(2) }}</strong>
-      </div>
-
-      <button
-        class="continue-button"
-        :disabled="selectedSeats.length === 0"
-        type="button"
-        @click="continueBooking"
-      >Continue to Checkout →</button>
-    </div>
+      <footer v-if="selectedScreening" class="booking-summary">
+        <div class="selected-info"><span>Selected seats</span><strong>{{ selectedSeats.length ? selectedSeats.map(seat => `${seat.row}-${seat.seat}`).join(', ') : 'Choose at least one seat' }}</strong></div>
+        <div class="price"><span>Total</span><strong>€{{ totalPrice.toFixed(2) }}</strong></div>
+        <button class="continue-button" :disabled="selectedSeats.length === 0" type="button" @click="continueToCheckout">Continue to checkout <span aria-hidden="true">→</span></button>
+      </footer>
+    </template>
   </section>
 </template>
 
@@ -138,27 +235,63 @@ function continueBooking() {
   font-family: "DM Sans", sans-serif;
 }
 
+.booking-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-field span {
+  color: #888;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.filter-field select {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid #292929;
+  border-radius: 3px;
+  background: #141414;
+  color: #eee;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+}
+
+.filter-field select:hover {
+  border-color: #555;
+}
+
+.filter-field select:focus {
+  border-color: #3d77f3;
+}
+
+.filter-field select:disabled {
+  color: #666;
+  background: #101010;
+  cursor: not-allowed;
+}
+
 .booking-header {
   margin-bottom: 36px;
 }
 
 .section-label {
-  color: #3d77f3;
+  color: var(--cinema-accent);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.15em;
-}
-
-.booking-header h1 {
-  margin: 10px 0 12px;
-  font-family: "Outfit", sans-serif;
-  font-size: clamp(36px, 5vw, 58px);
-  line-height: 1;
-}
-
-.booking-header p {
-  margin: 0;
-  color: #999;
 }
 
 .session-info {
@@ -374,6 +507,9 @@ function continueBooking() {
     min-height: calc(100vh - 104px);
     padding: 40px 20px 56px;
   }
+  .booking-filters {
+  grid-template-columns: 1fr;
+  }
 
   .session-info {
     grid-template-columns: repeat(2, 1fr);
@@ -422,4 +558,219 @@ function continueBooking() {
     font-size: 12px;
   }
 }
+
+.booking-back,
+.change-movie {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #aaa;
+  font: inherit;
+  cursor: pointer;
+}
+
+.booking-back:hover,
+.change-movie:hover {
+  color: #fff;
+}
+
+.movie-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 18px;
+}
+
+.movie-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 0 12px;
+  overflow: hidden;
+  border: 1px solid #292929;
+  border-radius: 3px;
+  background: #141414;
+  color: #eee;
+  text-align: left;
+  cursor: pointer;
+}
+
+.movie-choice:hover {
+  border-color: #3d77f3;
+}
+
+.movie-choice img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+}
+
+.movie-choice span,
+.movie-choice small {
+  margin: 0 12px;
+}
+
+.movie-choice span {
+  font-weight: 700;
+}
+
+.movie-choice small {
+  color: #999;
+}
+
+.booking-empty {
+  color: #aaa;
+}
+
+.movie-banner {
+  display: flex;
+  align-items: end;
+  min-height: 300px;
+  margin: 22px 0 40px;
+  padding: 32px;
+  background-color: #151515;
+  background-position: center 35%;
+  background-size: cover;
+}
+
+.movie-banner h1 {
+  max-width: 800px;
+  margin: 12px 0;
+  font-size: 50px;
+  line-height: 1.05;
+}
+
+.booking-step {
+  margin: 32px 0;
+}
+
+.step-heading {
+  display: flex;
+  gap: 16px;
+  align-items: start;
+  margin-bottom: 22px;
+}
+
+.step-heading > span {
+  color: #3d77f3;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.step-heading h2 {
+  margin: 0 0 6px;
+  font-size: 23px;
+}
+
+.step-heading p {
+  margin: 0;
+  color: #999;
+}
+
+.showtime-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.showtime-button {
+  display: grid;
+  gap: 5px;
+  min-width: 150px;
+  padding: 12px 14px;
+  border: 1px solid #333;
+  border-radius: 3px;
+  background: #141414;
+  color: #eee;
+  text-align: left;
+  cursor: pointer;
+}
+
+.showtime-button span {
+  color: #999;
+  font-size: 12px;
+}
+
+.showtime-button b {
+  color: #aaa;
+  font-size: 13px;
+}
+
+.showtime-button:hover,
+.showtime-button.active {
+  border-color: #3d77f3;
+}
+
+.showtime-button.active {
+  background: #17233b;
+}
+
+@media (max-width: 750px) {
+  .movie-banner {
+    min-height: 240px;
+    margin: 18px 0 32px;
+    padding: 20px;
+  }
+
+  .movie-banner h1 {
+    font-size: 36px;
+  }
+
+  .movie-selection-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+  .booking-section {
+    color: var(--cinema-text);
+    font-family: var(--cinema-font-body);
+  }
+
+  .booking-section .section-label {
+    color: var(--cinema-accent);
+  }
+
+  .booking-section .booking-header h1,
+  .booking-section .movie-banner h1 {
+    font-family: var(--cinema-font-heading);
+  }
+
+  .booking-section .filter-field select,
+  .booking-section .movie-choice,
+  .booking-section .showtime-button {
+    border-color: var(--cinema-border);
+    background-color: var(--cinema-surface);
+    color: var(--cinema-text);
+  }
+
+  .booking-section .showtime-button span,
+  .booking-section .booking-header p,
+  .booking-section .step-heading p {
+    color: var(--cinema-muted);
+  }
+
+  .booking-section .showtime-button:hover,
+  .booking-section .showtime-button.active,
+  .booking-section .movie-choice:hover {
+    border-color: var(--cinema-accent);
+  }
+
+  .booking-section .showtime-button.active {
+    background: var(--cinema-surface-raised);
+  }
+
+  .booking-section .continue-button {
+    border-color: var(--cinema-accent);
+    background: var(--cinema-accent);
+  }
+
+  .booking-section .continue-button:hover:not(:disabled) {
+    border-color: var(--cinema-accent-hover);
+    background: var(--cinema-accent-hover);
+  }
+
+  .booking-section .movie-choice,
+  .booking-section .showtime-button,
+  .booking-section .continue-button {
+    border-radius: 3px;
+  }
 </style>
