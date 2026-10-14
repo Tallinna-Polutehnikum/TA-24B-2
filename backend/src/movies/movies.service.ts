@@ -303,20 +303,21 @@ export class MoviesService implements OnModuleInit {
     if (buildings.length === 0) return;
 
     const existingScreenings = await em.find(Screening, { movie });
-    const generatedV4 = existingScreenings.filter((screening) => screening.seedKey?.startsWith(`faker-screening-v4-${movie.id}-`));
+    const generatedV5 = existingScreenings.filter((screening) => screening.seedKey?.startsWith(`faker-screening-v5-${movie.id}-`));
 
     for (const screening of existingScreenings) {
       if (
         screening.seedKey?.startsWith('faker-screening-v1-') ||
         screening.seedKey?.startsWith(`faker-screening-v2-${movie.id}-`) ||
         screening.seedKey?.startsWith(`faker-screening-v3-${movie.id}-`) ||
-        (refreshExisting && screening.seedKey?.startsWith(`faker-screening-v4-${movie.id}-`))
+        screening.seedKey?.startsWith(`faker-screening-v4-${movie.id}-`) ||
+        (refreshExisting && screening.seedKey?.startsWith(`faker-screening-v5-${movie.id}-`))
       ) {
         em.remove(screening);
       }
     }
 
-    if (!refreshExisting && generatedV4.length > 0) return;
+    if (!refreshExisting && generatedV5.length > 0) return;
 
     const random = this.createSeededRandom(this.hashString(`cinemas-v4-${movie.id}-${movie.seedKey ?? movie.title}`));
     const cinemaCount = this.seededInt(random, 1, buildings.length);
@@ -334,14 +335,36 @@ export class MoviesService implements OnModuleInit {
       const hallCount = Math.max(1, building.hallCount);
       let hallIndex = movie.id + building.id;
       const startTimes = this.buildScreeningTimes(movie, building);
+      let previousScreeningCount: number | null = null;
 
       for (const date of dates) {
-        for (const startMinutes of startTimes) {
+        const dateKey = [
+          date.getFullYear(),
+          String(date.getMonth() + 1).padStart(2, '0'),
+          String(date.getDate()).padStart(2, '0'),
+        ].join('-');
+        const dailyRandom = this.createSeededRandom(this.hashString(`daily-screenings-v1-${movie.id}-${building.id}-${dateKey}`));
+        const minDailyCount = Math.max(0, startTimes.length - 2);
+        let dailyCount = this.seededInt(dailyRandom, minDailyCount, startTimes.length);
+
+        if (previousScreeningCount === dailyCount && minDailyCount < startTimes.length) {
+          dailyCount = minDailyCount + ((dailyCount - minDailyCount + 1) % (startTimes.length - minDailyCount + 1));
+        }
+        previousScreeningCount = dailyCount;
+
+        const dailyStartTimes = [...startTimes];
+        for (let index = dailyStartTimes.length - 1; index > 0; index -= 1) {
+          const swapIndex = Math.floor(dailyRandom() * (index + 1));
+          [dailyStartTimes[index], dailyStartTimes[swapIndex]] = [dailyStartTimes[swapIndex], dailyStartTimes[index]];
+        }
+        dailyStartTimes.length = dailyCount;
+
+        for (const startMinutes of dailyStartTimes.sort((first, second) => first - second)) {
           const hallNumber = (hallIndex++ % hallCount) + 1;
           const startsAt = new Date(date);
           startsAt.setHours(Math.floor(startMinutes / 60), startMinutes % 60, 0, 0);
 
-          const dateKey = [
+          const screeningDateKey = [
             startsAt.getFullYear(),
             String(startsAt.getMinutes()).padStart(2, '0'),
             String(startsAt.getHours()).padStart(2, '0'),
@@ -349,10 +372,10 @@ export class MoviesService implements OnModuleInit {
             String(startsAt.getMonth() + 1).padStart(2, '0'),
           ].join('');
 
-              const seedKey = `faker-screening-v4-${movie.id}-${building.id}-${hallNumber}-${dateKey}`;
+          const seedKey = `faker-screening-v5-${movie.id}-${building.id}-${hallNumber}-${screeningDateKey}`;
           const screeningRandom = this.createSeededRandom(this.hashString(seedKey));
           const languages = ['English', 'Estonian', 'Russian'];
-              const ticketPrice = (900 + this.seededInt(screeningRandom, 0, 200)) / 100;
+          const ticketPrice = (900 + this.seededInt(screeningRandom, 0, 200)) / 100;
 
           em.persist(em.create(Screening, {
             seedKey,

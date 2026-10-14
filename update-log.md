@@ -53,8 +53,12 @@
 - Added a checkout, which shows user's picks (It's still under construction)
 - Refreshed the cinema website desing
 - Updated style in all pages
-- Added launcher for better usage and to run build or developer mode in one click
+- Added a launcher for better usage and to run build or developer mode in one click
 - Optimized the code
 - Fixed margins and paddings in buttons
+- Updated occupied seats generation logic
+
+# 15.10.2026
+- Updated film cards design
 
 Bradar, what it this?

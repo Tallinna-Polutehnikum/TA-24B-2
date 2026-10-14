@@ -54,13 +54,71 @@ const occupiedSeats = computed(() => {
   let seed = Math.imul(Number(selectedScreening.value.id) || 1, 2654435761) >>> 0
   const count = 9 + (seed % 15)
   const seats = new Set()
+  const random = () => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0
+    return seed / 0x100000000
+  }
+  const rowOrder = Array.from({ length: rows }, (_, index) => index + 1)
 
-  while (seats.size < count) {
-    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0
-    const row = (seed % rows) + 1
-    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0
-    const seat = (seed % seatsPerRow) + 1
-    seats.add(`${row}-${seat}`)
+  for (let index = rowOrder.length - 1; index > 0; index -= 1) {
+    const otherIndex = Math.floor(random() * (index + 1))
+    const row = rowOrder[index]
+    rowOrder[index] = rowOrder[otherIndex]
+    rowOrder[otherIndex] = row
+  }
+
+  const singleSeats = new Set()
+  const placeBlock = (length, isolated = false) => {
+    const candidates = []
+
+    for (const row of rowOrder) {
+      for (let firstSeat = 1; firstSeat <= seatsPerRow - length + 1; firstSeat += 1) {
+        const blockSeats = Array.from({ length }, (_, index) => `${row}-${firstSeat + index}`)
+        if (blockSeats.some(seat => seats.has(seat))) continue
+
+        const touchesSingle = blockSeats.some(seat => {
+          const [blockRow, blockSeat] = seat.split('-').map(Number)
+          return singleSeats.has(`${blockRow}-${blockSeat - 1}`)
+            || singleSeats.has(`${blockRow}-${blockSeat + 1}`)
+        })
+        if (touchesSingle) continue
+
+        if (isolated) {
+          const leftSeat = firstSeat - 1
+          const rightSeat = firstSeat + length
+          if (seats.has(`${row}-${leftSeat}`) || seats.has(`${row}-${rightSeat}`)) continue
+        }
+
+        candidates.push({ row, firstSeat })
+      }
+    }
+
+    if (candidates.length === 0) return false
+
+    const { row, firstSeat } = candidates[Math.floor(random() * candidates.length)]
+    for (let seat = firstSeat; seat < firstSeat + length; seat += 1) {
+      const key = `${row}-${seat}`
+      seats.add(key)
+      if (isolated) singleSeats.add(key)
+    }
+
+    return true
+  }
+
+  const singleCount = Math.max(2, Math.floor(count / 5))
+  for (let index = 0; index < singleCount; index += 1) {
+    placeBlock(1, true)
+  }
+
+  const hasPair = count > 12 && random() < 0.2 && placeBlock(2)
+  let remaining = count - singleCount - (hasPair ? 2 : 0)
+
+  while (remaining > 0) {
+    let blockLength = Math.min(remaining, 3 + Math.floor(random() * 2))
+    while (blockLength > 0 && !placeBlock(blockLength)) {
+      blockLength -= 1
+    }
+    remaining -= blockLength
   }
 
   return seats
@@ -154,7 +212,7 @@ watch(selectedDate, () => {
     </div>
 
     <template v-else>
-      <header class="movie-banner" :style="{ backgroundImage: `linear-gradient(90deg, rgba(0,0,0,.92), rgba(0,0,0,.25)), url('${getImage(selectedMovie, movieIndex)}')` }">
+      <header class="movie-banner" :style="{ backgroundImage: `linear-gradient(90deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,.32) 55%, rgba(0,0,0,.15) 100%), url('${getImage(selectedMovie, movieIndex)}')` }">
         <div>
           <span class="section-label">{{ selectedMovie.genre }} · {{ selectedMovie.duration }} MIN</span>
           <h1>{{ selectedMovie.title }}</h1>
@@ -246,7 +304,7 @@ watch(selectedDate, () => {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  border-radius: 15px;
+  border-radius: 8px;
 }
 
 .filter-field span {
@@ -257,12 +315,16 @@ watch(selectedDate, () => {
 }
 
 .filter-field select {
+  appearance: none;
   width: 100%;
   height: 48px;
-  padding: 0 14px;
+  padding: 0 38px 0 14px;
   border: 1px solid #292929;
-  border-radius: 3px;
+  border-radius: 8px;
   background: #141414;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='m1 1 5 5 5-5' fill='none' stroke='%23eee' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
   color: #eee;
   font-family: inherit;
   font-size: 14px;
@@ -334,7 +396,7 @@ watch(selectedDate, () => {
   width: 75%;
   height: 4px;
   margin: 0 auto 65px;
-  border-radius: 50%;
+  border-radius: 8px;
   background: #dce6ff;
   box-shadow: 0 8px 28px rgba(61, 119, 243, 0.25);
 }
@@ -480,7 +542,7 @@ watch(selectedDate, () => {
   min-height: 46px;
   padding: 12px 20px;
   border: 1px solid #3d77f3;
-  border-radius: 3px;
+  border-radius: 8px;
   background: #3d77f3;
   color: white;
   font: inherit;
@@ -568,7 +630,7 @@ watch(selectedDate, () => {
   color: #aaa;
   font: inherit;
   cursor: pointer;
-  border-radius: 15px;
+  border-radius: 8px;
   margin: 14px;
   margin-left: auto;
 }
@@ -592,7 +654,7 @@ watch(selectedDate, () => {
   padding: 0 0 12px;
   overflow: hidden;
   border: 1px solid #292929;
-  border-radius: 3px;
+  border-radius: 8px;
   background: #141414;
   color: #eee;
   text-align: left;
@@ -607,7 +669,7 @@ watch(selectedDate, () => {
   width: 100%;
   aspect-ratio: 2 / 3;
   object-fit: cover;
-  border-radius: 3px;
+  border-radius: 8px;
 }
 
 .movie-choice span,
@@ -633,16 +695,11 @@ watch(selectedDate, () => {
   min-height: 330px;
   margin: 22px 0 9px;
   padding: 55px;
+  border-radius: 6px;
   background-color: #151515;
   background-position: center 35%;
   background-size: cover;
-}
-
-.movie-banner h1 {
-  max-width: 800px;
-  margin: 12px 0;
-  font-size: 50px;
-  line-height: 1.05;
+  background-repeat: no-repeat;
 }
 
 .booking-step {
@@ -684,7 +741,7 @@ watch(selectedDate, () => {
   min-width: 150px;
   padding: 12px 14px;
   border: 1px solid #333;
-  border-radius: 3px;
+  border-radius: 8px;
   background: #141414;
   color: #eee;
   text-align: left;
@@ -777,6 +834,6 @@ watch(selectedDate, () => {
   .booking-section .movie-choice,
   .booking-section .showtime-button,
   .booking-section .continue-button {
-    border-radius: 3px;
+    border-radius: 8px;
   }
 </style>

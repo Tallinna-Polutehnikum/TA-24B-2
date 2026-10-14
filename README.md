@@ -40,33 +40,33 @@ You can see the update logs in the `update-log.md`.
 
 ------------------------------------------------------------------------
 
-# How to run a project as developer (Manual Startup):
+## How to run a project as developer (Manual Startup):
 
-## 1. Database folder
+### 1. Database folder
 ```bash or VSC terminal
     docker compose up -d
 ```
 
-## 2. Backend folder
+### 2. Backend folder
 ```bash or VSC terminal
     cd backend
     npm run dev
 ```
 
-## 3. Frontend folder
+### 3. Frontend folder
 ```bash or VSC terminal
     cd frontend
     npm run dev
 ```
 
-# How to run a project as developer (Automatic / Launcher Startup):
-To run build mode, open start.bat file and choose 'Developer Mode' 
+## How to run a project as developer (Automatic / Launcher Startup):
+To run developer mode, open start.bat file and choose 'Developer Mode' 
 
 ------------------------------------------------------------------------
 
-# How to run a build / regular user side (Manual Startup):
+## How to run a build / regular user side (Manual Startup):
 
-## 1. Backend folder
+### 1. Backend folder
 ```bash in backend folder:
     cd ..\kinoproject\backend
     npm run build
@@ -74,14 +74,14 @@ To run build mode, open start.bat file and choose 'Developer Mode'
     npm start
 ```
 
-## 2. Frontend folder
+### 2. Frontend folder
 ```bash in frontend folder:
     cd ..\kinoproject\frontend
     npm run build
     npm run preview
 ```
 
-# How to run a build / regular user side (Automatic / Launcher Startup):
+## How to run a build / regular user side (Automatic / Launcher Startup):
 To run build mode, open start.bat file and choose 'Build Mode' 
 
 ------------------------------------------------------------------------
@@ -91,4 +91,4 @@ The movies already in the project are kept unchanged. To create or refresh its r
 
 As a developer, service or as a admin, you can simply change, add or delete movie in visual editor in project's developer mode. 
 
-To run developer mode is literally npm run dev (Guide #How to run project as developer) and then in main page you can find the Add Movie button and also if you want to edit the movie, below the movie's description there is a button Edit Movie, so there you can edit everything and delete the movie, if it is necessary for the company and the administrator. 
+To run developer mode is literally npm run dev (Guide #How to run project as developer) and then in main page you can find the Add Movie button and also if you want to edit the movie, below the movie's description there is a button Edit Movie, so there you can edit everything and delete the movie, if it is necessary for the company and the administrator.

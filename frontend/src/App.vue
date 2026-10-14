@@ -258,7 +258,6 @@ onUnmounted(() => {
         </nav>
       </div>
     </header>
-
     <main v-if="showSeatPicker">
       <seatpicker :movie="selectedBookingMovie" :movies="movies" @close="showSeatPicker = false" @checkout="openCheckout" />
     </main>
@@ -271,7 +270,6 @@ onUnmounted(() => {
           <Button label="See movies" icon="pi pi-play" @click="document.getElementById('movies').scrollIntoView({behavior:'smooth'})" />
         </div>
       </section>
-
       <section id="movies" class="content">
         <div class="section-heading">
           <div><h3>Top Movies</h3></div>
@@ -285,24 +283,30 @@ onUnmounted(() => {
         <div v-else class="grid">
           <Card v-for="(movie, index) in movies" :key="movie.id" class="movie-card clickable-card" @click="openMovie(movie, index)">
             <template #header><img :src="getPoster(movie, index)" :alt="movie.title" @error="handlePosterError($event, index)" /></template>
-            <template #title>{{ movie.title }}</template>
-            <template #subtitle>{{ movie.genre }} · {{ movie.duration }} min</template>
+            <template #title>
+              <div class="movie-title-row">
+                <div class="movie-title-info">
+                  <span class="movie-title">{{ movie.title }}</span>
+                  <span class="movie-title-meta">{{ movie.genre }} · {{ movie.duration }} min</span>
+                </div>
+                <div v-if="movie.rating" class="movie-title-rating">
+                  <strong>{{ Number(movie.rating.score).toFixed(1) }}/10</strong>
+                  <small>{{ movie.rating.voteCount.toLocaleString() }} votes</small>
+                </div>
+                <div v-else class="movie-title-rating movie-title-rating-empty" aria-hidden="true"></div>
+              </div>
+            </template>
             <template #content>
               <p class="movie-description">{{ movie.description }}</p>
               <div class="movie-data">
                 <div class="movie-data-group">
-                  <span class="movie-data-label">Rating</span>
-                  <strong v-if="movie.rating" class="movie-rating">
-                    {{ Number(movie.rating.score).toFixed(1) }}/10
-                    <span>{{ movie.rating.voteCount.toLocaleString() }} votes</span>
-                  </strong>
-                  <span v-else class="movie-data-empty">Not generated yet</span>
-                </div>
-                <div class="movie-data-group">
                   <span class="movie-data-label">Creators</span>
                   <div v-if="movie.creators?.length" class="movie-data-list">
-                    <div v-for="creator in movie.creators" :key="creator.id" class="movie-data-item">
-                      <strong>{{ creator.name }}</strong><span>{{ creator.role }}</span>
+                    <div class="movie-data-creator-row">
+                      <span v-for="creator in movie.creators" :key="`${creator.id}-role`">{{ creator.role }}</span>
+                    </div>
+                    <div class="movie-data-creator-row movie-data-creator-names">
+                      <strong v-for="creator in movie.creators" :key="`${creator.id}-name`">{{ creator.name }}</strong>
                     </div>
                   </div>
                   <span v-else class="movie-data-empty">Not generated yet</span>
@@ -323,7 +327,6 @@ onUnmounted(() => {
           </Card>
         </div>
       </section>
-
       <div v-if="selectedMovie || creatingMovie" class="movie-modal-backdrop" @click.self="closeMovie">
         <article class="movie-modal" role="dialog" aria-modal="true" :aria-label="selectedMovie.title">
           <button class="modal-close" type="button" aria-label="Close movie details" @click="closeMovie">×</button>
@@ -552,32 +555,115 @@ onUnmounted(() => {
   .movie-heading-actions > span {
     color:#888;
   }
-  .grid { 
-    display:grid; 
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); 
-    gap:22px; 
-  } 
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: 20px;
+  }
   .movie-card { 
     overflow:hidden; 
     background:#141414; 
     border:1px solid #6b6b6b;
-  } 
+    display:flex;
+    flex-direction:column;
+    height: 100%;
+  }
+  .movie-card .p-card-body {
+    display:flex;
+    padding-top: 8px;
+    flex: 1;
+    flex-direction:column;
+  }
+  .movie-card .p-card-content {
+    flex: 1;
+  }
+  .movie-card .p-card-title {
+    display:block;
+    min-height:85px;
+    padding: 0;
+  }
   .movie-card img { 
     width: 100%;
     height:350px;
     object-fit:cover; 
     display:block; 
   } 
-  .movie-card p { 
-    color:#aaa; 
-    line-height:1.5; 
-    min-height:68px; 
+  .movie-card p {
+    color: #aaa;
+    line-height: 1.5;
+    min-height: calc(4.5em + 10px);
+    margin: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     padding: 5px;
-  } 
+  }
+  .movie-title-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 12px;
+    padding: 14px 12px 4px;
+    font-family: 'Poppins', sans-serif;
+  }
+  .movie-title {
+    display: block;
+    text-align: center;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+  .movie-title-info {
+    display: grid;
+    grid-template-rows: minmax(24px, auto) auto;
+    align-content: start;
+    gap: 4px;
+    min-width: 0;
+    text-align: center;
+  }
+  .movie-title-meta {
+    display: block;
+    color: #b5b5b5;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    text-align: center;
+  }
+  .movie-title-rating {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 0;
+    min-width: 0;
+    font-family: inherit;
+  }
+  .movie-title-rating strong {
+    color: #3285f1;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .movie-title-rating small {
+    color: #999;
+    font-size: 11px;
+    font-weight: 400;
+    text-align: center;
+  }
+  .movie-title-rating-empty {
+    min-height: 36px;
+  }
   .movie-data {
     display:grid;
-    gap:14px;
+    gap:24px;
     margin-top:18px;
     font-size:13px;
   }
@@ -591,18 +677,30 @@ onUnmounted(() => {
     text-transform:uppercase;
     text-align: center;
   }
-  .movie-data-list, .movie-data-item {
-    display:grid;
-    gap:4px;
+  .movie-data-list {
+    display: grid;
+    gap: 8px;
   }
-  .movie-data-item {
-    color:#aaa;
-    line-height:1.4;
+  .movie-data-creator-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    padding: 0 12px;
+    color: #aaa;
+    line-height: 1.4;
     text-align: center;
+    overflow-wrap: anywhere;
   }
-  .movie-data-item strong {
-    color:#eee;
-    font-weight:600;
+  .movie-data-creator-row > * {
+    min-width: 0;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  .movie-data-creator-names {
+    color: #eee;
+    font-weight: 600;
   }
   .movie-rating {
     color:#3285f1;
@@ -643,7 +741,7 @@ onUnmounted(() => {
   }
   .showtime {
     padding: 10px 16px;
-    border-radius: 24px;
+    border-radius: 8px;
     border: 3px solid #fff;
     background-color: #0a0a0a;
     color: rgb(248, 247, 247);
@@ -667,21 +765,22 @@ onUnmounted(() => {
   }
   .details-button {
     padding: 10px 16px;
-    border: 2px solid #fff;
-    border-radius: 24px;
-    background: #0a0a0a;
+    border: 2px solid #696969;
+    border-radius: 6px;
+    background: #161616;
     color: #fff;
     cursor: pointer;
     transition: background-color .2s ease, color .2s ease;
   }
   .details-button:hover {
     background: #fff;
+    border:#fff;
     color: #070707;
   }
   .movie-card .p-card-footer {
     display: flex;
     justify-content: center;
-    padding: 12px 16px 18px;
+    padding: 14px 16px 18px;
   }
   .clickable-card {
     cursor: pointer;
@@ -709,7 +808,7 @@ onUnmounted(() => {
     overflow: auto;
     padding: 32px;
     border: 3px solid #333;
-    border-radius: 10px;
+    border-radius: 8px;
     background: #111;
     box-shadow: 0 24px 80px rgba(0,0,0,.6);
   }
@@ -737,7 +836,7 @@ onUnmounted(() => {
     width: 100%;
     height: 350px;
     object-fit: cover;
-    border-radius: 14px;
+    border-radius: 8px;
   }
   .modal-copy h2 {
     margin: 6px 0 18px;
@@ -797,7 +896,7 @@ onUnmounted(() => {
     width: 100%;
     aspect-ratio: 16/9;
     overflow: hidden;
-    border-radius: 14px;
+    border-radius: 8px;
     background: #000;
   }
   .trailer-frame iframe {
@@ -810,7 +909,7 @@ onUnmounted(() => {
   .trailer-fallback {
     padding: 28px;
     border: 1px dashed #444;
-    border-radius: 14px;
+    border-radius: 8px;
     color: #aaa;
     text-align: center;
   }
@@ -820,13 +919,13 @@ onUnmounted(() => {
     align-items: center;
     margin-top: 8px;
     padding: 10px 16px;
-    border-radius: 24px;
+    border-radius: 8px;
     background: rgb(61,119,243);
   }
   .edit-movie-button, .add-creator-button, .remove-creator-button {
     padding: 9px 14px;
     border: 1px solid #555;
-    border-radius: 20px;
+    border-radius: 8px;
     background: #1b1b1b;
     color: #fff;
     cursor: pointer;
@@ -860,7 +959,7 @@ onUnmounted(() => {
     box-sizing: border-box;
     padding: 10px 12px;
     border: 1px solid #444;
-    border-radius: 8px;
+    border-radius: 6px;
     background: #090909;
     color: #fff;
     font: inherit;
@@ -883,7 +982,7 @@ onUnmounted(() => {
   .poster-upload-controls img {
     width: 64px;
     height: 90px;
-    border-radius: 6px;
+    border-radius: 8px;
     object-fit: cover;
   }
   .visually-hidden {
@@ -898,7 +997,7 @@ onUnmounted(() => {
     margin: 22px 0 0;
     padding: 16px;
     border: 1px solid #333;
-    border-radius: 10px;
+    border-radius: 8px;
   }
   .edit-rating {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -931,7 +1030,7 @@ onUnmounted(() => {
     margin-right: auto;
     padding: 10px 16px;
     border: 2px solid #b33;
-    border-radius: 24px;
+    border-radius: 8px;
     background: #260909;
     color: #fff;
     cursor: pointer;
@@ -953,14 +1052,14 @@ onUnmounted(() => {
   :root {
     color-scheme: dark;
     --cinema-page: #090909;
-    --cinema-surface: #222121;
+    --cinema-surface: #141414;
     --cinema-surface-raised: #1b1b1b;
-    --cinema-border: #5a5959;
+    --cinema-border: #292929;
     --cinema-text: #f5f5f5;
     --cinema-muted: #999;
-    --cinema-accent: #2a4a8a;
-    --cinema-accent-hover: #0e2146;
-    --cinema-font-body: "Montserrat", sans-serif;
+    --cinema-accent: #345396;
+    --cinema-accent-hover: #284074;
+    --cinema-font-body: "DM Sans", sans-serif;
     --cinema-font-heading: "Outfit", sans-serif;
   }
 
@@ -1001,24 +1100,18 @@ onUnmounted(() => {
   }
 
   .page .movie-card,
-  .page .movie-modal {
-    border-radius: 15px;
-  }
-
+  .page .movie-modal,
   .page .movie-card img,
   .page .modal-poster,
   .page .trailer-frame,
-  .page .trailer-fallback {
-    border-radius: 15px;
-  }
-
+  .page .trailer-fallback,
   .page .showtime,
   .page .details-button,
   .page .edit-movie-button,
   .page .add-creator-button,
   .page .remove-creator-button,
   .page .delete-movie-button {
-    border-radius: 15px;
+    border-radius: 8px;
   }
 
   .page .movie-card {
@@ -1053,7 +1146,7 @@ onUnmounted(() => {
     min-height: 46px;
     padding: 12px 20px;
     border: 1px solid var(--cinema-accent);
-    border-radius: 3px;
+    border-radius: 8px;
     background: var(--cinema-accent);
     color: #fff;
     font: 600 14px var(--cinema-font-body);
