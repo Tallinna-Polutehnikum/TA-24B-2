@@ -603,7 +603,7 @@ onUnmounted(() => {
   .movie-title-row {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    align-items: start;
+    align-items: center;
     gap: 12px;
     padding: 14px 12px 4px;
     font-family: 'Poppins', sans-serif;
@@ -641,7 +641,8 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
+    align-self: center;
     gap: 4px;
     padding: 0;
     min-width: 0;
