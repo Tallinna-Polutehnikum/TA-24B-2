@@ -52,5 +52,9 @@
 - Added option to choose a film, cinema, time and seats to buy a ticket
 - Added a checkout, which shows user's picks (It's still under construction)
 - Refreshed the cinema website desing
+- Updated style in all pages
+- Added launcher for better usage and to run build or developer mode in one click
+- Optimized the code
+- Fixed margins and paddings in buttons
 
 Bradar, what it this?

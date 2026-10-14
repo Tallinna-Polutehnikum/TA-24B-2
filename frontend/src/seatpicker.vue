@@ -246,6 +246,7 @@ watch(selectedDate, () => {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  border-radius: 15px;
 }
 
 .filter-field span {
@@ -561,17 +562,21 @@ watch(selectedDate, () => {
 
 .booking-back,
 .change-movie {
-  padding: 0;
-  border: 0;
+  padding: 5px 10px;
+  border: 2px solid #aaa;
   background: none;
   color: #aaa;
   font: inherit;
   cursor: pointer;
+  border-radius: 15px;
+  margin: 14px;
+  margin-left: auto;
 }
 
 .booking-back:hover,
 .change-movie:hover {
   color: #fff;
+  border-color: #fff;
 }
 
 .movie-selection-grid {
@@ -602,6 +607,7 @@ watch(selectedDate, () => {
   width: 100%;
   aspect-ratio: 2 / 3;
   object-fit: cover;
+  border-radius: 3px;
 }
 
 .movie-choice span,
@@ -624,9 +630,9 @@ watch(selectedDate, () => {
 .movie-banner {
   display: flex;
   align-items: end;
-  min-height: 300px;
-  margin: 22px 0 40px;
-  padding: 32px;
+  min-height: 330px;
+  margin: 22px 0 9px;
+  padding: 55px;
   background-color: #151515;
   background-position: center 35%;
   background-size: cover;
@@ -726,7 +732,7 @@ watch(selectedDate, () => {
   }
 
   .booking-section .section-label {
-    color: var(--cinema-accent);
+    color: #3d77f3;
   }
 
   .booking-section .booking-header h1,

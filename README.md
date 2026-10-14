@@ -38,9 +38,9 @@ You can see the update logs in the `update-log.md`.
 - Sales and account bonuses --later or unnecessarys
 - Different languages --later or unnecessary // hard mode
 
+------------------------------------------------------------------------
 
-
-# How to run a project as developer:
+# How to run a project as developer (Manual Startup):
 
 ## 1. Database folder
 ```bash or VSC terminal
@@ -59,9 +59,12 @@ You can see the update logs in the `update-log.md`.
     npm run dev
 ```
 
+# How to run a project as developer (Automatic / Launcher Startup):
+To run build mode, open start.bat file and choose 'Developer Mode' 
 
+------------------------------------------------------------------------
 
-# How to run a build / regular user side:
+# How to run a build / regular user side (Manual Startup):
 
 ## 1. Backend folder
 ```bash in backend folder:
@@ -78,7 +81,10 @@ You can see the update logs in the `update-log.md`.
     npm run preview
 ```
 
+# How to run a build / regular user side (Automatic / Launcher Startup):
+To run build mode, open start.bat file and choose 'Build Mode' 
 
+------------------------------------------------------------------------
 
 ## How to manage movies and generate them in one second:
 The movies already in the project are kept unchanged. To create or refresh its random movie set, open a terminal in the `backend` folder and run in new terminal or powershell: `npm run movies:generate`

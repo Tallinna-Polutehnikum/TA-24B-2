@@ -481,7 +481,7 @@ onUnmounted(() => {
   nav { 
     display:flex; 
     gap:24px; 
-    color:#bbb; 
+    color:#eee8e8; 
     font-size:14px; 
   } 
   .logo-actions {
@@ -561,14 +561,12 @@ onUnmounted(() => {
     overflow:hidden; 
     background:#141414; 
     border:1px solid #6b6b6b;
-    border-radius:10px;
   } 
   .movie-card img { 
     width: 100%;
     height:350px;
     object-fit:cover; 
     display:block; 
-    border-radius: 10px;
   } 
   .movie-card p { 
     color:#aaa; 
@@ -855,13 +853,14 @@ onUnmounted(() => {
     gap: 7px;
     color: #bbb;
     font-size: 13px;
+    border-radius: 8px;
   }
   .movie-edit-form input, .movie-edit-form textarea {
     width: 100%;
     box-sizing: border-box;
     padding: 10px 12px;
     border: 1px solid #444;
-    border-radius: 3px;
+    border-radius: 8px;
     background: #090909;
     color: #fff;
     font: inherit;
@@ -954,14 +953,14 @@ onUnmounted(() => {
   :root {
     color-scheme: dark;
     --cinema-page: #090909;
-    --cinema-surface: #141414;
+    --cinema-surface: #222121;
     --cinema-surface-raised: #1b1b1b;
-    --cinema-border: #292929;
+    --cinema-border: #5a5959;
     --cinema-text: #f5f5f5;
     --cinema-muted: #999;
-    --cinema-accent: #3d77f3;
-    --cinema-accent-hover: #2f65d5;
-    --cinema-font-body: "DM Sans", sans-serif;
+    --cinema-accent: #2a4a8a;
+    --cinema-accent-hover: #0e2146;
+    --cinema-font-body: "Montserrat", sans-serif;
     --cinema-font-heading: "Outfit", sans-serif;
   }
 
@@ -1003,14 +1002,14 @@ onUnmounted(() => {
 
   .page .movie-card,
   .page .movie-modal {
-    border-radius: 4px;
+    border-radius: 15px;
   }
 
   .page .movie-card img,
   .page .modal-poster,
   .page .trailer-frame,
   .page .trailer-fallback {
-    border-radius: 4px;
+    border-radius: 15px;
   }
 
   .page .showtime,
@@ -1019,7 +1018,7 @@ onUnmounted(() => {
   .page .add-creator-button,
   .page .remove-creator-button,
   .page .delete-movie-button {
-    border-radius: 3px;
+    border-radius: 15px;
   }
 
   .page .movie-card {
