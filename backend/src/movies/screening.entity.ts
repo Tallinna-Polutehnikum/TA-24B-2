@@ -27,4 +27,7 @@ export class Screening {
 
   @Property({ type: 'double' })
   ticketPrice!: number;
+
+  @Property({ type: 'json', nullable: true})
+  blockedSeats: string[] | null = null;
 }

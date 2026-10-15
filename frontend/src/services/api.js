@@ -57,3 +57,24 @@ export async function uploadMoviePoster(file) {
   }
   return response.json();
 }
+
+export async function getScreeningSeats(screeningId) {
+  const response = await fetch(`${API_URL}/movies/screenings/${screeningId}/seats`, {cache: 'no-store'});
+  if (!response.ok) {
+    throw new Error('Could not load screning seats')
+  }
+  return response.json();
+}
+
+export async function updateScreeningSeats(screeningId, blockedSeats) {
+  const response = await fetch(`${API_URL}/movies/screenings/${screeningId}/seats`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ blockedSeats }),
+  });
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'Could not update screening seats');
+  }
+  return response.json();
+}

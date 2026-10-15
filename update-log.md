@@ -59,6 +59,7 @@
 - Updated occupied seats generation logic
 
 # 15.10.2026
-- Updated film cards design
+- Updated asnd fixed film cards design
+- Added edit oppucied seats option in 'Buy tickets' page
 
 Bradar, what it this?

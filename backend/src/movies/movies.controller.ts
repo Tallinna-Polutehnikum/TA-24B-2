@@ -80,6 +80,23 @@ export class MoviesController {
     return this.movies.deleteMovie(id);
   }
 
+  @Get('screenings/:id/seats')
+  getScreeningSeats(@Param('id', ParseIntPipe) id: number) {
+    return this.movies.getScreeningSeats(id);
+  }
+
+  @Patch('screenings/:id/seats')
+  setScreeningSeats(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() input: unknown
+  ) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new ForbiddenException('Seat editing is only available outside production');
+    }
+
+    return this.movies.setScreeningSeats(id, input);
+  }
+
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const movie = await this.movies.findOne(id);

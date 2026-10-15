@@ -678,6 +678,54 @@ export class MoviesService implements OnModuleInit {
     }
   }
 
+  async getScreeningSeats(id: number) {
+    const em = this.em.fork();
+    const screening = await em.findOne(Screening, { id });
+
+    if (!screening) {
+      throw new NotFoundException('Screening not found');
+    }
+
+    return {
+      screeningId: screening.id,
+      blockedSeats: screening.blockedSeats ?? null
+    }
+  }
+
+  async setScreeningSeats(id: number, input: unknown) {
+    if (!input || typeof input !== 'object' || Array.isArray(input)) {
+      throw new BadRequestException('Invalid seat data');
+    }
+
+    const data = input as Record<string, unknown>;
+    const seats = data.blockedSeats;
+
+    if (Object.keys(data).some(key => key !== 'blockedSeats') || !Array.isArray(seats)) {
+      throw new BadRequestException('Invalid seat data');
+    }
+
+    const validSeats = seats.every(seat => typeof seat === 'string' && /^[1-7]-(10|[1-9])$/.test(seat));
+
+    if (!validSeats || seats.length > 70 || new Set(seats).size !== seats.length) {
+      throw new BadRequestException('Invalid or duplicated seats');
+    }
+
+    const em = this.em.fork();
+    const screening = await em.findOne(Screening, { id });
+
+    if (!screening) {
+      throw new NotFoundException('Screening not found');
+    }
+
+    screening.blockedSeats = seats;
+    await em.flush();
+
+    return {
+      screeningId: id,
+      blockedSeats: screening.blockedSeats
+    }
+  }
+
   async findAll() {
     const movies = await this.em.find(Movie, { active: true }, { orderBy: { id: 'ASC' } });
 

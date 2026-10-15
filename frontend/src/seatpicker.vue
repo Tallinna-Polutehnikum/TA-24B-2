@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { getAssetUrl } from './services/api'
+import { getAssetUrl, getScreeningSeats, updateScreeningSeats } from './services/api'
 import banner from './assets/banner1.jpg'
 import poster1 from './assets/poster1.jpg'
 import poster2 from './assets/poster2.jpg'
@@ -23,6 +23,14 @@ const selectedCinema = ref('')
 const selectedDate = ref('')
 const selectedScreeningId = ref('')
 const selectedSeats = ref([])
+const canEditSeats = import.meta.env.DEV
+const editorOpen = ref(false)
+const loadingSeats = ref(false)
+const savingSeats = ref(false)
+const seatError = ref('')
+const serverOccupied = ref(null)
+
+let latestRequest = 0
 
 const screenings = computed(() => selectedMovie.value?.screenings ?? [])
 const cinemas = computed(() => [...new Map(
@@ -48,7 +56,7 @@ const dateScreenings = computed(() => cinemaScreenings.value.filter(
 const selectedScreening = computed(() => dateScreenings.value.find(
   screening => String(screening.id) === String(selectedScreeningId.value)
 ))
-const occupiedSeats = computed(() => {
+const generatedOccupiedSeats = computed(() => {
   if (!selectedScreening.value) return new Set()
 
   let seed = Math.imul(Number(selectedScreening.value.id) || 1, 2654435761) >>> 0
@@ -123,6 +131,94 @@ const occupiedSeats = computed(() => {
 
   return seats
 })
+
+const occupiedSeats = computed(() => {
+  if (serverOccupied.value === null) {
+    return generatedOccupiedSeats.value
+  }
+
+  return new Set(serverOccupied.value)
+})
+
+async function fetchScreeningSeats() {
+  const id = selectedScreening.value?.id
+  const request = ++latestRequest
+
+  serverOccupied.value = null
+  seatError.value = ''
+
+  if (!id) {
+    loadingSeats.value = false
+    return
+  }
+
+  loadingSeats.value = true
+  try {
+    const data = await getScreeningSeats(id)
+
+    if (request === latestRequest) {
+      serverOccupied.value = data.blockedSeats
+    }
+  } catch (error) {
+    if (request === latestRequest) {
+      seatError.value = 'Could not load seats.'
+    }
+  } finally {
+    if (request === latestRequest) {
+      loadingSeats.value = false
+    }
+  }
+}
+
+async function saveBlockedSeats(next) {
+  if (!canEditSeats || !editorOpen.value || !selectedScreening.value || savingSeats.value) return
+  savingSeats.value = true
+  seatError.value = ''
+  const id = selectedScreening.value.id
+
+  try {
+    const result = await updateScreeningSeats(id, [...next])
+
+    if (selectedScreening.value?.id === id) {
+      serverOccupied.value = result.blockedSeats
+      selectedSeats.value = selectedSeats.value.filter(seat => !next.has(`${seat.row}-${seat.seat}`))
+    }
+  } catch (error) {
+    seatError.value = 'Could not save seats.'
+  } finally {
+    savingSeats.value = false
+  }
+}
+
+function editSeat(row, seat) {
+  const next = new Set(occupiedSeats.value)
+  const key = `${row}-${seat}`
+
+  if (next.has(key)) {
+    next.delete(key)
+  } else {
+    next.add(key)
+  }
+
+  saveBlockedSeats(next)
+}
+
+function clearAllSeats() {
+  saveBlockedSeats(new Set())
+}
+
+function occupyAllSeats() {
+  const seats = new Set()
+
+  for (let row = 1; row <= rows; row++) {
+    for (let seat = 1; seat <= seatsPerRow; seat++) {
+      seats.add(`${row}-${seat}`)
+    }
+  }
+
+  saveBlockedSeats(seats)
+}
+
 const totalPrice = computed(() => selectedSeats.value.length * Number(selectedScreening.value?.ticketPrice ?? 0))
 const movieIndex = computed(() => props.movies.findIndex(movie => movie.id === selectedMovie.value?.id))
 
@@ -167,7 +263,7 @@ function toggleSeat(row, seat) {
 }
 
 function continueToCheckout() {
-  if (!selectedMovie.value || !selectedScreening.value || selectedSeats.value.length === 0) return
+  if (!selectedMovie.value || !selectedScreening.value || selectedSeats.value.length === 0 || loadingSeats.value || seatError.value) return
   emit('checkout', {
     movie: selectedMovie.value,
     screening: selectedScreening.value,
@@ -190,6 +286,13 @@ watch(selectedDate, () => {
   selectedScreeningId.value = ''
   selectedSeats.value = []
 })
+
+watch(selectedScreening, () => {
+  editorOpen.value = false
+  selectedSeats.value = []
+  fetchScreeningSeats()
+}, { immediate: true })
+
 </script>
 <template>
   <section class="booking-section">
@@ -257,12 +360,22 @@ watch(selectedDate, () => {
           <span>02</span>
           <div><h2>Choose your seats</h2><p>{{ selectedScreening.building }} · Hall {{ selectedScreening.hallNumber }} · {{ new Date(selectedScreening.startsAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) }}</p></div>
         </div>
+        <div v-if="canEditSeats" class="seats-admin-bar">
+          <button type="button" @click="editorOpen = !editorOpen">{{ editorOpen ? 'Exit seat editor' : 'Edit occupied seats' }}</button>
+          <template v-if="editorOpen">
+            <span>Click a seat to change occupancy.</span>
+            <button type="button" :disabled="savingSeats || loadingSeats" @click="clearAllSeats">Clear all</button>
+            <button type="button" :disabled="savingSeats || loadingSeats" @click="occupyAllSeats">Occupy all</button>
+          </template>
+        </div>
+        <p v-if="seatError" class="seat-api-error">{{ seatError }}<button type="button" @click="fetchScreeningSeats">Retry</button></p>
+        <p v-if="loadingSeats">Loading occupied seats...</p>
         <div class="hall">
           <div class="screen"><span>SCREEN</span></div>
           <div class="seats">
             <div v-for="row in rows" :key="row" class="seat-row">
               <span class="row-number">{{ row }}</span>
-              <button v-for="seat in seatsPerRow" :key="`${row}-${seat}`" class="seat" :class="{ selected: isSelected(row, seat), occupied: isOccupied(row, seat) }" :disabled="isOccupied(row, seat)" :aria-label="`Row ${row}, seat ${seat}${isOccupied(row, seat) ? ', occupied' : ''}`" type="button" @click="toggleSeat(row, seat)">{{ seat }}</button>
+              <button v-for="seat in seatsPerRow" :key="`${row}-${seat}`" class="seat" :class="{ selected: !editorOpen && isSelected(row, seat), occupied: isOccupied(row, seat), editing: editorOpen}" :disabled="loadingSeats || savingSeats || !!seatError || (!editorOpen && isOccupied(row, seat))" :aria-label="`Row ${row}, seat ${seat}`" type="button" @click="editorOpen ? editSeat(row, seat) : toggleSeat(row, seat)">{{ seat }}</button>
               <span class="row-number">{{ row }}</span>
             </div>
           </div>
@@ -274,10 +387,10 @@ watch(selectedDate, () => {
         </div>
       </section>
 
-      <footer v-if="selectedScreening" class="booking-summary">
+      <footer v-if="selectedScreening && !editorOpen" class="booking-summary">
         <div class="selected-info"><span>Selected seats</span><strong>{{ selectedSeats.length ? selectedSeats.map(seat => `${seat.row}-${seat.seat}`).join(', ') : 'Choose at least one seat' }}</strong></div>
         <div class="price"><span>Total</span><strong>€{{ totalPrice.toFixed(2) }}</strong></div>
-        <button class="continue-button" :disabled="selectedSeats.length === 0" type="button" @click="continueToCheckout">Continue to checkout <span aria-hidden="true">→</span></button>
+        <button class="continue-button" :disabled="selectedSeats.length === 0 || loadingSeats || !!seatError" type="button" @click="continueToCheckout">Continue to checkout <span aria-hidden="true">→</span></button>
       </footer>
     </template>
   </section>
@@ -836,4 +949,47 @@ watch(selectedDate, () => {
   .booking-section .continue-button {
     border-radius: 8px;
   }
+
+  .seats-admin-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  color: #aaa;
+  font-size: 13px;
+}
+
+.seats-admin-bar button {
+  padding: 9px 14px;
+  border: 1px solid #3d77f3;
+  border-radius: 6px;
+  background: #171e30;
+  color: #fff;
+  cursor: pointer;
+}
+
+.seats-admin-bar button:hover {
+  background: #3d77f3;
+}
+
+.seats-admin-bar button:disabled {
+  opacity: 0.4;
+  cursor: wait;
+}
+
+.seat-api-error {
+  margin: 8px 0;
+  color: #ef8888;
+}
+
+.seat.editing {
+  cursor: pointer;
+}
+
+.seat.editing:hover:not(:disabled) {
+  transform: translateY(-3px);
+  border-color: #3d77f3;
+  color: #fff;
+}
 </style>
