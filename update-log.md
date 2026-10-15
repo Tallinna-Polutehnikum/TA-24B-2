@@ -64,4 +64,7 @@
 - Updated header for better navigation
 - Fixed a problem new films didn't get sessions after writing `npm run movies:generate`
 
+# 16.10.2026
+- Added empty 'About Us' page
+
 Bradar, what it this?

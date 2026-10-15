@@ -13,12 +13,14 @@ import poster5 from './assets/poster5.jpg';
 import poster6 from './assets/poster6.jpg'; 
 import banner from './assets/banner1.jpg';
 import seatpicker from './SeatPicker.vue';
+import about_us from './AboutUs.vue';
 
 const movies = ref([]);
 const router = useRouter();
 const loading = ref(true);
 const error = ref('');
 const showSeatPicker = ref(false);
+const showAboutUs = ref(false);
 const selectedMovie = ref(null);
 const selectedMovieIndex = ref(0);
 const previousBodyOverflow = ref('');
@@ -225,6 +227,12 @@ const selectedBookingMovie = ref(null)
 function openSeatPicker(movie = null) {
   selectedBookingMovie.value = movie
   showSeatPicker.value = true
+  showAboutUs.value = false
+}
+
+function openAboutUs() {
+  showSeatPicker.value = false;
+  showAboutUs.value = true;
 }
 
 async function openCheckout(booking) {
@@ -249,17 +257,20 @@ onUnmounted(() => {
   <div class="page" id="bradarcinema.ee">
     <header class="topbar">
       <div class="brand">
-        <a href="#bradarcinema.ee" class="logo" aria-label="Go to main screen" @click="showSeatPicker = false">BRADAR <span>CINEMA</span></a>
+        <a href="#bradarcinema.ee" class="logo" aria-label="Go to main screen" @click="showSeatPicker = false; showAboutUs = false">BRADAR <span>CINEMA</span></a>
         <nav class="logo-actions" aria-label="Main navigation">
-          <Button class="nav-button" :class="{ 'nav-active': !showSeatPicker }" as="a" href="#movies" label="Movies" size="small" text @click="showSeatPicker = false" />
+          <Button class="nav-button" :class="{ 'nav-active': !showSeatPicker && !showAboutUs }" as="a" href="#movies" label="Movies" size="small" text @click="showSeatPicker = false; showAboutUs = false" />
           <Button class="nav-button" :class="{ 'nav-active': showSeatPicker }" label="Buy tickets" size="small" text @click="openSeatPicker()" />
-          <Button class="nav-button" as="a" href="#about-us" label="About Us" size="small" text @click="showSeatPicker = false" />
+          <Button class="nav-button" :class="{ 'nav-active': showAboutUs }" label="About Us" size="small" text @click="openAboutUs()"/>
           <Button class="nav-button" as="a" href="log-in" label="Log In" size="small" outlined />
         </nav>
       </div>
     </header>
     <main v-if="showSeatPicker">
       <seatpicker :movie="selectedBookingMovie" :movies="movies" @close="showSeatPicker = false" @checkout="openCheckout" />
+    </main>
+    <main v-else-if="showAboutUs">
+      <about_us />
     </main>
     <main v-else>
       <section class="hero" :style="{ backgroundImage: `linear-gradient(90deg,rgba(0,0,0,.9),rgba(0,0,0,.35)), url(${banner})` }">
