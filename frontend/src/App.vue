@@ -575,6 +575,8 @@ onUnmounted(() => {
     flex-direction:column;
   }
   .movie-card .p-card-content {
+    display: flex;
+    flex-direction: column;
     flex: 1;
   }
   .movie-card .p-card-title {
@@ -591,14 +593,14 @@ onUnmounted(() => {
   .movie-card p {
     color: #aaa;
     line-height: 1.5;
-    min-height: calc(4.5em + 10px);
     margin: 0;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 5px;
+    flex: 1;
+    padding: 10px 5px;
   }
   .movie-title-row {
     display: grid;
@@ -617,7 +619,6 @@ onUnmounted(() => {
     overflow-wrap: anywhere;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
     overflow: hidden;
   }
   .movie-title-info {
@@ -664,8 +665,8 @@ onUnmounted(() => {
   }
   .movie-data {
     display:grid;
-    gap:24px;
-    margin-top:18px;
+    gap:6px;
+    padding-top:12px;
     font-size:13px;
   }
   .movie-data-group {
@@ -680,7 +681,8 @@ onUnmounted(() => {
   }
   .movie-data-list {
     display: grid;
-    gap: 8px;
+    grid-template-rows: auto 44px;
+    gap: 6px;
   }
   .movie-data-creator-row {
     display: grid;
@@ -697,10 +699,11 @@ onUnmounted(() => {
     display: -webkit-box;
     overflow: hidden;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
   }
   .movie-data-creator-names {
     color: #eee;
+    align-items: center;
+    text-align: center;
     font-weight: 600;
   }
   .movie-rating {
