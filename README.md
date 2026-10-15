@@ -1,6 +1,6 @@
 # Bradar Cinema Project
 
-## Introdution
+## Introduction
 The main project - "Bradar Cinema" website. Based on the Apollo Kino. Made by Samir 'Miles Tails' Cibis, Aleksander 'ThePanshurup' Kartuzov and Daniel Helmrosin.
 
 This document shows which stackes are used for the project and features which will be added to the project.
