@@ -526,8 +526,8 @@ onUnmounted(() => {
     margin-bottom:26px; 
   }
   .content { 
-    padding:55px 6vw 80px; 
-    max-width:1400px; 
+    padding:55px 3vw 80px; 
+    max-width:1800px; 
     margin:auto; 
   } 
   .section-heading { 
@@ -818,6 +818,11 @@ onUnmounted(() => {
   }
   .modal-close {
     position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
     top: 14px;
     right: 18px;
     z-index: 2;

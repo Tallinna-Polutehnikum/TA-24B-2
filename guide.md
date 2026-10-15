@@ -44,6 +44,13 @@ To run build mode, open `start.bat` file and choose 'Build Mode'
 
 ------------------------------------------------------------------------
 
+## Attention!
+1. If you're using the manual startup open the Docker Desktop app before!
+2. If you're using the launcher startup DON'T close frontend & backend terminals which appearing after choosing mode!
+3. If the frontend or backend node.js structure doesn't exist or work, you can recover it writing `npm install` command in the terminal
+
+------------------------------------------------------------------------
+
 # How to manage movies and generate them in one second:
 The movies already in the project are kept unchanged. To create or refresh its random movie set, open a terminal in the `backend` folder and run in new terminal or powershell: `npm run movies:generate`
 
