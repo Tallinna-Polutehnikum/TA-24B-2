@@ -17,7 +17,7 @@
     npm run dev
 ```
 
-# How to run a project as developer (Automatic / Launcher Startup):
+# How to run a project as developer (Launcher Startup):
 To run developer mode, open `start.bat` file and choose 'Developer Mode' 
 
 ------------------------------------------------------------------------
@@ -39,7 +39,7 @@ To run developer mode, open `start.bat` file and choose 'Developer Mode'
     npm run preview
 ```
 
-# How to run a build / regular user side (Automatic / Launcher Startup):
+# How to run a build / regular user side (Launcher Startup):
 To run build mode, open `start.bat` file and choose 'Build Mode' 
 
 ------------------------------------------------------------------------
