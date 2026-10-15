@@ -44,22 +44,22 @@ goto end
 
 :build
 echo Starting Site in Build Mode... (c) Samir Miles Cibis, Aleksander Kartuzov, Daniel Helmrosin 2026, All Rights Reserved. 
-sleep 3
+timeout /t 3 >nul
 docker compose up -d
 start "Backend - Production" cmd /k "cd /d backend && npm run build && set NODE_ENV=production && npm start"
 start "Frontend - Preview" cmd /k "cd /d frontend && npm run build && npm run preview"
-sleep 12
+timeout /t 12 >nul
 echo Main page: http://localhost:4173/
 echo API: http://localhost:3000
 goto end
 
 :developer
 echo Starting Site in Developer Mode... (c) Samir Miles Cibis, Aleksander Kartuzov, Daniel Helmrosin 2026, All Rights Reserved.
-sleep 3
+timeout /t 3 >nul
 docker compose up -d
 start "Backend - Development" cmd /k "cd /d backend && npm run dev"
 start "Frontend - Development" cmd /k "cd /d frontend && npm run dev"
-sleep 12
+timeout /t 12 >nul
 echo Developer Mode: http://localhost:5173/
 echo API: http://localhost:3000
 goto end
