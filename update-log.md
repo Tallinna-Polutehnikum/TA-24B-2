@@ -61,5 +61,6 @@
 # 15.10.2026
 - Updated asnd fixed film cards design
 - Added edit oppucied seats option in 'Buy tickets' page
+- Updated header for better navigation
 
 Bradar, what it this?

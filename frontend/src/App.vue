@@ -251,8 +251,8 @@ onUnmounted(() => {
       <div class="brand">
         <a href="#bradarcinema.ee" class="logo" aria-label="Go to main screen" @click="showSeatPicker = false">BRADAR <span>CINEMA</span></a>
         <nav class="logo-actions" aria-label="Main navigation">
-          <Button class="nav-button" as="a" href="#movies" label="Movies" size="small" text @click="showSeatPicker = false" />
-          <Button class="nav-button" label="Buy tickets" size="small" text @click="openSeatPicker()" />
+          <Button class="nav-button" :class="{ 'nav-active': !showSeatPicker }" as="a" href="#movies" label="Movies" size="small" text @click="showSeatPicker = false" />
+          <Button class="nav-button" :class="{ 'nav-active': showSeatPicker }" label="Buy tickets" size="small" text @click="openSeatPicker()" />
           <Button class="nav-button" as="a" href="#about-us" label="About Us" size="small" text @click="showSeatPicker = false" />
           <Button class="nav-button" as="a" href="log-in" label="Log In" size="small" outlined />
         </nav>
@@ -491,12 +491,29 @@ onUnmounted(() => {
     gap:8px;
     align-items:center;
   }
+  .logo-actions .nav-button {
+    color: #888888;
+    font-weight: 400;
+  }
+  .logo-actions .nav-button.nav-active {
+    color: #ffffff;
+    font-weight: 700;
+  }
   .nav-button {
     font-family: "DM Sans", sans-serif;
     min-height:22px;
     padding:10px 18px;
     font-size:28px;
-    font-weight:900;
+    font-weight:400;
+    color: #888888;
+    transition: color 0.2s ease;
+  }
+  .nav-button:hover{
+      color: #ffffff;
+  }
+  .nav-button.nav-active {
+    color: #ffffff;
+    font-weight: 700;
   }
   .topbar > .brand {
     margin-right:auto;
