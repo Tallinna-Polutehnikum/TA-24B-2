@@ -62,5 +62,6 @@
 - Updated asnd fixed film cards design
 - Added edit oppucied seats option in 'Buy tickets' page
 - Updated header for better navigation
+- Fixed a problem new films didn't get sessions after writing `npm run movies:generate`
 
 Bradar, what it this?

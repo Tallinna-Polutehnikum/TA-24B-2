@@ -52,7 +52,7 @@ To run build mode, open `start.bat` file and choose 'Build Mode'
 ------------------------------------------------------------------------
 
 # How to manage movies and generate them in one second:
-The movies already in the project are kept unchanged. To create or refresh its random movie set, open a terminal in the `backend` folder and run in new terminal or powershell: `npm run movies:generate`
+The movies already in the project are kept unchanged. To create or refresh the random movie set and generate any missing screenings for movies added in the editor, open a terminal in the backend folder and run in new terminal or powershell: `npm run movies:generate`.
 
 As a developer, service or as a admin, you can simply change, add or delete movie in visual editor in project's developer mode. 
 

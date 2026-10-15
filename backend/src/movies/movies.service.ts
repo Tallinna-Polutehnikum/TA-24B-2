@@ -112,6 +112,7 @@ export class MoviesService implements OnModuleInit {
     const existingGeneratedMovies = await em.find(Movie, { seedKey: { $like: 'faker-generated-v1-%' } });
     const generatedMoviesByKey = new Map(existingGeneratedMovies.map((movie) => [movie.seedKey, movie]));
     const moviesToSeedRelatedData: Movie[] = [];
+    const moviesToSeedScreenings: Movie[] = [];
     const generatedMovies = Array.from({ length: movieCount }, (_, index) => {
       const seedKey = `faker-generated-v1-${index + 1}`;
       return this.makeGeneratedMovie(seedKey, {}, generatedMoviesByKey.get(seedKey));
@@ -144,12 +145,23 @@ export class MoviesService implements OnModuleInit {
       });
 
       moviesToSeedRelatedData.push(...mainMovies);
+      moviesToSeedScreenings.push(...await em.find(Movie, {
+        active: true,
+        $or: [
+          { seedKey: null },
+          { seedKey: { $like: 'faker-custom-v1-%' } },
+        ],
+      }));
     }
 
     await em.flush();
 
     if (moviesToSeedRelatedData.length > 0) {
       await this.seedRelatedData(em, moviesToSeedRelatedData);
+    }
+
+    if (moviesToSeedScreenings.length > 0) {
+      await this.seedScreenings(em, moviesToSeedScreenings);
     }
 
     const automaticMovies = await em.find(
@@ -166,29 +178,7 @@ export class MoviesService implements OnModuleInit {
   }
 
   private async seedRelatedData(em: EntityManager, movies: Movie[], refreshExisting = true) {
-    const buildings: CinemaBuilding[] = [];
-
-    for (const [index, location] of cinemaLocations.entries()) {
-      const seedKey = `kinoproject-cinema-v1-${index + 1}`;
-      let building = await em.findOne(CinemaBuilding, { seedKey });
-
-      if (!building) {
-        building = await em.findOne(CinemaBuilding, { seedKey: `faker-building-v1-${index + 1}` });
-
-        if (building) {
-          em.assign(building, { ...location, hallCount: 6, seedKey });
-        } else {
-          building = em.create(CinemaBuilding, { ...location, hallCount: 6, seedKey });
-          em.persist(building);
-        }
-      } else {
-        building.hallCount = 6;
-      }
-
-      buildings.push(building);
-    }
-
-    await em.flush();
+    const buildings = await this.ensureCinemaBuildings(em);
 
     const creatorRoles = ['Director', 'Screenwriter', 'Producer'];
 
@@ -228,6 +218,44 @@ export class MoviesService implements OnModuleInit {
       }
 
       await this.replaceScreeningsForMovie(em, movie, buildings, refreshExisting);
+    }
+
+    await em.flush();
+  }
+
+  private async ensureCinemaBuildings(em: EntityManager) {
+    const buildings: CinemaBuilding[] = [];
+
+    for (const [index, location] of cinemaLocations.entries()) {
+      const seedKey = `kinoproject-cinema-v1-${index + 1}`;
+      let building = await em.findOne(CinemaBuilding, { seedKey });
+
+      if (!building) {
+        building = await em.findOne(CinemaBuilding, { seedKey: `faker-building-v1-${index + 1}` });
+
+        if (building) {
+          em.assign(building, { ...location, hallCount: 6, seedKey });
+        } else {
+          building = em.create(CinemaBuilding, { ...location, hallCount: 6, seedKey });
+          em.persist(building);
+        }
+      } else {
+        building.hallCount = 6;
+      }
+
+      buildings.push(building);
+    }
+
+    await em.flush();
+
+    return buildings;
+  }
+
+  private async seedScreenings(em: EntityManager, movies: Movie[]) {
+    const buildings = await this.ensureCinemaBuildings(em);
+
+    for (const movie of movies) {
+      await this.replaceScreeningsForMovie(em, movie, buildings, false);
     }
 
     await em.flush();
@@ -398,6 +426,7 @@ export class MoviesService implements OnModuleInit {
     const em = this.em.fork();
     const movie = em.create(Movie, data);
     await em.persistAndFlush(movie);
+    await this.seedScreenings(em, [movie]);
     return movie;
   }
 
@@ -420,6 +449,7 @@ export class MoviesService implements OnModuleInit {
     em.persist(movie);
     await this.applyMovieRelations(em, movie, changes, true);
     await em.flush();
+    await this.seedScreenings(em, [movie]);
 
     const createdMovie = (await this.findAll()).find((entry) => entry.id === movie.id);
 
