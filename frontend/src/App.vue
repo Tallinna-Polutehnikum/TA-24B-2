@@ -12,7 +12,7 @@ import poster4 from './assets/poster4.jpg';
 import poster5 from './assets/poster5.jpg';
 import poster6 from './assets/poster6.jpg'; 
 import banner from './assets/banner1.jpg';
-import seatpicker from './Seatpicker.vue';
+import seatpicker from './SeatPicker.vue';
 import about_us from './AboutUs.vue';
 
 const movies = ref([]);
@@ -54,6 +54,21 @@ function setTheme(value) {
 
 function nextSlide(step = 1) {
   activeSlide.value = (activeSlide.value + step + slides.length) % slides.length;
+}
+
+function stepSlide(step) {
+  nextSlide(step);
+  restartSlideTimer();
+}
+
+function goToSlide(index) {
+  activeSlide.value = index;
+  restartSlideTimer();
+}
+
+function restartSlideTimer() {
+  window.clearInterval(slideTimer);
+  slideTimer = window.setInterval(() => nextSlide(), 5500);
 }
 
 function getTrailerEmbedUrl(movie) {
@@ -276,7 +291,7 @@ onMounted(async () => {
     }
   };
   browserTheme.addEventListener('change', onBrowserThemeChange);
-  slideTimer = window.setInterval(() => nextSlide(), 5500);
+  restartSlideTimer();
   try { movies.value = await getMovies(); }
   catch (e) { error.value = 'Backend is not running yet. Start NestJS and refresh.'; }
   finally { loading.value = false; }
@@ -327,7 +342,7 @@ onUnmounted(() => {
           </div>
         </Transition>
         <div class="banner-controls" aria-label="Banner controls">
-          <button type="button" aria-label="Previous banner" @click="nextSlide(-1)"><i class="pi pi-chevron-left" aria-hidden="true"></i></button>
+          <button type="button" aria-label="Previous banner" @click="stepSlide(-1)"><i class="pi pi-chevron-left" aria-hidden="true"></i></button>
           <button
             v-for="(_, index) in slides"
             :key="index"
@@ -336,9 +351,9 @@ onUnmounted(() => {
             :class="{ active: activeSlide === index }"
             :aria-label="`Show banner ${index + 1}`"
             :aria-current="activeSlide === index ? 'true' : undefined"
-            @click="activeSlide = index"
+            @click="goToSlide(index)"
           ></button>
-          <button type="button" aria-label="Next banner" @click="nextSlide(1)"><i class="pi pi-chevron-right" aria-hidden="true"></i></button>
+          <button type="button" aria-label="Next banner" @click="stepSlide(1)"><i class="pi pi-chevron-right" aria-hidden="true"></i></button>
         </div>
       </section>
       <section id="movies" class="content">
@@ -1344,6 +1359,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   background: var(--cinema-surface-raised);
   color: var(--cinema-text);
 }
+:root[data-theme="light"] .edit-movie-button:hover {
+  background: #e9edf5;
+}
 :root[data-theme="light"] .details-button {
   border-color: var(--cinema-border);
   background: #fff;
@@ -1417,6 +1435,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   position: relative;
   isolation: isolate;
   overflow: hidden;
+  background-color: var(--cinema-page);
 }
 .hero-background {
   position: absolute;

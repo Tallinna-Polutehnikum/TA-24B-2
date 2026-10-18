@@ -361,11 +361,11 @@ watch(selectedScreening, () => {
           <div><h2>Choose your seats</h2><p>{{ selectedScreening.building }} · Hall {{ selectedScreening.hallNumber }} · {{ new Date(selectedScreening.startsAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) }}</p></div>
         </div>
         <div v-if="canEditSeats" class="seats-admin-bar">
-          <button type="button" @click="editorOpen = !editorOpen">{{ editorOpen ? 'Exit seat editor' : 'Edit occupied seats' }}</button>
+          <button class="edit-movie-button" type="button" @click="editorOpen = !editorOpen">{{ editorOpen ? 'Exit seat editor' : 'Edit occupied seats' }}</button>
           <template v-if="editorOpen">
             <span>Click a seat to change occupancy.</span>
-            <button type="button" :disabled="savingSeats || loadingSeats" @click="clearAllSeats">Clear all</button>
-            <button type="button" :disabled="savingSeats || loadingSeats" @click="occupyAllSeats">Occupy all</button>
+            <button class="edit-movie-button" type="button" :disabled="savingSeats || loadingSeats" @click="clearAllSeats">Clear all</button>
+            <button class="edit-movie-button" type="button" :disabled="savingSeats || loadingSeats" @click="occupyAllSeats">Occupy all</button>
           </template>
         </div>
         <p v-if="seatError" class="seat-api-error">{{ seatError }}<button type="button" @click="fetchScreeningSeats">Retry</button></p>
@@ -887,7 +887,7 @@ watch(selectedScreening, () => {
   .booking-section .continue-button {
     border-radius: 8px;
   }
-  .seats-admin-bar {
+.seats-admin-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -897,17 +897,43 @@ watch(selectedScreening, () => {
   font-size: 13px;
 }
 .seats-admin-bar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
   padding: 9px 14px;
-  border: 1px solid #3d77f3;
-  border-radius: 6px;
+  border: 1px solid #555;
+  border-radius: 8px;
+  background: #1b1b1b;
+  color: #fff;
+  font: inherit;
+  margin: 0;
+  line-height: 1.2;
+  white-space: nowrap;
   cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
-.seats-admin-bar button:hover {
-  background: #3d77f3;
+.seats-admin-bar button:hover:not(:disabled) {
+  background: #292929;
 }
 .seats-admin-bar button:disabled {
   opacity: 0.4;
   cursor: wait;
+}
+.seats-admin-bar span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+}
+
+:global(:root[data-theme="light"] .seats-admin-bar button) {
+  border-color: var(--cinema-border);
+  background: var(--cinema-surface-raised);
+  color: var(--cinema-text);
+}
+
+:global(:root[data-theme="light"] .seats-admin-bar button:hover:not(:disabled)) {
+  background: #e9edf5;
 }
 .seat-api-error {
   margin: 8px 0;

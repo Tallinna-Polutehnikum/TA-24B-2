@@ -74,8 +74,8 @@
 - Update README.MD
 - Made an optimization to other colors (denied the color fixation)
 - Added dark/light mode
-- Added banner switch with transitions
-- Created About Us page
+- Added banner switch with 5.5s transition and switch banners buttons
+- Filled 'About Us' page with info
 - Fixed a checkout script
 - Fixed loading timeouts in launcher and made a full support for every operating systems (macOS, Linux and Windows)
 
