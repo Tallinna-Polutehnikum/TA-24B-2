@@ -405,28 +405,24 @@ watch(selectedScreening, () => {
   color: #f5f5f5;
   font-family: "DM Sans", sans-serif;
 }
-
 .booking-filters {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
   margin-bottom: 32px;
 }
-
 .filter-field {
   display: flex;
   flex-direction: column;
   gap: 8px;
   border-radius: 8px;
 }
-
 .filter-field span {
   color: #888;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
-
 .filter-field select {
   appearance: none;
   width: 100%;
@@ -444,46 +440,38 @@ watch(selectedScreening, () => {
   outline: none;
   cursor: pointer;
 }
-
 .filter-field select:hover {
   border-color: #555;
 }
-
 .filter-field select:focus {
   border-color: #3d77f3;
 }
-
 .filter-field select:disabled {
   color: #666;
   background: #101010;
   cursor: not-allowed;
 }
-
 .booking-header {
   margin-bottom: 36px;
 }
-
 .section-label {
   color: var(--cinema-accent);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.15em;
 }
-
 .session-info {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   margin-bottom: 56px;
 }
-
 .session-info div {
   min-width: 0;
   padding: 16px 18px;
   background: #141414;
   border: 1px solid #292929;
 }
-
 .session-info span {
   display: block;
   margin-bottom: 8px;
@@ -491,19 +479,16 @@ watch(selectedScreening, () => {
   font-size: 11px;
   text-transform: uppercase;
 }
-
 .session-info strong {
   display: block;
   overflow-wrap: anywhere;
   color: #eee;
   font-size: 14px;
 }
-
 .hall {
   max-width: 900px;
   margin: auto;
 }
-
 .screen {
   position: relative;
   width: 75%;
@@ -513,7 +498,6 @@ watch(selectedScreening, () => {
   background: #dce6ff;
   box-shadow: 0 8px 28px rgba(61, 119, 243, 0.25);
 }
-
 .screen span {
   position: absolute;
   top: 15px;
@@ -523,7 +507,6 @@ watch(selectedScreening, () => {
   font-size: 11px;
   letter-spacing: 0.2em;
 }
-
 .seats {
   display: flex;
   flex-direction: column;
@@ -531,7 +514,6 @@ watch(selectedScreening, () => {
   overflow-x: auto;
   padding: 4px 0 8px;
 }
-
 .seat-row {
   display: flex;
   align-items: center;
@@ -540,14 +522,16 @@ watch(selectedScreening, () => {
   width: max-content;
   min-width: 100%;
 }
-
 .row-number {
   width: 25px;
   text-align: center;
   color: #777;
   font-size: 12px;
 }
-
+.booking-section .movie-banner .section-label,
+.movie-banner h1 {
+  color: #fff;
+}
 .seat {
   flex: 0 0 40px;
   height: 36px;
@@ -560,27 +544,23 @@ watch(selectedScreening, () => {
   cursor: pointer;
   transition: background 0.2s, transform 0.2s, border-color 0.2s, color 0.2s;
 }
-
 .seat:hover:not(.occupied) {
   transform: translateY(-3px);
   border-color: #3d77f3;
   color: white;
 }
-
 .seat.selected {
   transform: translateY(-3px);
   border-color: #3d77f3;
   background: #3d77f3;
   color: white;
 }
-
 .seat.occupied {
   border-color: #292929;
   background: #292929;
   color: #555;
   cursor: not-allowed;
 }
-
 .legend {
   display: flex;
   flex-wrap: wrap;
@@ -590,32 +570,43 @@ watch(selectedScreening, () => {
   color: #999;
   font-size: 13px;
 }
-
 .legend div {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
 .legend-seat {
   width: 18px;
   height: 15px;
   border-radius: 4px 4px 6px 6px;
 }
-
 .legend-seat.free {
   border: 1px solid #555;
   background: #181818;
 }
-
 .legend-seat.selected {
   background: #3d77f3;
 }
-
 .legend-seat.occupied {
   background: #292929;
 }
-
+:global(:root[data-theme="light"] .seat:not(.selected)) {
+  border-color: #aaa;
+  background: #fff;
+  color: #333;
+}
+:global(:root[data-theme="light"] .seat.occupied) {
+  border-color: #b8b8b8;
+  background: #b8b8b8;
+  color: #666;
+}
+:global(:root[data-theme="light"] .legend-seat.free) {
+  border-color: #aaa;
+  background: #fff;
+}
+:global(:root[data-theme="light"] .legend-seat.occupied) {
+  background: #b8b8b8;
+}
 .booking-summary {
   display: flex;
   align-items: center;
@@ -625,12 +616,10 @@ watch(selectedScreening, () => {
   padding-top: 24px;
   border-top: 1px solid #292929;
 }
-
 .selected-info {
   flex: 1;
   min-width: 0;
 }
-
 .selected-info span,
 .price span {
   display: block;
@@ -639,18 +628,15 @@ watch(selectedScreening, () => {
   font-size: 11px;
   text-transform: uppercase;
 }
-
 .selected-info strong {
   overflow-wrap: anywhere;
   color: #eee;
   font-size: 14px;
 }
-
 .price strong {
   color: #f5f5f5;
   font-size: 24px;
 }
-
 .continue-button {
   min-height: 46px;
   padding: 12px 20px;
@@ -664,20 +650,17 @@ watch(selectedScreening, () => {
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s, transform 0.2s;
 }
-
 .continue-button:hover:not(:disabled) {
   transform: translateY(-2px);
   border-color: #2f65d5;
   background: #2f65d5;
 }
-
 .continue-button:disabled {
   border-color: #333;
   background: #202020;
   color: #777;
   cursor: not-allowed;
 }
-
 @media (max-width: 750px) {
   .booking-section {
     min-height: calc(100vh - 104px);
@@ -686,55 +669,45 @@ watch(selectedScreening, () => {
   .booking-filters {
   grid-template-columns: 1fr;
   }
-
   .session-info {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
     margin-bottom: 48px;
   }
-
   .session-info div {
     padding: 14px;
   }
-
   .seats {
     align-items: flex-start;
   }
-
   .seat {
     flex-basis: 34px;
     height: 32px;
     font-size: 11px;
   }
-
   .seat-row {
     gap: 7px;
   }
-
   .row-number {
     flex: 0 0 20px;
   }
-
   .booking-summary {
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 20px 14px;
     margin-top: 40px;
   }
-
   .continue-button {
     grid-column: 1 / -1;
     width: 100%;
   }
 }
-
 @media (max-width: 420px) {
   .legend {
     gap: 14px;
     font-size: 12px;
   }
 }
-
 .booking-back,
 .change-movie {
   padding: 5px 10px;
@@ -747,19 +720,16 @@ watch(selectedScreening, () => {
   margin: 14px;
   margin-left: auto;
 }
-
 .booking-back:hover,
 .change-movie:hover {
   color: #fff;
   border-color: #fff;
 }
-
 .movie-selection-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 18px;
 }
-
 .movie-choice {
   display: flex;
   flex-direction: column;
@@ -773,35 +743,28 @@ watch(selectedScreening, () => {
   text-align: left;
   cursor: pointer;
 }
-
 .movie-choice:hover {
   border-color: #3d77f3;
 }
-
 .movie-choice img {
   width: 100%;
   aspect-ratio: 2 / 3;
   object-fit: cover;
   border-radius: 8px;
 }
-
 .movie-choice span,
 .movie-choice small {
   margin: 0 12px;
 }
-
 .movie-choice span {
   font-weight: 700;
 }
-
 .movie-choice small {
   color: #999;
 }
-
 .booking-empty {
   color: #aaa;
 }
-
 .movie-banner {
   display: flex;
   align-items: end;
@@ -814,40 +777,33 @@ watch(selectedScreening, () => {
   background-size: cover;
   background-repeat: no-repeat;
 }
-
 .booking-step {
   margin: 32px 0;
 }
-
 .step-heading {
   display: flex;
   gap: 16px;
   align-items: start;
   margin-bottom: 22px;
 }
-
 .step-heading > span {
   color: #3d77f3;
   font-size: 13px;
   font-weight: 700;
 }
-
 .step-heading h2 {
   margin: 0 0 6px;
   font-size: 23px;
 }
-
 .step-heading p {
   margin: 0;
   color: #999;
 }
-
 .showtime-list {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
-
 .showtime-button {
   display: grid;
   gap: 5px;
@@ -860,37 +816,30 @@ watch(selectedScreening, () => {
   text-align: left;
   cursor: pointer;
 }
-
 .showtime-button span {
   color: #999;
   font-size: 12px;
 }
-
 .showtime-button b {
   color: #aaa;
   font-size: 13px;
 }
-
 .showtime-button:hover,
 .showtime-button.active {
   border-color: #3d77f3;
 }
-
 .showtime-button.active {
   background: #17233b;
 }
-
 @media (max-width: 750px) {
   .movie-banner {
     min-height: 240px;
     margin: 18px 0 32px;
     padding: 20px;
   }
-
   .movie-banner h1 {
     font-size: 36px;
   }
-
   .movie-selection-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
@@ -900,16 +849,13 @@ watch(selectedScreening, () => {
     color: var(--cinema-text);
     font-family: var(--cinema-font-body);
   }
-
   .booking-section .section-label {
     color: #3d77f3;
   }
-
   .booking-section .booking-header h1,
   .booking-section .movie-banner h1 {
     font-family: var(--cinema-font-heading);
   }
-
   .booking-section .filter-field select,
   .booking-section .movie-choice,
   .booking-section .showtime-button {
@@ -917,39 +863,32 @@ watch(selectedScreening, () => {
     background-color: var(--cinema-surface);
     color: var(--cinema-text);
   }
-
   .booking-section .showtime-button span,
   .booking-section .booking-header p,
   .booking-section .step-heading p {
     color: var(--cinema-muted);
   }
-
   .booking-section .showtime-button:hover,
   .booking-section .showtime-button.active,
   .booking-section .movie-choice:hover {
     border-color: var(--cinema-accent);
   }
-
   .booking-section .showtime-button.active {
     background: var(--cinema-surface-raised);
   }
-
   .booking-section .continue-button {
     border-color: var(--cinema-accent);
     background: var(--cinema-accent);
   }
-
   .booking-section .continue-button:hover:not(:disabled) {
     border-color: var(--cinema-accent-hover);
     background: var(--cinema-accent-hover);
   }
-
   .booking-section .movie-choice,
   .booking-section .showtime-button,
   .booking-section .continue-button {
     border-radius: 8px;
   }
-
   .seats-admin-bar {
   display: flex;
   flex-wrap: wrap;
@@ -959,7 +898,6 @@ watch(selectedScreening, () => {
   color: #aaa;
   font-size: 13px;
 }
-
 .seats-admin-bar button {
   padding: 9px 14px;
   border: 1px solid #3d77f3;
@@ -968,25 +906,20 @@ watch(selectedScreening, () => {
   color: #fff;
   cursor: pointer;
 }
-
 .seats-admin-bar button:hover {
   background: #3d77f3;
 }
-
 .seats-admin-bar button:disabled {
   opacity: 0.4;
   cursor: wait;
 }
-
 .seat-api-error {
   margin: 8px 0;
   color: #ef8888;
 }
-
 .seat.editing {
   cursor: pointer;
 }
-
 .seat.editing:hover:not(:disabled) {
   transform: translateY(-3px);
   border-color: #3d77f3;

@@ -85,7 +85,6 @@ function formatTime(value) {
   color: #f5f5f5;
   font-family: "DM Sans", sans-serif;
 }
-
 .checkout-back {
   display: block;
   margin-bottom: 42px;
@@ -96,7 +95,6 @@ function formatTime(value) {
   font: inherit;
   cursor: pointer;
 }
-
 .checkout-back:hover {
   color: #fff;
 }
@@ -105,7 +103,6 @@ function formatTime(value) {
 .checkout-total p {
   color: #999;
 }
-
 .checkout-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 280px;
@@ -114,7 +111,6 @@ function formatTime(value) {
   padding-top: 28px;
   border-top: 1px solid #292929;
 }
-
 .checkout-title-row {
   display: flex;
   justify-content: space-between;
@@ -123,20 +119,16 @@ function formatTime(value) {
   font-size: 11px;
   text-transform: uppercase;
 }
-
 .checkout-details h2 {
   margin: 20px 0 6px;
   font-size: 28px;
 }
-
 .checkout-genre {
   margin: 0 0 28px;
 }
-
 .checkout-facts {
   margin: 0;
 }
-
 .checkout-facts div {
   display: grid;
   grid-template-columns: 130px minmax(0, 1fr);
@@ -144,50 +136,41 @@ function formatTime(value) {
   padding: 14px 0;
   border-top: 1px solid #242424;
 }
-
 .checkout-facts dt {
   color: #999;
 }
-
 .checkout-facts dd {
   margin: 0;
   color: #eee;
   overflow-wrap: anywhere;
 }
-
 .checkout-total {
   align-self: start;
   padding: 22px;
   border: 1px solid #292929;
   background: #141414;
 }
-
 .checkout-total-label {
   display: block;
   margin-bottom: 10px;
   color: #999;
   font-size: 11px;
 }
-
 .checkout-total strong {
   font-size: 32px;
 }
-
 .checkout-total .continue-button {
   width: 100%;
   margin-top: 22px;
 }
-
 @media (max-width: 700px) {
   .checkout-layout {
     grid-template-columns: 1fr;
     gap: 24px;
   }
-
   .checkout-header h1 {
     font-size: 40px;
   }
-
   .checkout-facts div {
     grid-template-columns: 95px minmax(0, 1fr);
   }
@@ -196,11 +179,9 @@ function formatTime(value) {
     color: var(--cinema-text);
     font-family: var(--cinema-font-body);
   }
-
   .checkout-header h1 {
     font-family: var(--cinema-font-heading);
   }
-
   .checkout-back,
   .checkout-header p,
   .checkout-genre,
@@ -210,18 +191,15 @@ function formatTime(value) {
   .checkout-total p {
     color: var(--cinema-muted);
   }
-
   .checkout-layout,
   .checkout-facts div {
     border-color: var(--cinema-border);
   }
-
   .checkout-total {
     border-color: var(--cinema-border);
     border-radius: 4px;
     background: var(--cinema-surface);
   }
-
   .checkout-total .continue-button {
     border-radius: 3px;
   }
