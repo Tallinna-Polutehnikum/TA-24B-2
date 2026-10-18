@@ -67,4 +67,8 @@
 # 16.10.2026
 - Added empty 'About Us' page
 
+# 18.10.2026
+- Fixed router issue not showing link properly
+- Fixed a bug, where more than 3 roles are breaking a movie card in the main page
+
 Bradar, what it this?

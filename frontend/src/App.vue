@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Tag from 'primevue/tag';
@@ -17,10 +17,11 @@ import about_us from './AboutUs.vue';
 
 const movies = ref([]);
 const router = useRouter();
+const route = useRoute();
 const loading = ref(true);
 const error = ref('');
-const showSeatPicker = ref(false);
-const showAboutUs = ref(false);
+const showSeatPicker = computed(() => route.path === '/buy-tickets');
+const showAboutUs = computed(() => route.path === '/about_us');
 const selectedMovie = ref(null);
 const selectedMovieIndex = ref(0);
 const previousBodyOverflow = ref('');
@@ -224,15 +225,21 @@ function formatScreeningTime(value) {
 
 const selectedBookingMovie = ref(null)
 
+function goHome() {
+  router.push('/');
+}
+
+function goToMovies() {
+  router.push({ path: '/', hash: '#movies' });
+}
+
 function openSeatPicker(movie = null) {
-  selectedBookingMovie.value = movie
-  showSeatPicker.value = true
-  showAboutUs.value = false
+  selectedBookingMovie.value = movie;
+  router.push('/buy-tickets');
 }
 
 function openAboutUs() {
-  showSeatPicker.value = false;
-  showAboutUs.value = true;
+  router.push('/about_us');
 }
 
 async function openCheckout(booking) {
@@ -257,9 +264,9 @@ onUnmounted(() => {
   <div class="page" id="bradarcinema.ee">
     <header class="topbar">
       <div class="brand">
-        <a href="#bradarcinema.ee" class="logo" aria-label="Go to main screen" @click="showSeatPicker = false; showAboutUs = false">BRADAR <span>CINEMA</span></a>
+        <a href="/" class="logo" aria-label="Go to main screen" @click.prevent="goHome">BRADAR <span>CINEMA</span></a>
         <nav class="logo-actions" aria-label="Main navigation">
-          <Button class="nav-button" :class="{ 'nav-active': !showSeatPicker && !showAboutUs }" as="a" href="#movies" label="Movies" size="small" text @click="showSeatPicker = false; showAboutUs = false" />
+          <Button class="nav-button" :class="{ 'nav-active': !showSeatPicker && !showAboutUs }" label="Movies" size="small" text @click="goToMovies" />
           <Button class="nav-button" :class="{ 'nav-active': showSeatPicker }" label="Buy tickets" size="small" text @click="openSeatPicker()" />
           <Button class="nav-button" :class="{ 'nav-active': showAboutUs }" label="About Us" size="small" text @click="openAboutUs()"/>
           <Button class="nav-button" as="a" href="log-in" label="Log In" size="small" outlined />
@@ -267,7 +274,7 @@ onUnmounted(() => {
       </div>
     </header>
     <main v-if="showSeatPicker">
-      <seatpicker :movie="selectedBookingMovie" :movies="movies" @close="showSeatPicker = false" @checkout="openCheckout" />
+      <seatpicker :movie="selectedBookingMovie" :movies="movies" @close="goToMovies" @checkout="openCheckout" />
     </main>
     <main v-else-if="showAboutUs">
       <about_us />
@@ -314,10 +321,10 @@ onUnmounted(() => {
                   <span class="movie-data-label">Creators</span>
                   <div v-if="movie.creators?.length" class="movie-data-list">
                     <div class="movie-data-creator-row">
-                      <span v-for="creator in movie.creators" :key="`${creator.id}-role`">{{ creator.role }}</span>
+                      <span v-for="creator in movie.creators.slice(0, 3)" :key="`${creator.id}-role`">{{ creator.role }}</span>
                     </div>
                     <div class="movie-data-creator-row movie-data-creator-names">
-                      <strong v-for="creator in movie.creators" :key="`${creator.id}-name`">{{ creator.name }}</strong>
+                      <strong v-for="creator in movie.creators.slice(0, 3)" :key="`${creator.id}-name`">{{ creator.name }}</strong>
                     </div>
                   </div>
                   <span v-else class="movie-data-empty">Not generated yet</span>
