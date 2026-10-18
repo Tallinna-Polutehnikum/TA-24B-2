@@ -630,11 +630,9 @@ watch(selectedScreening, () => {
 }
 .selected-info strong {
   overflow-wrap: anywhere;
-  color: #eee;
   font-size: 14px;
 }
 .price strong {
-  color: #f5f5f5;
   font-size: 24px;
 }
 .continue-button {
@@ -902,8 +900,6 @@ watch(selectedScreening, () => {
   padding: 9px 14px;
   border: 1px solid #3d77f3;
   border-radius: 6px;
-  background: #171e30;
-  color: #fff;
   cursor: pointer;
 }
 .seats-admin-bar button:hover {

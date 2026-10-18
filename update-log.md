@@ -70,5 +70,13 @@
 # 18.10.2026
 - Fixed router issue not showing link properly
 - Fixed a bug, where more than 3 roles are breaking a movie card in the main page
+- Fixed fonts and colors in seat selection and in checkout page
+- Update README.MD
+- Made an optimization to other colors (denied the color fixation)
+- Added dark/light mode
+- Added banner switch with transitions
+- Created About Us page
+- Fixed a checkout script
+- Fixed loading timeouts in launcher and made a full support for every operating systems (macOS, Linux and Windows)
 
 Bradar, what it this?

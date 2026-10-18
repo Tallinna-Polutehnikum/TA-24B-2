@@ -12,7 +12,7 @@ import poster4 from './assets/poster4.jpg';
 import poster5 from './assets/poster5.jpg';
 import poster6 from './assets/poster6.jpg'; 
 import banner from './assets/banner1.jpg';
-import seatpicker from './SeatPicker.vue';
+import seatpicker from './Seatpicker.vue';
 import about_us from './AboutUs.vue';
 
 const movies = ref([]);

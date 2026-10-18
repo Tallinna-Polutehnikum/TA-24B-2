@@ -141,7 +141,6 @@ function formatTime(value) {
 }
 .checkout-facts dd {
   margin: 0;
-  color: #eee;
   overflow-wrap: anywhere;
 }
 .checkout-total {
