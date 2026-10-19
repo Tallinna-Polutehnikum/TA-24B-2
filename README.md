@@ -87,7 +87,7 @@ To run build mode, open `start.bat` file or write `.\start.bat` command and choo
 ------------------------------------------------------------------------
 
 ## Attention!
-1. If you're using the manual startup open the Docker Desktop app before!
+1. If you're using the manual startup open the Docker Desktop app before and run backend / frontend folders separatly in terminals!
 2. If you're using the launcher startup DON'T close frontend & backend terminals which appearing after choosing mode!
 3. If the frontend or backend node.js structure doesn't exist or work, you can recover it writing `npm install` command in the terminal
 
