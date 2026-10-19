@@ -18,7 +18,7 @@
 ```
 
 # How to run a project as developer (Launcher Startup):
-To run developer mode, open `start.bat` file and choose 'Developer Mode' 
+To run developer mode, open `start.bat` file or write `.\start.bat` command and choose 'Developer Mode' 
 
 ------------------------------------------------------------------------
 
@@ -40,7 +40,7 @@ To run developer mode, open `start.bat` file and choose 'Developer Mode'
 ```
 
 # How to run a build / regular user side (Launcher Startup):
-To run build mode, open `start.bat` file and choose 'Build Mode' 
+To run build mode, open `start.bat` file or write `.\start.bat` command and choose 'Build Mode' 
 
 ------------------------------------------------------------------------
 
