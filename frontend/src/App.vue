@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Tag from 'primevue/tag';
-import { getMovies, updateMovie, createMovie, deleteMovie, uploadMoviePoster, getAssetUrl, getBanners, updateBanner, createBanner, deleteBanner, uploadBannerImage } from './services/api';
+import { getMovies, updateMovie, createMovie, deleteMovie, uploadMoviePoster, getAssetUrl, getBanners, updateBanner, createBanner, deleteBanner, uploadBannerImage } from './services/api.js';
 import poster1 from './assets/poster1.jpg';
 import poster2 from './assets/poster2.jpg';
 import poster3 from './assets/poster3.jpg';
@@ -16,6 +16,10 @@ import seatpicker from './SeatPicker.vue';
 import about_us from './AboutUs.vue';
 
 const movies = ref([]);
+const selectedGenre = ref('');
+const genreOptions = computed(() => [...new Set(movies.value.flatMap(movie => String(movie.genre || '').split(/[,/;|]/).map(genre => genre.trim()).filter(Boolean)))].sort((a, b) => a.localeCompare(b)));
+const filteredMovies = computed(() => movies.value.filter(movie => !selectedGenre.value || String(movie.genre || '').split(/[,/;|]/).some(genre => genre.trim().toLocaleLowerCase() === selectedGenre.value.toLocaleLowerCase())));
+
 const router = useRouter();
 const route = useRoute();
 const loading = ref(true);
@@ -476,16 +480,24 @@ onUnmounted(() => {
         <div class="section-heading">
           <div><h3>Top Movies</h3></div>
           <div class="movie-heading-actions">
-            <span>{{ movies.length }} movies</span>
+            <span>{{ filteredMovies.length }} of {{ movies.length }} movies</span>
             <button v-if="canEditBanners" class="edit-movie-button add-movie-button" type="button" @click="startBannerCreate">+ Add banner</button>
             <button v-if="canEditMovies" class="edit-movie-button add-movie-button" type="button" @click="startMovieCreate">+ Add movie</button>
+            <label class="genre-heading-control" for="movie-genre-filter">
+              <span class="sr-only">Filter movies by genre</span>
+              <select id="movie-genre-filter" v-model="selectedGenre" class="genre-filter-select" aria-label="Filter movies by genre">
+                <option value="">All genres</option>
+                <option v-for="genre in genreOptions" :key="genre" :value="genre">{{ genre }}</option>
+              </select>
+            </label>
           </div>
         </div>
         <div v-if="loading" class="state">Loading movies from backend...</div>
         <div v-else-if="error" class="state error">{{ error }}</div>
+        <div v-else-if="!filteredMovies.length" class="state">No movies found for this genre.</div>
         <div v-else class="grid">
-          <Card v-for="(movie, index) in movies" :key="movie.id" class="movie-card clickable-card" @click="openMovie(movie, index)">
-            <template #header><img :src="getPoster(movie, index)" :alt="movie.title" @error="handlePosterError($event, index)" /></template>
+          <Card v-for="movie in filteredMovies" :key="movie.id" class="movie-card clickable-card" @click="openMovie(movie, movies.findIndex(entry => entry.id === movie.id))">
+            <template #header><img :src="getPoster(movie, movies.findIndex(entry => entry.id === movie.id))" :alt="movie.title" @error="handlePosterError($event, movies.findIndex(entry => entry.id === movie.id))" /></template>
             <template #title>
               <div class="movie-title-row">
                 <div class="movie-title-info">
@@ -1633,4 +1645,17 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   opacity: 0;
   transform: translateY(-10px);
 }
+
+.genre-filter-bar { display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin: 0 0 24px; }
+.genre-filter-bar label { font-weight:600; }
+.genre-filter-select { background:#202020; color:#fff; border:1px solid #555; border-radius:9px; padding:10px 14px; min-width:180px; font:inherit; cursor:pointer; }
+.genre-filter-select:focus-visible { outline:2px solid #4b8bff; outline-offset:2px; }
+.genre-filter-clear { border:1px solid #777; border-radius:9px; background:transparent; color:inherit; padding:10px 14px; cursor:pointer; }
+:root[data-theme="light"] .genre-filter-select { background:#fff; color:#222; border-color:#aaa; }
+</style>
+
+<style scoped>
+.genre-heading-control { display: inline-flex; align-items: center; }
+.genre-heading-control .genre-filter-select { min-width: 145px; max-width: 210px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 </style>

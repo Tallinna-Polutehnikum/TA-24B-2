@@ -13,8 +13,7 @@
 
 ## 3. Frontend folder
 ```bash or VSC terminal
-    cd frontend
-    npm run dev
+   
 ```
 
 # How to run a project as developer (Launcher Startup):
