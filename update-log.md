@@ -70,7 +70,7 @@
 - Fixed router issue not showing link properly
 - Fixed a bug, where more than 3 roles are breaking a movie card in the main page
 - Fixed fonts and colors in seat selection and in checkout page
-- Update README.MD
+- Updated README.MD file
 - Made an optimization to other colors (denied the color fixation)
 - Added dark/light mode
 - Added banner switch with 5.5s transition and switch banners buttons

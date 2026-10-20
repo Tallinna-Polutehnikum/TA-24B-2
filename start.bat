@@ -38,7 +38,6 @@ $dev.Location = New-Object System.Drawing.Point(210,85); ^
 $dev.Size = New-Object System.Drawing.Size(160,45); ^
 $dev.DialogResult = [System.Windows.Forms.DialogResult]::No; ^
 $form.Controls.Add($dev); ^
-
 $buttonBorder = if ($isDark) { [System.Drawing.Color]::FromArgb(105,105,105) } else { [System.Drawing.Color]::FromArgb(160,160,160) }; ^
 $hoverBg = if ($isDark) { [System.Drawing.Color]::FromArgb(48,48,48) } else { [System.Drawing.Color]::FromArgb(225,225,225) }; ^
 $hoverBorder = if ($isDark) { [System.Drawing.Color]::FromArgb(160,160,160) } else { [System.Drawing.Color]::FromArgb(100,100,100) }; ^
