@@ -81,5 +81,6 @@
 # 20.10.2026
 - Added options to edit, add and delete banners on the main page in the developer mode (npm run dev)
 - Added the database storage for banners (Added a banners folder in the backend)
+- Added movie genres filter to sort movies by movie genre
 
 Bradar, what it this?
