@@ -6,7 +6,7 @@
 - Added the first main page version
 
 ## 24.09.2026
-- Updated `app.vue` file
+- Updated `App.vue` file
 - Fixed a bug with films not appending on the website
 - Fixed the database sync problem (Changes didn't applied on the website)
 
@@ -19,7 +19,7 @@
 
 ## 01.10.2026
 - Fixed a problem with switching pages on the website
-- Some changes in the `README.md` file
+- Made some changes in the `README.md` file
 - Added faker generation, movie updater and generator
 - Added ratings, decription and creators of the movie
 - Added a full info to each movie
