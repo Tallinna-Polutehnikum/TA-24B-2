@@ -1033,7 +1033,7 @@ nav a:hover {
 }
 .details-button:hover {
   background: #fff;
-  border:#fff;
+  border-color:#fff;
   color: #070707;
 }
 .movie-card .p-card-footer {
