@@ -1,7 +1,7 @@
 <template>
   <div class="about-page">
     <h1 class="about-us">About us</h1>
-    <p>Bradar Cinema is a cinema website created as a school project by students at Tallinna Polütehnikum. Our goal is to make discovering movies and exploring film details simple and enjoyable.</p>
+    <p>Bradar Cinema is a cinema website created as a school project by students at Techno TLN (Pärnu Mnt 57, Kesklinn). Our goal is to make discovering movies and exploring film details simple and enjoyable.</p>
     <h3>Our developers</h3>
       <div class="developer-grid">
         <div v-for="developer in ['Daniel Helmrosin', 'Aleksandr Kartuzov', 'Samir Cibis']" :key="developer" class="developer-card">

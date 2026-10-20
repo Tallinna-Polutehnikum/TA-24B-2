@@ -14,6 +14,7 @@ import poster6 from './assets/poster6.jpg';
 import banner from './assets/banner1.jpg';
 import seatpicker from './SeatPicker.vue';
 import about_us from './AboutUs.vue';
+import club from './Club.vue';
 
 const movies = ref([]);
 const selectedGenre = ref('');
@@ -26,6 +27,7 @@ const loading = ref(true);
 const error = ref('');
 const showSeatPicker = computed(() => route.path === '/buy-tickets');
 const showAboutUs = computed(() => route.path === '/about_us');
+const showClub = computed(() => route.path === '/club');
 const selectedMovie = ref(null);
 const selectedMovieIndex = ref(0);
 const previousBodyOverflow = ref('');
@@ -392,6 +394,10 @@ function openAboutUs() {
   router.push('/about_us');
 }
 
+function openClub() {
+  router.push('/club');
+}
+
 async function openCheckout(booking) {
   sessionStorage.setItem('pendingBooking', JSON.stringify(booking));
   await router.push('/checkout');
@@ -430,10 +436,10 @@ onUnmounted(() => {
       <div class="brand">
         <a href="/" class="logo" aria-label="Go to main screen" @click.prevent="goHome">BRADAR <span>CINEMA</span></a>
         <nav class="logo-actions" aria-label="Main navigation">
-          <Button class="nav-button" :class="{ 'nav-active': !showSeatPicker && !showAboutUs }" label="Movies" size="small" text @click="goToMovies" />
+          <Button class="nav-button" :class="{ 'nav-active': !showSeatPicker && !showAboutUs && !showClub }" label="Movies" size="small" text @click="goToMovies" />
           <Button class="nav-button" :class="{ 'nav-active': showSeatPicker }" label="Buy tickets" size="small" text @click="openSeatPicker()" />
           <Button class="nav-button" :class="{ 'nav-active': showAboutUs }" label="About Us" size="small" text @click="openAboutUs()"/>
-          <Button class="nav-button" as="a" href="log-in" label="Join Bradar Club" size="small" outlined />
+          <Button class="nav-button" :class="{ 'nav-active': showClub }" label="Join Bradar Club" size="small" text @click="openClub()"/>
         </nav>
         <button class="theme-toggle" type="button" :aria-label="theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'" @click="setTheme(theme === 'dark' ? 'light' : 'dark')">
           <i :class="theme === 'dark' ? 'pi pi-sun' : 'pi pi-moon'" aria-hidden="true"></i>
@@ -446,6 +452,9 @@ onUnmounted(() => {
     </main>
     <main v-else-if="showAboutUs">
       <about_us />
+    </main>
+    <main v-else-if="showClub">
+      <club />
     </main>
     <main v-else>
       <section class="hero" aria-label="Featured movies">
