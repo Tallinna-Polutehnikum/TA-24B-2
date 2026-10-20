@@ -8,11 +8,11 @@
 ## 24.09.2026
 - Updated `App.vue` file
 - Fixed a bug with films not appending on the website
-- Fixed the database sync problem (Changes didn't applied on the website)
+- Fixed the database sync problem (Changes didn't apply on the website)
 
 ## 26.09.2026
 - Renamed the whole website to Bradar Cinema
-- Changed fonts and some small changes
+- Changed fonts and made some small changes
 - Changed buttons in movie lists to have them in the centre of field
 - Fixed the problem with databases that you didn't have an access to run the databases Nest.js and npm because of renames inside `docker-compose.yml`
 - Made a better optimization
@@ -32,10 +32,9 @@
 
 ## 08.10.2026
 - Made a function that shows you a full description of the movies and trailers
-- Updated App.vue and optimized a description window from b2test to main project
+- Updated `App.vue` and optimized a description window from b2test to main project
 - Made a movie editor that provides you changing movie description in the dev mode (npm run dev)
 - Made a movie editor to work in developer mode, in build and regular sites movie editor will be removed or hidden
-- Updated CSS file
 
 # 13.10.2026
 - Polished `guide.md` and `README.md` files for better reading
@@ -47,7 +46,7 @@
 - Added banner browser function (for browsing banner files)
 
 # 14.10.2026
-- Added "Buy tickets" option on the header
+- Added 'Buy tickets' option on the header
 - Added cinemas in the project
 - Added option to choose a film, cinema, time and seats to buy a ticket
 - Added a checkout, which shows user's picks (It's still under construction)
