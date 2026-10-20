@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Tag from 'primevue/tag';
-import { createMovie, deleteMovie, getAssetUrl, getMovies, updateMovie, uploadMoviePoster } from './services/api';
+import { getMovies, updateMovie, createMovie, deleteMovie, uploadMoviePoster, getAssetUrl, getBanners, updateBanner, createBanner, deleteBanner, uploadBannerImage } from './services/api';
 import poster1 from './assets/poster1.jpg';
 import poster2 from './assets/poster2.jpg';
 import poster3 from './assets/poster3.jpg';
@@ -34,13 +34,19 @@ const movieForm = ref(null);
 const posterFileInput = ref(null);
 const uploadingPoster = ref(false);
 const canEditMovies = import.meta.env.DEV;
-const posters = [poster1, poster2, poster3, poster4, poster5, poster6];
-const slides = [
-  { image: banner, title: 'Crime Patrol: The Amazing full FMV-movie', subtitle: 'For only 9.99€' },
-  { image: poster4, title: 'Experience movies on the big screen', subtitle: 'Explore what is playing now' },
-  { image: poster5, title: 'Your next movie night starts here', subtitle: 'Discover your new favorite film' },
-];
+const selectedBanner = ref(null);
+const editingBanner = ref(false);
+const creatingBanner = ref(false);
+const savingBanner = ref(false);
+const deletingBanner = ref(false);
+const uploadingBanner = ref(false);
+const bannerSaveError = ref('');
+const bannerForm = ref(null);
+const bannerFileInput = ref(null);
+const canEditBanners = import.meta.env.DEV;
+const slides = ref([]);
 const activeSlide = ref(0);
+const posters = [poster1, poster2, poster3, poster4, poster5, poster6];
 const theme = ref('dark');
 let slideTimer;
 let browserTheme;
@@ -53,7 +59,8 @@ function setTheme(value) {
 }
 
 function nextSlide(step = 1) {
-  activeSlide.value = (activeSlide.value + step + slides.length) % slides.length;
+  if (!slides.value.length) return;
+  activeSlide.value = (activeSlide.value + step + slides.value.length) % slides.value.length;
 }
 
 function stepSlide(step) {
@@ -128,6 +135,19 @@ function startMovieCreate() {
   document.body.style.overflow = 'hidden';
 }
 
+function startBannerCreate() {
+  if (!canEditBanners) return;
+  selectedBanner.value = null;
+  bannerForm.value = {
+    title: '',
+    subtitle: '',
+    image: ''
+  };
+  bannerSaveError.value = '';
+  creatingBanner.value = true;
+  editingBanner.value = true;
+}
+
 function startMovieEdit(movie) {
   creatingMovie.value = false;
   movieForm.value = {
@@ -146,6 +166,20 @@ function startMovieEdit(movie) {
   editingMovie.value = true;
 }
 
+function startBannerEdit(banner) {
+  if (!canEditBanners) return;
+
+  selectedBanner.value = banner;
+  creatingBanner.value = false;
+  bannerForm.value = {
+    title: banner.title,
+    subtitle: banner.subtitle ?? '',
+    image: banner.image ?? ''
+  };
+  bannerSaveError.value = '';
+  editingBanner.value = true;
+}
+
 function cancelMovieEdit() {
   if (creatingMovie.value) {
     closeMovie();
@@ -153,6 +187,13 @@ function cancelMovieEdit() {
   }
   editingMovie.value = false;
   movieSaveError.value = '';
+}
+
+function cancelBannerEdit() {
+  editingBanner.value = false;
+  creatingBanner.value = false;
+  selectedBanner.value = null;
+  bannerSaveError.value = '';
 }
 
 function addCreator() {
@@ -200,11 +241,40 @@ async function saveMovieChanges() {
   }
 }
 
+async function saveBannerChanges() {
+  if (!bannerForm.value || savingBanner.value || deletingBanner.value || uploadingBanner.value) return;
+  savingBanner.value = true;
+  bannerSaveError.value = '';
+
+  try {
+    const changes = {
+      title: bannerForm.value.title,
+      subtitle: bannerForm.value.subtitle,
+      image: bannerForm.value.image
+    };
+
+    if (creatingBanner.value) {
+      const newBanner = await createBanner(changes);
+      slides.value = [...slides.value, newBanner];
+      activeSlide.value = slides.value.length - 1;
+    } else {
+      const updatedBanner = await updateBanner(selectedBanner.value.id, changes);
+      slides.value = slides.value.map(banner => banner.id === updatedBanner.id ? updatedBanner : banner);
+    }
+
+    cancelBannerEdit();
+    restartSlideTimer();
+  } catch (error) {
+    bannerSaveError.value = error instanceof Error ? error.message : 'Could not save banner.';
+  } finally {
+    savingBanner.value = false;
+  }
+}
+
 async function removeMovie() {
   if (!selectedMovie.value || savingMovie.value || deletingMovie.value || uploadingPoster.value) return;
   const movie = selectedMovie.value;
   if (!window.confirm(`Delete "${movie.title}"?`)) return;
-
   deletingMovie.value = true;
   movieSaveError.value = '';
   try {
@@ -218,13 +288,31 @@ async function removeMovie() {
   }
 }
 
+async function removeBanner() {
+  if (!selectedBanner.value || deletingBanner.value || savingBanner.value || uploadingBanner.value) return;
+  if (!confirm(`Delete "${selectedBanner.value.title}"?`)) return;
+  deletingBanner.value = true;
+  bannerSaveError.value = '';
+
+  try {
+    await deleteBanner(selectedBanner.value.id);
+    slides.value = slides.value.filter(banner => banner.id !== selectedBanner.value.id);
+    activeSlide.value = Math.min(activeSlide.value, Math.max(0, slides.value.length - 1));
+    cancelBannerEdit();
+    restartSlideTimer();
+  } catch (error) {
+    bannerSaveError.value = error instanceof Error ? error.message : 'Could not delete banner.';
+  } finally {
+    deletingBanner.value = false;
+  }
+}
+
 async function uploadPoster(event) {
   const input = event.target;
   const file = input.files?.[0];
   const form = movieForm.value;
   input.value = '';
   if (!file || !form || uploadingPoster.value) return;
-
   uploadingPoster.value = true;
   movieSaveError.value = '';
   try {
@@ -234,6 +322,24 @@ async function uploadPoster(event) {
     movieSaveError.value = error instanceof Error ? error.message : 'Could not upload poster.';
   } finally {
     uploadingPoster.value = false;
+  }
+}
+
+async function uploadBanner(event) {
+  const input = event.target;
+  const file = input.files?.[0];
+  const form = bannerForm.value;
+  input.value = '';
+  if (!file || !form || uploadingBanner.value) return;
+  uploadingBanner.value = true;
+  bannerSaveError.value = '';
+  try {
+    const uploaded = await uploadBannerImage(file);
+    if (bannerForm.value === form) form.image = uploaded.image;
+  } catch (error) {
+    bannerSaveError.value = error instanceof Error ? error.message : 'Could not upload banner.';
+  } finally {
+    uploadingBanner.value = false;
   }
 }
 
@@ -252,6 +358,15 @@ function getPoster(movie, index) {
 
 function handlePosterError(event, index) {
   event.target.src = posters[index % posters.length];
+}
+
+function getBannerImage(image) {
+  const defaultImages = {
+    '/banner1.jpg': banner,
+    '/poster4.jpg': poster4,
+    '/poster5.jpg': poster5,
+  };
+  return defaultImages[image] ?? getAssetUrl(image);
 }
 
 const selectedBookingMovie = ref(null)
@@ -292,7 +407,7 @@ onMounted(async () => {
   };
   browserTheme.addEventListener('change', onBrowserThemeChange);
   restartSlideTimer();
-  try { movies.value = await getMovies(); }
+  try { movies.value = await getMovies(), slides.value = await getBanners(); }
   catch (e) { error.value = 'Backend is not running yet. Start NestJS and refresh.'; }
   finally { loading.value = false; }
 });
@@ -331,13 +446,13 @@ onUnmounted(() => {
     <main v-else>
       <section class="hero" aria-label="Featured movies">
         <Transition name="slide-fade">
-          <div :key="activeSlide" class="hero-background" :style="{backgroundImage: `linear-gradient(90deg,rgba(0,0,0,.9),rgba(0,0,0,.35)), url(${slides[activeSlide].image})`}"></div>
+          <div :key="activeSlide" class="hero-background" :style="{backgroundImage: `linear-gradient(90deg,rgba(0,0,0,.9),rgba(0,0,0,.35)), url('${getBannerImage(slides[activeSlide]?.image)}')`}"></div>
         </Transition>
         <Transition name="text-fade" mode="out-in">
           <div :key="activeSlide" class="hero-copy" aria-live="polite">
             <Tag value="NOW IN THEATERS" severity="secondary" />
-            <h1>{{ slides[activeSlide].title }}</h1>
-            <p>{{ slides[activeSlide].subtitle }}</p>
+            <h1>{{ slides[activeSlide]?.title }}</h1>
+            <p>{{ slides[activeSlide]?.subtitle }}</p>
             <Button label="See movies" icon="pi pi-play" @click="document.getElementById('movies').scrollIntoView({behavior:'smooth'})" />
           </div>
         </Transition>
@@ -354,6 +469,7 @@ onUnmounted(() => {
             @click="goToSlide(index)"
           ></button>
           <button type="button" aria-label="Next banner" @click="stepSlide(1)"><i class="pi pi-chevron-right" aria-hidden="true"></i></button>
+          <button v-if="canEditBanners && slides.length" class="banner-edit-button" type="button" @click="startBannerEdit(slides[activeSlide])">Edit banner</button>
         </div>
       </section>
       <section id="movies" class="content">
@@ -361,6 +477,7 @@ onUnmounted(() => {
           <div><h3>Top Movies</h3></div>
           <div class="movie-heading-actions">
             <span>{{ movies.length }} movies</span>
+            <button v-if="canEditBanners" class="edit-movie-button add-movie-button" type="button" @click="startBannerCreate">+ Add banner</button>
             <button v-if="canEditMovies" class="edit-movie-button add-movie-button" type="button" @click="startMovieCreate">+ Add movie</button>
           </div>
         </div>
@@ -501,6 +618,41 @@ onUnmounted(() => {
               </div>
             </section>
           </template>
+        </article>
+      </div>
+      <div v-if="editingBanner" class="movie-modal-backdrop" @click.self="cancelBannerEdit">
+        <article class="movie-modal" role="dialog" aria-modal="true">
+          <button class="modal-close" type="button" @click="cancelBannerEdit">×</button>
+          <form class="movie-edit-form" @submit.prevent="saveBannerChanges">
+            <h2> {{ creatingBanner ? 'Add banner' : 'Edit banner' }} </h2>
+            <div class="edit-fields">
+              <label>Title<input v-model="bannerForm.title" required maxlength="160" /></label>
+              <label>Subtitle<input v-model="bannerForm.subtitle" maxlength="300" /></label>
+              <label class="edit-full-width">Banner URL
+                <input v-model="bannerForm.image" required maxlength="500" />
+              </label>
+              <div class="poster-upload edit-full-width">
+                <span>Banner image</span>
+                <div class="poster-upload-controls">
+                  <img v-if="bannerForm.image" :src="getBannerImage(bannerForm.image)" alt="Banner preview" />
+                  <input ref="bannerFileInput" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" @change="uploadBanner" />
+                  <button class="details-button" type="button" :disabled="uploadingBanner || savingBanner || deletingBanner" @click="bannerFileInput?.click()">
+                    {{ uploadingBanner ? 'Uploading…' : 'Browse file' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <p v-if="bannerSaveError" class="edit-error" role="alert">{{ bannerSaveError }}</p>
+            <div class="edit-actions">
+              <button v-if="!creatingBanner" class="delete-movie-button" type="button" :disabled="savingBanner || deletingBanner || uploadingBanner" @click="removeBanner">
+                {{ deletingBanner ? 'Deleting…' : 'Delete banner' }}
+              </button>
+              <button class="details-button" type="button" :disabled="savingBanner || deletingBanner || uploadingBanner" @click="cancelBannerEdit">Cancel</button>
+              <button class="showtime" type="submit" :disabled="savingBanner || deletingBanner || uploadingBanner">
+                {{ savingBanner ? 'Saving…' : creatingBanner ? 'Add banner' : 'Save changes' }}
+              </button>
+            </div>
+          </form>
         </article>
       </div>
     </main>
@@ -1196,6 +1348,23 @@ nav a:hover {
   cursor: pointer;
   font-size: 16px;
   line-height: 1;
+}
+.banner-controls .banner-edit-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border: 1px solid rgba(255,255,255,.55);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.banner-controls .banner-edit-button:hover {
+  background: rgba(0,0,0,.8);
 }
 .banner-controls .banner-dot {
   width: 10px;

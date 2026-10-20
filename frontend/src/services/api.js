@@ -36,7 +36,7 @@ export async function createMovie(movie) {
 }
 
 export async function deleteMovie(id) {
-  const response = await fetch(`${API_URL}/movies/${id}`, { method: 'DELETE' });
+  const response = await fetch(`${API_URL}/movies/${id}`, {method: 'DELETE'});
   if (!response.ok) {
     const message = await response.text();
     throw new Error(message || 'Could not delete movie');
@@ -75,6 +75,60 @@ export async function updateScreeningSeats(screeningId, blockedSeats) {
   if (!response.ok) {
     const message = await response.text();
     throw new Error(message || 'Could not update screening seats');
+  }
+  return response.json();
+}
+
+export async function getBanners() {
+const response = await fetch(`${API_URL}/banners`);
+  if (!response.ok) {
+    throw new Error('Could not load banners');
+  }
+  return response.json();
+}
+
+export async function updateBanner(id, changes) {
+  const response = await fetch(`${API_URL}/banners/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(changes),
+  });
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'Could not save banner changes');
+  }
+  return response.json();
+}
+
+export async function createBanner(banner) {
+  const response = await fetch(`${API_URL}/banners/manual`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(banner),
+  });
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'Could not create banner');
+  }
+  return response.json();
+}
+
+export async function deleteBanner(id) {
+  const response = await fetch(`${API_URL}/banners/${id}`, {method: 'DELETE'});
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'Could not delete banner');
+  }
+  return response.json();
+}
+
+export async function uploadBannerImage(file) {
+  const formData = new FormData();
+  formData.append('banner', file);
+  const response = await fetch(`${API_URL}/banners/upload`, {method: 'POST', body: formData});
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'Could not upload banner image');
   }
   return response.json();
 }

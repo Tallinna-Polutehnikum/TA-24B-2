@@ -11,7 +11,7 @@
 - Fixed the database sync problem (Changes didn't apply on the website)
 
 ## 26.09.2026
-- Renamed the whole website to Bradar Cinema
+- Renamed the whole website to 'Bradar Cinema'
 - Changed fonts and made some small changes
 - Changed buttons in movie lists to have them in the centre of field
 - Fixed the problem with databases that you didn't have an access to run the databases Nest.js and npm because of renames inside `docker-compose.yml`
@@ -38,9 +38,9 @@
 
 # 13.10.2026
 - Polished `guide.md` and `README.md` files for better reading
-- Add delete films function
 - Edited `README.md` for simple explation
 - Added add movie function
+- Added delete movie function
 - Fixed faker movie generation
 - Made simplier delete faked movie by using visual MOVIE EDITOR (Edit Movie) button 
 - Added banner browser function (for browsing banner files)
@@ -77,5 +77,9 @@
 - Filled 'About Us' page with info
 - Fixed a checkout script
 - Fixed loading timeouts in launcher and made a full support for every operating systems (macOS, Linux and Windows)
+
+# 20.10.2026
+- Added options to edit, add and delete banners on the main page in the developer mode (npm run dev)
+- Added the database storage for banners (Added a banners folder in the backend)
 
 Bradar, what it this?

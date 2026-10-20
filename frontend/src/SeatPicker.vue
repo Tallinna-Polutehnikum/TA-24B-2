@@ -917,7 +917,6 @@ watch(selectedScreening, () => {
   background: #292929;
 }
 .seats-admin-bar button:disabled {
-  opacity: 0.4;
   cursor: wait;
 }
 .seats-admin-bar span {

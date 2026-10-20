@@ -6,7 +6,7 @@ import { mkdirSync } from 'node:fs';
 import { extname, join } from 'node:path';
 import { MovieInput, MovieUpdateInput, MoviesService } from './movies.service';
 
-const uploadDirectory = join(__dirname, '..', '..', 'uploads');
+const uploadDirectory = join(process.cwd(), 'uploads', 'movies');
 const imageExtensions: Record<string, string> = {
   'image/jpeg': '.jpg',
   'image/png': '.png',
@@ -61,7 +61,7 @@ export class MoviesController {
   }))
   uploadPoster(@UploadedFile() file: { filename: string } | undefined) {
     if (!file) throw new BadRequestException('Choose a poster image to upload.');
-    return { posterUrl: `/uploads/${file.filename}` };
+    return { posterUrl: `/uploads/movies/${file.filename}` };
   }
 
   @Patch(':id')

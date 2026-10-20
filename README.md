@@ -24,6 +24,10 @@ You can see the update logs in the `update-log.md`.
 - Backend seeds five demo movies on first start.
 - `GET /movies` returns movies from MySQL.
 - Vue + PrimeVue frontend loads those movies from the backend and displays them as cards.
+- Banner metadata is stored in MySQL; uploaded banner images are stored under `backend/uploads/banners` and served from `/uploads/`.
+- Three default banners are seeded into MySQL on backend startup, alongside the six demo movies.
+
+Banner records are managed from the frontend in developer mode. Uploaded image files are local backend files (excluded from Git), so deployments that use an ephemeral filesystem must mount persistent storage for `backend/uploads`.
 
 ## Feature list
 - Movie list

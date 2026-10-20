@@ -9,6 +9,7 @@ import { MovieCreator } from './movie-creator.entity';
 import { Movie } from './movie.entity';
 import { MovieRating } from './movie-rating.entity';
 import { Screening } from './screening.entity';
+import { Banner } from '../banners/banner.entity';
 
 const movieGenres = ['Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Sci-Fi', 'Thriller'];
 const cinemaLocations = [
@@ -75,12 +76,25 @@ export class MoviesService implements OnModuleInit {
       { title: 'Re:Zero Tallinn Edition', genre: 'Anime', duration: 1000, description: 'DID YOU SAY STAIRS?! *feels the aura*.', posterUrl: '/poster6.jpg', active: true }
     ];
 
+    const defaultBanners = [
+      { seedKey: 'default-banner-v1-1', image: '/banner1.jpg', title: 'Crime Patrol: The Amazing full FMV-movie', subtitle: 'For only 9.99€' },
+      { seedKey: 'default-banner-v1-2', image: '/poster4.jpg', title: 'Experience movies on the big screen', subtitle: 'Explore what is playing now' },
+      { seedKey: 'default-banner-v1-3', image: '/poster5.jpg', title: 'Your next movie night starts here', subtitle: 'Discover your new favorite film' },
+    ];
+
     for (const data of movies) {
       const existingMovie = await em.findOne(Movie, { posterUrl: data.posterUrl });
       if (!existingMovie) {
         em.persist(em.create(Movie, data));
       } else if (existingMovie.trailerUrl == null && data.trailerUrl) {
         existingMovie.trailerUrl = data.trailerUrl;
+      }
+    }
+
+    for (const data of defaultBanners) {
+      const existingBanner = await em.findOne(Banner, { seedKey: data.seedKey });
+      if (!existingBanner) {
+        em.persist(em.create(Banner, { ...data, active: true }));
       }
     }
 
