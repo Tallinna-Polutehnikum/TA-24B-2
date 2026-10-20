@@ -83,5 +83,6 @@
 - Added the database storage for banners (Added a banners folder in the backend)
 - Added movie genres filter to sort movies by movie genre
 - Changed movie card flexability to auto-fill instead of auto-fit
+- Updated launcher interface & added launcher system theme (dark or light) support
 
 Bradar, what it this?
