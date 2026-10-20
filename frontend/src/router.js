@@ -11,6 +11,7 @@ export default createRouter({
     { path: '/', component: App },
     { path: '/buy-tickets', component: App },
     { path: '/about_us', component: App },
+    { path: '/club', component: App },
     { path: '/checkout', component: Checkout },
     { path: '/seatpicker', redirect: '/buy-tickets' },
     { path: '/about-us', redirect: '/about_us' },
