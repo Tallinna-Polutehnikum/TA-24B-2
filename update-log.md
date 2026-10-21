@@ -93,5 +93,6 @@
 
 # 22.10.2026
 - Made 2D club card into 3D spinning card, cause why not
+- Added favicon icons to the website
 
 Bradar, what it this?

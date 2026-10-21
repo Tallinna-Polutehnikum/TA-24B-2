@@ -60,7 +60,7 @@
   .card-face {
     position: absolute;
     inset: 0px;
-    background-image: url("./assets/cards/bradarclubcard.jpg");
+    background-image: url("./assets/other/bradarclubcard.jpg");
     background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;

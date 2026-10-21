@@ -1,13 +1,13 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { getAssetUrl, getScreeningSeats, updateScreeningSeats } from './services/api'
-import banner from './assets/banner1.jpg'
-import poster1 from './assets/poster1.jpg'
-import poster2 from './assets/poster2.jpg'
-import poster3 from './assets/poster3.jpg'
-import poster4 from './assets/poster4.jpg'
-import poster5 from './assets/poster5.jpg'
-import poster6 from './assets/poster6.jpg'
+import banner from './assets/posters/banner1.jpg'
+import poster1 from './assets/posters/poster1.jpg'
+import poster2 from './assets/posters/poster2.jpg'
+import poster3 from './assets/posters/poster3.jpg'
+import poster4 from './assets/posters/poster4.jpg'
+import poster5 from './assets/posters/poster5.jpg'
+import poster6 from './assets/posters/poster6.jpg'
 
 const props = defineProps({
   movie: { type: Object, default: null },
