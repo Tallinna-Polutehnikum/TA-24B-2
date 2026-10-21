@@ -94,5 +94,6 @@
 # 22.10.2026
 - Made 2D club card into 3D spinning card, cause why not
 - Added favicon icons to the website
+- Organized assests in the 'assets' folder
 
 Bradar, what it this?
