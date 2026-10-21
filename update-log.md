@@ -87,8 +87,11 @@
 
 # 21.10.2026
 - Extended Club page with many informations about the subscription card
-- The footer was changed and now is flexed.
-- Updated Club page with a hand-made Club Card.
-- Fixed the problem with p texts when they were in the center of field.
+- Changed footer flexability
+- Updated Club page with a hand-made club card
+- Fixed the problem with p texts when they were in the center of field
+
+# 22.10.2026
+- Made 2D club card into 3D spinning card, cause why not
 
 Bradar, what it this?
