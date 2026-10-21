@@ -1,7 +1,7 @@
 <template>
   <div class="club-page">
     <h1 class="club-name">Join our club Bradar!</h1>
-      <p>Welcome stranger! Do you want to be our bradar? Are you really tired of those stupid comments about the prices in the market? 
+      <p class="commentclub">Welcome stranger! Do you want to be our bradar? Are you really tired of those stupid comments about the prices in the market?
       So this is your chance bradar to be the part of our family! Bradar delete this prices bradar!</p>
     <div class="offers-layout">
       <div class="card-container">
@@ -13,9 +13,7 @@
           <li>Huge movie discounts down to 70%!</li>
           <li>Premium access to NeonLights AI</li>
           <li>Purchases more than 500₴ gives you any free drink in all cinemas!</li>
-          <li></li>
-          <li></li>
-          <li></li>
+          <li>If you have a family, you can have a 60% discounts on every ticket for each person!</li>
         </ul>
       </div>
     </div>
@@ -27,24 +25,27 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 15px;
-    margin: 30px auto;
+    gap: 32px;
+    margin: 40px auto;
     max-width: 1100px;
   }
 
   .card-container {
-    flex: 0 1 40%;
+    flex: 0 1 42%;
     text-align: center;
   }
 
   .card-image {
     max-width: 100%;
+    max-height: 360px;
     height: auto;
-    padding-left: 100px;
+    padding-left: 150px;
   }
 
   .offers-content {
     flex: 1;
+    padding-left: 32px;
+    border-left: 1px solid var(--cinema-border);
   }
 
   .club-name {
@@ -53,7 +54,7 @@
     margin: 0 0 24px;
   }
 
-  p {
+  .commentclub {
     max-width: 760px;
     margin: 0 auto;
     line-height: 1.8;
@@ -62,24 +63,29 @@
   }
 
   .offers {
-    text-align: right;
-    padding-right: 15%;
+    margin: 0 0 20px;
+    color: var(--cinema-text);
   }
 
   .offers-list {
-    text-align: right;
-    padding-right: 15%;
-    list-style-type: none;
-    margin-bottom: 45px;
-    gap: 8px;
+    list-style: disc;
+    margin: 0 0 45px;
+    padding-left: 22px;
     display: flex;
     flex-direction: column;
+    gap: 10px;
+  }
+
+  .offers-list li {
+    color: var(--cinema-text);
+    line-height: 1.5;
+    text-align: left;
   }
 
   @media (max-width: 700px) {
     .offers-layout {
       flex-direction: column;
-      gap: 20px;
+      gap: 24px;
     }
 
     .card-container,
@@ -87,10 +93,10 @@
       width: 100%;
     }
 
-    .offers,
-    .offers-list {
-      text-align: center;
-      padding-right: 0;
+    .offers-content {
+      padding: 24px 0 0;
+      border-top: 1px solid var(--cinema-border);
+      border-left: 0;
     }
   }
 
