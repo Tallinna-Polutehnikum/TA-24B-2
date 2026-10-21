@@ -60,7 +60,6 @@
   .card-face {
     position: absolute;
     inset: 0px;
-    background-image: url("./assets/other/bradarclubcard.jpg");
     background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
@@ -71,9 +70,11 @@
     outline: none;
   }
   .card-front {
+    background-image: url("./assets/other/bradarclubcard-front.jpg");
     transform: translateZ(calc(var(--card-thickness) / 2));
   }
   .card-back {
+    background-image: url("./assets/other/bradarclubcard-back.jpg");
     transform: rotateY(180deg) translateZ(calc(var(--card-thickness) / 2));
   }
   .card-edge {
