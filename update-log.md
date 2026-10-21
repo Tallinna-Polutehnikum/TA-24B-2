@@ -85,4 +85,8 @@
 - Changed movie card flexability to auto-fill instead of auto-fit
 - Updated launcher interface & added launcher system theme (dark or light) support
 
+# 21.10.2026
+- Extended Club page with many informations about the subscription card
+- The footer was changed and now is flexed.
+
 Bradar, what it this?

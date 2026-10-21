@@ -701,7 +701,12 @@ a {
 }
 .page { 
   min-height: 100vh; 
+  display: flex;
+  flex-direction: column;
   background: radial-gradient(circle at 80% 0%, #222 0, #090909 40%); 
+}
+.page > main {
+  flex: 1;
 }
 .topbar { 
   min-height: 104px; 
