@@ -95,5 +95,6 @@
 - Made 2D club card into 3D spinning card, cause why not
 - Added favicon icons to the website
 - Organized assests in the 'assets' folder
+- Moved `main.js` and `router.js` files into the 'services' folder
 
 Bradar, what it this?

@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import App from './App.vue'
-import Checkout from './Checkout.vue'
+import App from '../App.vue'
+import Checkout from '../Checkout.vue'
 
 export default createRouter({
   history: createWebHistory(),
