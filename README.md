@@ -52,6 +52,7 @@ You can see update logs in the `update-log.md`.
     cd backend
     npm run dev
 ```
+For manual development, set `ALLOW_EDITING=true` in `backend/.env` to enable the movie, banner, and seat editors. Editing endpoints are disabled by default and remain disabled in production.
 
 ### 3. Frontend folder
 ```bash or VSC terminal
@@ -73,6 +74,7 @@ To run developer mode, open `start.bat` file or write `.\start.bat` command and 
     $env:NODE_ENV="production"
     npm start
 ```
+Production mode disables editing endpoints even if `ALLOW_EDITING=true` is set.
 
 ### 2. Frontend folder
 ```bash in frontend folder:
