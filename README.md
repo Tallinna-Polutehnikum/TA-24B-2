@@ -1,4 +1,4 @@
-# Bradar Cinema Project
+# Bradar Cinema Kinoprojekt
 
 ## Introduction
 The main project - "Bradar Cinema" website. Based on the Apollo Kino. Made by Samir 'Miles Tails' Cibis, Aleksander 'ThePanshurup' Kartuzov and Daniel Helmrosin.
@@ -7,7 +7,7 @@ This document shows which stackes are used for the project and features which wi
 
 You can view the guide how to run a project below or separatly in the `guide.md`.
 
-You can see the update logs in the `update-log.md`.
+You can see update logs in the `update-log.md`.
 
 ## Stacks used
 - Node.js
