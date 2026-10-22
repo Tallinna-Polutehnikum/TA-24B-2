@@ -466,7 +466,7 @@ onUnmounted(() => {
             <Tag value="NOW IN THEATERS" severity="secondary" />
             <h1>{{ slides[activeSlide]?.title }}</h1>
             <p>{{ slides[activeSlide]?.subtitle }}</p>
-            <Button label="See movies" icon="pi pi-play" @click="goToMovies" />
+            <Button class="see-movies-button" label="See movies" icon="pi pi-angle-down" @click="goToMovies" />
           </div>
         </Transition>
         <div class="banner-controls" aria-label="Banner controls">
@@ -796,6 +796,9 @@ nav a:hover {
 .hero-copy { 
   max-width:620px; 
 } 
+.hero-copy .see-movies-button {
+  gap: 0.5rem;
+}
 .page h1 { 
   font-size:clamp(42px,6vw,76px); 
   line-height:.95; 
