@@ -439,7 +439,7 @@ onUnmounted(() => {
           <Button class="nav-button" :class="{ 'nav-active': !showSeatPicker && !showAboutUs && !showClub }" label="Movies" size="small" text @click="goToMovies" />
           <Button class="nav-button" :class="{ 'nav-active': showSeatPicker }" label="Buy tickets" size="small" text @click="openSeatPicker()" />
           <Button class="nav-button" :class="{ 'nav-active': showAboutUs }" label="About Us" size="small" text @click="openAboutUs()"/>
-          <Button class="nav-button" :class="{ 'nav-active': showClub }" label="Join Bradar Club" size="small" text @click="openClub()"/>
+          <Button class="nav-button" :class="{ 'nav-active': showClub }" label="Bradar Club" size="small" text @click="openClub()"/>
         </nav>
         <button class="theme-toggle" type="button" :aria-label="theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'" @click="setTheme(theme === 'dark' ? 'light' : 'dark')">
           <i :class="theme === 'dark' ? 'pi pi-sun' : 'pi pi-moon'" aria-hidden="true"></i>

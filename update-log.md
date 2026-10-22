@@ -96,8 +96,8 @@
 - Added favicon icons to the website
 - Organized assests in the 'assets' folder
 - Moved `main.js` and `router.js` files into the 'services' folder
-- Added Club Card Application Form
-- Added more information about Bradar Club Card with the levels of progression
+- Added Club Card application form
+- Added more information about Bradar Club card with the levels of progression
 - Connected the club page and application form with `router.js`
 - Updated 'See movies' button and fixed a problem where this button isn't working
 
