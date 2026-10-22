@@ -459,7 +459,7 @@ onUnmounted(() => {
             <Tag value="NOW IN THEATERS" severity="secondary" />
             <h1>{{ slides[activeSlide]?.title }}</h1>
             <p>{{ slides[activeSlide]?.subtitle }}</p>
-            <Button label="See movies" icon="pi pi-play" @click="document.getElementById('movies').scrollIntoView({behavior:'smooth'})" />
+            <Button class="see-movies-button" label="See movies" icon="pi pi-angle-down" @click="goToMovies" />
           </div>
         </Transition>
         <div class="banner-controls" aria-label="Banner controls">
