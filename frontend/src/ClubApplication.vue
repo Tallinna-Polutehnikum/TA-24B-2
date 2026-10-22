@@ -47,11 +47,9 @@ function submitApplication() {
   color: var(--cinema-text);
   font-family: var(--cinema-font-body);
 }
-
 .application-header {
   margin-bottom: 32px;
 }
-
 .application-back {
   display: inline-flex;
   align-items: center;
@@ -65,22 +63,18 @@ function submitApplication() {
   text-decoration: none;
   transition: border-color .2s, color .2s;
 }
-
 .application-back:hover {
   border-color: var(--cinema-text);
   color: var(--cinema-text);
 }
-
 .application-header h1 {
   margin: 0 0 8px;
   font-family: var(--cinema-font-heading);
 }
-
 .application-header p {
   margin: 0;
   color: var(--cinema-muted);
 }
-
 .application-form {
   display: grid;
   gap: 20px;
@@ -92,14 +86,12 @@ function submitApplication() {
   height: 520px;
   position: center;
 }
-
 .application-form label {
   display: grid;
   gap: 8px;
   color: var(--cinema-text);
   font-size: 14px;
 }
-
 .application-form input {
   width: 100%;
   box-sizing: border-box;
@@ -110,27 +102,22 @@ function submitApplication() {
   color: var(--cinema-text);
   font: inherit;
 }
-
 .application-form input:focus {
   outline: 2px solid var(--cinema-accent);
   outline-offset: 1px;
 }
-
 .application-form .continue-button {
   justify-self: start;
 }
-
 .application-notice {
   margin: 0;
   color: var(--cinema-muted);
   font-size: 14px;
 }
-
 @media (max-width: 500px) {
   .application-page {
     padding: 32px 16px 48px;
   }
-
   .application-form {
     padding: 20px 16px;
   }
