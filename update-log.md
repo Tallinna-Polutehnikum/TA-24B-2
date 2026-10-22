@@ -99,5 +99,6 @@
 - Added Club Card Application Form
 - Added more information about Bradar Club Card with the levels of progression
 - Connected the club page and application form with `router.js`
+- Fixed a problem, that 'See movies' button isn't working
 
 Bradar, what it this?

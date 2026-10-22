@@ -15,7 +15,6 @@ import banner from './assets/posters/banner1.jpg';
 import seatpicker from './SeatPicker.vue';
 import about_us from './AboutUs.vue';
 import club from './Club.vue';
-import clubApplication from './ClubApplication.vue';
 
 const movies = ref([]);
 const selectedGenre = ref('');
@@ -28,8 +27,7 @@ const loading = ref(true);
 const error = ref('');
 const showSeatPicker = computed(() => route.path === '/buy-tickets');
 const showAboutUs = computed(() => route.path === '/about_us');
-const showClub = computed(() => route.path.startsWith('/club'));
-const showClubApplication = computed(() => route.path === '/club/register');
+const showClub = computed(() => route.path === '/club');
 const selectedMovie = ref(null);
 const selectedMovieIndex = ref(0);
 const previousBodyOverflow = ref('');
@@ -455,9 +453,6 @@ onUnmounted(() => {
     <main v-else-if="showAboutUs">
       <about_us />
     </main>
-    <main v-else-if="showClubApplication">
-      <clubApplication />
-    </main>
     <main v-else-if="showClub">
       <club />
     </main>
@@ -471,7 +466,7 @@ onUnmounted(() => {
             <Tag value="NOW IN THEATERS" severity="secondary" />
             <h1>{{ slides[activeSlide]?.title }}</h1>
             <p>{{ slides[activeSlide]?.subtitle }}</p>
-            <Button label="See movies" icon="pi pi-play" @click="document.getElementById('movies').scrollIntoView({behavior:'smooth'})" />
+            <Button label="See movies" icon="pi pi-play" @click="goToMovies" />
           </div>
         </Transition>
         <div class="banner-controls" aria-label="Banner controls">
