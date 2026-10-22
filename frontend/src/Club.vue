@@ -21,7 +21,7 @@
       </section>
       <section class="club-slide">
         <div class="offers-content">
-          <h2 class="offers">Benefits from the Bradar Club сard</h2>
+          <h2 class="offers">Benefits from the Bradar Club сard:</h2>
           <div class="offers-details">
             <ul class="offers-list">
               <li>Huge movie discounts up to 70%!</li>

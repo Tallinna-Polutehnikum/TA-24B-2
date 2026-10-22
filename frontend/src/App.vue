@@ -13,6 +13,9 @@ import poster4 from './assets/posters/poster4.jpg';
 import poster5 from './assets/posters/poster5.jpg';
 import poster6 from './assets/posters/poster6.jpg'; 
 import banner from './assets/posters/banner1.jpg';
+import seatpicker from './SeatPicker.vue';
+import about_us from './AboutUs.vue';
+import club from './Club.vue';
 
 const movies = ref([]);
 const selectedGenre = ref('');
@@ -23,6 +26,9 @@ const router = useRouter();
 const route = useRoute();
 const loading = ref(true);
 const error = ref('');
+const showSeatPicker = computed(() => route.path === '/buy-tickets');
+const showAboutUs = computed(() => route.path === '/about_us');
+const showClub = computed(() => route.path === '/club');
 const selectedMovie = ref(null);
 const selectedMovieIndex = ref(0);
 const previousBodyOverflow = ref('');
@@ -431,10 +437,10 @@ onUnmounted(() => {
       <div class="brand">
         <a href="/" class="logo" aria-label="Go to main screen" @click.prevent="goHome">BRADAR <span>CINEMA</span></a>
         <nav class="logo-actions" aria-label="Main navigation">
-          <Button class="nav-button" :class="{ 'nav-active': route.meta.activeNav === 'movies' }" label="Movies" size="small" text @click="goToMovies" />
-          <Button class="nav-button" :class="{ 'nav-active': route.meta.activeNav === 'tickets' }" label="Buy tickets" size="small" text @click="openSeatPicker()" />
-          <Button class="nav-button" :class="{ 'nav-active': route.meta.activeNav === 'about' }" label="About Us" size="small" text @click="openAboutUs()"/>
-          <Button class="nav-button" :class="{ 'nav-active': route.meta.activeNav === 'club' }" label="Join Bradar Club" size="small" text @click="openClub()"/>
+          <Button class="nav-button" :class="{ 'nav-active': !showSeatPicker && !showAboutUs && !showClub }" label="Movies" size="small" text @click="goToMovies" />
+          <Button class="nav-button" :class="{ 'nav-active': showSeatPicker }" label="Buy tickets" size="small" text @click="openSeatPicker()" />
+          <Button class="nav-button" :class="{ 'nav-active': showAboutUs }" label="About Us" size="small" text @click="openAboutUs()"/>
+          <Button class="nav-button" :class="{ 'nav-active': showClub }" label="Bradar Club" size="small" text @click="openClub()"/>
         </nav>
         <button class="theme-toggle" type="button" :aria-label="theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'" @click="setTheme(theme === 'dark' ? 'light' : 'dark')">
           <i :class="theme === 'dark' ? 'pi pi-sun' : 'pi pi-moon'" aria-hidden="true"></i>
@@ -448,6 +454,9 @@ onUnmounted(() => {
         v-bind="route.meta.pageProps === 'booking' ? { movie: selectedBookingMovie, movies } : {}"
         v-on="route.meta.pageProps === 'booking' ? { close: goToMovies, checkout: openCheckout } : {}"
       />
+    </main>
+    <main v-else-if="showClubApplication">
+      <club-application />
     </main>
     <main v-else>
       <section class="hero" aria-label="Featured movies">
