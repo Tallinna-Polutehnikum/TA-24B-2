@@ -15,7 +15,7 @@ import banner from './assets/posters/banner1.jpg';
 import seatpicker from './SeatPicker.vue';
 import about_us from './AboutUs.vue';
 import club from './Club.vue';
-import сlubApplication from './ClubApplication.vue';
+import clubApplication from './ClubApplication.vue';
 
 const movies = ref([]);
 const selectedGenre = ref('');
@@ -459,7 +459,7 @@ onUnmounted(() => {
       <club />
     </main>
     <main v-else-if="showClubApplication">
-      <сlubApplication />
+      <club-application />
     </main>
     <main v-else>
       <section class="hero" aria-label="Featured movies">
