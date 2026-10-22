@@ -8,6 +8,7 @@
 ## 2. Backend folder
 ```bash or VSC terminal
     cd backend
+    $env:ALLOW_EDITING="true"
     npm run dev
 ```
 

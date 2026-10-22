@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, UploadedFile, UseInterceptors, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { randomUUID } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import { extname, join } from 'node:path';
+import { EditingEnabledGuard } from '../common/guards/editing-enabled.guard';
 import { MovieInput, MovieUpdateInput, MoviesService } from './movies.service';
 
 const uploadDirectory = join(process.cwd(), 'uploads', 'movies');
@@ -23,24 +24,25 @@ export class MoviesController {
   findAll() { return this.movies.findAll(); }
 
   @Post('regenerate')
+  @UseGuards(EditingEnabledGuard)
   regenerate() {
     return this.movies.seedGeneratedMovies(true);
   }
 
   @Post()
+  @UseGuards(EditingEnabledGuard)
   create(@Body() input: MovieInput) {
     return this.movies.createGeneratedMovie(input);
   }
 
   @Post('manual')
+  @UseGuards(EditingEnabledGuard)
   createManual(@Body() input: MovieUpdateInput) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new ForbiddenException('Movie editing is only available outside production');
-    }
     return this.movies.createManualMovie(input);
   }
 
   @Post('poster')
+  @UseGuards(EditingEnabledGuard)
   @UseInterceptors(FileInterceptor('poster', {
     storage: diskStorage({
       destination: uploadDirectory,
@@ -50,9 +52,6 @@ export class MoviesController {
     }),
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (_request, file, callback) => {
-      if (process.env.NODE_ENV === 'production') {
-        return callback(new ForbiddenException('Movie editing is only available outside production'), false);
-      }
       if (!imageExtensions[file.mimetype]) {
         return callback(new BadRequestException('Poster must be a JPEG, PNG, or WebP image.'), false);
       }
@@ -65,18 +64,14 @@ export class MoviesController {
   }
 
   @Patch(':id')
+  @UseGuards(EditingEnabledGuard)
   update(@Param('id', ParseIntPipe) id: number, @Body() input: MovieUpdateInput) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new ForbiddenException('Movie editing is only available outside production');
-    }
     return this.movies.updateMovie(id, input);
   }
 
   @Delete(':id')
+  @UseGuards(EditingEnabledGuard)
   remove(@Param('id', ParseIntPipe) id: number) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new ForbiddenException('Movie editing is only available outside production');
-    }
     return this.movies.deleteMovie(id);
   }
 
@@ -86,14 +81,11 @@ export class MoviesController {
   }
 
   @Patch('screenings/:id/seats')
+  @UseGuards(EditingEnabledGuard)
   setScreeningSeats(
     @Param('id', ParseIntPipe) id: number,
     @Body() input: unknown
   ) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new ForbiddenException('Seat editing is only available outside production');
-    }
-
     return this.movies.setScreeningSeats(id, input);
   }
 

@@ -50,6 +50,7 @@ You can see update logs in the `update-log.md`.
 ### 2. Backend folder
 ```bash or VSC terminal
     cd backend
+    $env:ALLOW_EDITING="true"
     npm run dev
 ```
 
