@@ -36,7 +36,7 @@
 - Made a movie editor that provides you changing movie description in the dev mode (npm run dev)
 - Made a movie editor to work in developer mode, in build and regular sites movie editor will be removed or hidden
 
-# 13.10.2026
+## 13.10.2026
 - Polished `guide.md` and `README.md` files for better reading
 - Edited `README.md` for simple explation
 - Added add movie function
@@ -45,7 +45,7 @@
 - Made simplier delete faked movie by using visual MOVIE EDITOR (Edit Movie) button 
 - Added banner browser function (for browsing banner files)
 
-# 14.10.2026
+## 14.10.2026
 - Added 'Buy tickets' option on the header
 - Added cinemas in the project
 - Added option to choose a film, cinema, time and seats to buy a ticket
@@ -57,16 +57,16 @@
 - Fixed margins and paddings in buttons
 - Updated occupied seats generation logic
 
-# 15.10.2026
+## 15.10.2026
 - Updated asnd fixed film cards design
 - Added edit oppucied seats option in 'Buy tickets' page
 - Updated header for better navigation
 - Fixed a problem new films didn't get sessions after writing `npm run movies:generate`
 
-# 16.10.2026
+## 16.10.2026
 - Added empty 'About Us' page
 
-# 18.10.2026
+## 18.10.2026
 - Fixed router issue not showing link properly
 - Fixed a bug, where more than 3 roles are breaking a movie card in the main page
 - Fixed fonts and colors in seat selection and in checkout page
@@ -78,20 +78,20 @@
 - Fixed a checkout script
 - Fixed loading timeouts in launcher and made a full support for every operating systems (macOS, Linux and Windows)
 
-# 20.10.2026
+## 20.10.2026
 - Added options to edit, add and delete banners on the main page in the developer mode (npm run dev)
 - Added the database storage for banners (Added a banners folder in the backend)
 - Added movie genres filter to sort movies by movie genre
 - Changed movie card flexability to auto-fill instead of auto-fit
 - Updated launcher interface & added launcher system theme (dark or light) support
 
-# 21.10.2026
+## 21.10.2026
 - Extended Club page with many informations about the subscription card
 - Changed footer flexability
 - Updated Club page with a hand-made club card
 - Fixed the problem with p texts when they were in the center of field
 
-# 22.10.2026
+## 22.10.2026
 - Made 2D club card into 3D spinning card, cause why not
 - Added favicon icons to the website
 - Organized assests in the 'assets' folder
@@ -100,5 +100,13 @@
 - Added more information about Bradar Club card with the levels of progression
 - Connected the club page and application form with `router.js`
 - Updated 'See movies' button and fixed a problem where this button isn't working
+- Fixed 'Join the club and Register' button leading on the home page (Bug #1)
+- Improved laucher safety by preventing any editing in the build mode (Bug #2)
+- Fixed project routering, moved all routes from `App.vue` to `router.js` (Bug #2)
 
-Bradar, what it this?
+## 25.10.2026
+- Separated all <style></style> sections in `.vue` files in separate `.css` files (Improvement #13)
+- Fixed a problem built-in movies are duplicating after changing movie's poster by adding 'seedKey' value for built-in movies (Bug #4)
+- Fixed a problem movie screenings can overlap in the same hall by adding checking availability by time (Bug #5)
+- Rewrited all screenings time, due to screenings logic changes
+- Deleted `guide.md` file, because it's literally the second part of the `README.md` file, so `guide.md` file is unnessecary (Improvement #16)

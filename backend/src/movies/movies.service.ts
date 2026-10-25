@@ -64,16 +64,17 @@ export class MoviesService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
+    await this.removeDuplicateScreenings();
     await this.orm.getSchemaGenerator().updateSchema();
     const em = this.em.fork();
 
     const movies = [
-      { title: 'Crime Patrol', genre: 'Action', duration: 90, description: 'A FMV action movie about a cop that goes high to Delta Force rank and save the country from terrorists.', posterUrl: '/poster1.jpg', bannerUrl: '/banner1.jpg', active: true },
-      { title: 'Crime Patrol 2: Drug Wars', genre: 'Action', duration: 90, description: 'The cartel is spreading drugs across the whole country, but only you know how to stop them.', posterUrl: '/poster2.jpg', trailerUrl: 'https://www.youtube.com/watch?v=qZ5h9foGi24', active: true },
-      { title: 'Rain Man', genre: 'Drama', duration: 134, description: 'A story about two brothers, one is a selfish car dealer and another with autistic abilities to calculate, but with father"s inherited money.', posterUrl: '/poster3.jpg', trailerUrl: 'https://www.youtube.com/watch?v=rrTQEP41NL4', active: true },
-      { title: 'Pokémon: the First Movie', genre: 'Adventure', duration: 96, description: 'Witness the legendary battle of Mewtwo and mythical 151st Pokemon Mew. Who will prevail?', posterUrl: '/poster4.jpg', trailerUrl: 'https://www.youtube.com/watch?v=hX-NHafvY5I', active: true },
-      { title: '1917', genre: 'Drama/War Action', duration: 119, description: 'A quiet tense history about two men, who is going to the long trip among bombs and artillery to save people in No man"s land from imminent death.', posterUrl: '/poster5.jpg', trailerUrl: 'https://www.youtube.com/watch?v=UcmZN0Mbl04', active: true },
-      { title: 'Re:Zero Tallinn Edition', genre: 'Anime', duration: 1000, description: 'DID YOU SAY STAIRS?! *feels the aura*.', posterUrl: '/poster6.jpg', active: true }
+      { seedKey: 'builtin-1', title: 'Crime Patrol', genre: 'Action', duration: 90, description: 'A FMV action movie about a cop that goes high to Delta Force rank and save the country from terrorists.', posterUrl: '/poster1.jpg', bannerUrl: '/banner1.jpg', active: true },
+      { seedKey: 'builtin-2', title: 'Crime Patrol 2: Drug Wars', genre: 'Action', duration: 90, description: 'The cartel is spreading drugs across the whole country, but only you know how to stop them.', posterUrl: '/poster2.jpg', trailerUrl: 'https://www.youtube.com/watch?v=qZ5h9foGi24', active: true },
+      { seedKey: 'builtin-3', title: 'Rain Man', genre: 'Drama', duration: 134, description: 'A story about two brothers, one is a selfish car dealer and another with autistic abilities to calculate, but with father"s inherited money.', posterUrl: '/poster3.jpg', trailerUrl: 'https://www.youtube.com/watch?v=rrTQEP41NL4', active: true },
+      { seedKey: 'builtin-4', title: 'Pokémon: the First Movie', genre: 'Adventure', duration: 96, description: 'Witness the legendary battle of Mewtwo and mythical 151st Pokemon Mew. Who will prevail?', posterUrl: '/poster4.jpg', trailerUrl: 'https://www.youtube.com/watch?v=hX-NHafvY5I', active: true },
+      { seedKey: 'builtin-5', title: '1917', genre: 'Drama/War Action', duration: 119, description: 'A quiet tense history about two men, who is going to the long trip among bombs and artillery to save people in No man"s land from imminent death.', posterUrl: '/poster5.jpg', trailerUrl: 'https://www.youtube.com/watch?v=UcmZN0Mbl04', active: true },
+      { seedKey: 'builtin-6', title: 'Re:Zero Tallinn Edition', genre: 'Anime', duration: 1000, description: 'DID YOU SAY STAIRS?! *feels the aura*.', posterUrl: '/poster6.jpg', active: true }
     ];
 
     const defaultBanners = [
@@ -83,7 +84,7 @@ export class MoviesService implements OnModuleInit {
     ];
 
     for (const data of movies) {
-      const existingMovie = await em.findOne(Movie, { posterUrl: data.posterUrl });
+      const existingMovie = await em.findOne(Movie, { seedKey: data.seedKey });
       if (!existingMovie) {
         em.persist(em.create(Movie, data));
       } else if (existingMovie.trailerUrl == null && data.trailerUrl) {
@@ -99,11 +100,7 @@ export class MoviesService implements OnModuleInit {
     }
 
     await em.flush();
-    const mainMovies = await em.find(Movie, {
-      posterUrl: { $in: movies.map(({ posterUrl }) => posterUrl) },
-      active: true,
-    }, { orderBy: { id: 'ASC' } });
-
+    const mainMovies = await em.find(Movie, { seedKey: { $like: 'builtin-%' }, active: true }, { orderBy: { id: 'ASC' } });
     const moviesToUpdate = new Map(mainMovies.map((movie) => [movie.id, movie]));
     const existingSeededScreenings = await em.find(
       Screening,
@@ -116,6 +113,78 @@ export class MoviesService implements OnModuleInit {
     }
 
     await this.seedRelatedData(em, [...moviesToUpdate.values()], false);
+  }
+
+  private async removeDuplicateScreenings() {
+    const connection = this.em.getConnection();
+    const tables = await connection.execute<{ table_name: string }[]>(
+      "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'screening'",
+      [],
+      'all',
+    );
+
+    if (tables.length === 0) return;
+
+    const columns = await connection.execute<{ column_name: string }[]>(
+      "SELECT column_name FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'screening' AND column_name = 'blocked_seats'",
+      [],
+      'all',
+    );
+    const hasBlockedSeats = columns.length > 0;
+    const occupiedSeats = hasBlockedSeats
+      ? 'blocked_seats IS NOT NULL AND JSON_LENGTH(blocked_seats) > 0'
+      : 'FALSE';
+
+    if (hasBlockedSeats) {
+      const conflicts = await connection.execute<{ building_id: number; hall_number: number; starts_at: Date }[]>(
+        `SELECT building_id, hall_number, starts_at
+         FROM screening
+         GROUP BY building_id, hall_number, starts_at
+         HAVING COUNT(*) > 1 AND SUM(${occupiedSeats}) > 1`,
+        [],
+        'all',
+      );
+
+      if (conflicts.length > 0) {
+        throw new Error(
+          `Cannot safely remove duplicate screenings: ${conflicts.length} conflicting time slots contain saved seats in more than one screening.`,
+        );
+      }
+    }
+
+    const duplicates = await connection.execute<{ extra_count: number | string }[]>(
+      `SELECT COALESCE(SUM(duplicate_count - 1), 0) AS extra_count
+       FROM (
+         SELECT COUNT(*) AS duplicate_count
+         FROM screening
+         GROUP BY building_id, hall_number, starts_at
+         HAVING COUNT(*) > 1
+       ) duplicate_groups`,
+      [],
+      'all',
+    );
+    const extraCount = Number(duplicates[0]?.extra_count ?? 0);
+
+    if (extraCount === 0) return;
+
+    await connection.execute(
+      `DELETE FROM screening
+       WHERE id IN (
+         SELECT id
+         FROM (
+           SELECT id, ROW_NUMBER() OVER (
+             PARTITION BY building_id, hall_number, starts_at
+             ORDER BY CASE WHEN ${occupiedSeats} THEN 0 ELSE 1 END, id
+           ) AS duplicate_rank
+           FROM screening
+         ) ranked_screenings
+         WHERE duplicate_rank > 1
+       )`,
+      [],
+      'run',
+    );
+
+    this.logger.warn(`Removed ${extraCount} duplicate screenings before applying the unique constraint.`);
   }
 
   async seedGeneratedMovies(regenerate: boolean) {
@@ -153,11 +222,7 @@ export class MoviesService implements OnModuleInit {
         if (!activeSeedKeys.has(movie.seedKey!)) movie.active = false;
       }
 
-      const mainMovies = await em.find(Movie, {
-        posterUrl: { $in: ['/poster1.jpg', '/poster2.jpg', '/poster3.jpg', '/poster4.jpg', '/poster5.jpg', '/poster6.jpg'] },
-        active: true,
-      });
-
+      const mainMovies = await em.find(Movie, { seedKey: { $like: 'builtin-%' }, active: true });
       moviesToSeedRelatedData.push(...mainMovies);
       moviesToSeedScreenings.push(...await em.find(Movie, {
         active: true,
@@ -328,9 +393,9 @@ export class MoviesService implements OnModuleInit {
 
   private buildScreeningTimes(movie: Movie, building: CinemaBuilding) {
     const random = this.createSeededRandom(this.hashString(`times-v2-${movie.id}-${building.id}`));
-    let currentMinutes = 10 * 60 + this.seededInt(random, 0, 3) * 10;
+    let currentMinutes = 10 * 60;
     const lastStartMinutes = 22 * 60 + 30;
-    const breakMinutes = this.seededInt(random, 15, 30);
+    const breakMinutes = 20;
     const times: number[] = [];
 
     while (currentMinutes <= lastStartMinutes) {
@@ -358,6 +423,7 @@ export class MoviesService implements OnModuleInit {
         em.remove(screening);
       }
     }
+    await em.flush();
 
     if (!refreshExisting && generatedV5.length > 0) return;
 
@@ -375,6 +441,7 @@ export class MoviesService implements OnModuleInit {
 
     for (const building of selectedBuildings) {
       const hallCount = Math.max(1, building.hallCount);
+      const occupiedScreenings = await em.find(Screening, { building }, { populate: ['movie'] });
       let hallIndex = movie.id + building.id;
       const startTimes = this.buildScreeningTimes(movie, building);
       let previousScreeningCount: number | null = null;
@@ -402,10 +469,34 @@ export class MoviesService implements OnModuleInit {
         dailyStartTimes.length = dailyCount;
 
         for (const startMinutes of dailyStartTimes.sort((first, second) => first - second)) {
-          const hallNumber = (hallIndex++ % hallCount) + 1;
-          const startsAt = new Date(date);
-          startsAt.setHours(Math.floor(startMinutes / 60), startMinutes % 60, 0, 0);
+          let selectedHall: number | null = null;
+          let selectedStart: Date | null = null;
+          const lastStartMinutes = 22 * 60 + 30;
 
+          for (let candidateMinutes = startMinutes; candidateMinutes <= lastStartMinutes; candidateMinutes += 10) {
+            const candidateStart = new Date(date);
+            candidateStart.setHours(Math.floor(candidateMinutes / 60), candidateMinutes % 60, 0, 0);
+
+            for (let offset = 0; offset < hallCount; offset++) {
+              const candidateHall = ((hallIndex + offset) % hallCount) + 1;
+              const hasConflict = occupiedScreenings.some((screening) => screening.hallNumber === candidateHall && this.isScreeningConflict(candidateStart, movie.duration, screening.startsAt, screening.movie.duration));
+
+              if (!hasConflict) {
+                selectedHall = candidateHall;
+                selectedStart = candidateStart;
+                break;
+              }
+            }
+
+            if (selectedHall !== null) break;
+          }
+
+          if (selectedHall === null || selectedStart === null) {
+            continue;
+          }
+
+          const hallNumber = selectedHall;
+          const startsAt: Date = selectedStart;
           const screeningDateKey = [
             startsAt.getFullYear(),
             String(startsAt.getMinutes()).padStart(2, '0'),
@@ -418,19 +509,23 @@ export class MoviesService implements OnModuleInit {
           const screeningRandom = this.createSeededRandom(this.hashString(seedKey));
           const languages = ['English', 'Estonian', 'Russian'];
           const ticketPrice = (900 + this.seededInt(screeningRandom, 0, 200)) / 100;
+          const screening = em.create(Screening, { seedKey, movie, building, hallNumber, startsAt, language: languages[this.seededInt(screeningRandom, 0, languages.length - 1)], ticketPrice,});
 
-          em.persist(em.create(Screening, {
-            seedKey,
-            movie,
-            building,
-            hallNumber,
-            startsAt,
-            language: languages[this.seededInt(screeningRandom, 0, languages.length - 1)],
-            ticketPrice,
-          }));
+          em.persist(screening);
+          occupiedScreenings.push(screening);
         }
       }
     }
+
+    await em.flush();
+  }
+
+  private isScreeningConflict(newStart: Date, newDuration: number, existingStart: Date, existingDuration: number): boolean {
+    const breakMinutes = 20;
+    const newEnd = newStart.getTime() + (newDuration + breakMinutes) * 60 * 1000;
+    const existingEnd = existingStart.getTime() + (existingDuration + breakMinutes) * 60 * 1000;
+
+    return (newStart.getTime() < existingEnd && existingStart.getTime() < newEnd);
   }
 
   async createGeneratedMovie(input: unknown) {
