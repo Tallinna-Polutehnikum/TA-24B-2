@@ -85,9 +85,9 @@ case "$MODE" in
     printf '%s\n' "Starting Site in Developer Mode..." \
       "(c) Samir Miles Cibis, Aleksander Kartuzov, Daniel Helmrosin 2026, All Rights Reserved."
     sleep 3
-    docker compose up -d
-    launch_terminal "Backend - Development" "$SCRIPT_DIR/backend" env ALLOW_EDITING=true npm run dev
-    launch_terminal "Frontend - Development" "$SCRIPT_DIR/frontend" npm run dev
+    docker compose up -d --wait --wait-timeout 120
+    launch_terminal "Backend - Development" "$SCRIPT_DIR/backend" sh -c 'if [ ! -d node_modules ]; then npm ci || exit 1; fi; ALLOW_EDITING=true npm run dev'
+    launch_terminal "Frontend - Development" "$SCRIPT_DIR/frontend" sh -c 'if [ ! -d node_modules ]; then npm ci || exit 1; fi; npm run dev'
     sleep 12
     printf '%s\n' "Developer Mode: http://localhost:5173/" "API: http://localhost:3000"
     ;;
@@ -95,9 +95,9 @@ case "$MODE" in
     printf '%s\n' "Starting Site in Build Mode..." \
       "(c) Samir Miles Cibis, Aleksander Kartuzov, Daniel Helmrosin 2026, All Rights Reserved."
     sleep 3
-    docker compose up -d
-    launch_terminal "Backend - Production" "$SCRIPT_DIR/backend" sh -c 'npm run build && NODE_ENV=production npm start'
-    launch_terminal "Frontend - Preview" "$SCRIPT_DIR/frontend" sh -c 'npm run build && npm run preview'
+    docker compose up -d --wait --wait-timeout 120
+    launch_terminal "Backend - Production" "$SCRIPT_DIR/backend" sh -c 'if [ ! -d node_modules ]; then npm ci || exit 1; fi; npm run build && NODE_ENV=production npm start'
+    launch_terminal "Frontend - Preview" "$SCRIPT_DIR/frontend" sh -c 'if [ ! -d node_modules ]; then npm ci || exit 1; fi; npm run build && npm run preview'
     sleep 12
     printf '%s\n' "Main page: http://localhost:4173/" "API: http://localhost:3000"
     ;;

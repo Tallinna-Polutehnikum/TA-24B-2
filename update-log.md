@@ -114,3 +114,6 @@
 ## 26.10.2026
 - Fixed a problem where screenings in the past can be shown and booked by adding a time checking for screenings and filter in **findAll()** function (Bug #6)
 - Added clock in the `SeatPicker.vue` file when you chose a movie and choosing a screening
+- Added launchers for Linux and MacOS with full support (Bug #7)
+- Refreshed and extended `README.md` file with new information and guides (Bug #7)
+- Fixed a problem backend starts before MySQL is ready by adding a healthcheck to `docker-compose.yml` file and adding wait timers in launchers (Bug #7)

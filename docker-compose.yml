@@ -8,6 +8,12 @@ services:
       MYSQL_DATABASE: apollo_kino
       MYSQL_USER: apollo
       MYSQL_PASSWORD: apollo
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$${MYSQL_ROOT_PASSWORD}\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
     ports:
       - "13306:3306"
     volumes:

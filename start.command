@@ -1,5 +1,5 @@
 #!/bin/zsh
-set -u
+set -eu
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "$0")" && pwd)"
 cd "$SCRIPT_DIR"
@@ -40,6 +40,11 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 
+if ! docker compose version >/dev/null 2>&1; then
+  echo "Docker Compose is unavailable. Please install the Docker Compose plugin and try again."
+  exit 1
+fi
+
 MODE="$(choose_mode)"
 
 if [[ "$MODE" == "Developer Mode" ]]; then
@@ -47,10 +52,10 @@ if [[ "$MODE" == "Developer Mode" ]]; then
   echo "(c) Samir Miles Cibis, Aleksander Kartuzov, Daniel Helmrosin 2026, All Rights Reserved."
   sleep 3
 
-  docker compose up -d
+  docker compose up -d --wait --wait-timeout 120
 
-  launch_terminal "cd backend && ALLOW_EDITING=true npm run dev"
-  launch_terminal "cd frontend && npm run dev"
+  launch_terminal "cd backend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && ALLOW_EDITING=true npm run dev"
+  launch_terminal "cd frontend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && npm run dev"
 
   sleep 12
   echo "Developer Mode: http://localhost:5173/"
@@ -62,10 +67,10 @@ echo "Starting Site in Build Mode..."
 echo "(c) Samir Miles Cibis, Aleksander Kartuzov, Daniel Helmrosin 2026, All Rights Reserved."
 sleep 3
 
-docker compose up -d
+docker compose up -d --wait --wait-timeout 120
 
-launch_terminal "cd backend && npm run build && NODE_ENV=production npm start"
-launch_terminal "cd frontend && npm run build && npm run preview"
+launch_terminal "cd backend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && npm run build && NODE_ENV=production npm start"
+launch_terminal "cd frontend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && npm run build && npm run preview"
 
 sleep 12
 echo "Main page: http://localhost:4173/"

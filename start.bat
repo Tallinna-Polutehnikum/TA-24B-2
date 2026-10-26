@@ -111,9 +111,10 @@ goto end
 :build
 echo Starting Site in Build Mode... (c) Samir Miles Cibis, Aleksander Kartuzov, Daniel Helmrosin 2026, All Rights Reserved. 
 powershell -Command "Start-Sleep -Seconds 3"
-docker compose up -d
-start "Backend - Production" cmd /k "cd /d backend && npm run build && set NODE_ENV=production&& npm start"
-start "Frontend - Preview" cmd /k "cd /d frontend && npm run build && npm run preview"
+docker compose up -d --wait --wait-timeout 120
+if errorlevel 1 exit /b 1
+start "Backend - Production" cmd /k "cd /d backend && if not exist node_modules (npm ci) && npm run build && set NODE_ENV=production&& npm start"
+start "Frontend - Preview" cmd /k "cd /d frontend && if not exist node_modules (npm ci) && npm run build && npm run preview"
 powershell -Command "Start-Sleep -Seconds 12"
 echo Main page: http://localhost:4173/
 echo API: http://localhost:3000
@@ -122,9 +123,10 @@ goto end
 :developer
 echo Starting Site in Developer Mode... (c) Samir Miles Cibis, Aleksander Kartuzov, Daniel Helmrosin 2026, All Rights Reserved.
 powershell -Command "Start-Sleep -Seconds 3"
-docker compose up -d
-start "Backend - Development" cmd /k "cd /d backend && set ALLOW_EDITING=true&& npm run dev"
-start "Frontend - Development" cmd /k "cd /d frontend && npm run dev"
+docker compose up -d --wait --wait-timeout 120
+if errorlevel 1 exit /b 1
+start "Backend - Development" cmd /k "cd /d backend && if not exist node_modules (npm ci) && set ALLOW_EDITING=true&& npm run dev"
+start "Frontend - Development" cmd /k "cd /d frontend && if not exist node_modules (npm ci) && npm run dev"
 powershell -Command "Start-Sleep -Seconds 12"
 echo Developer Mode: http://localhost:5173/
 echo API: http://localhost:3000
