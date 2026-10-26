@@ -1,13 +1,11 @@
 # Bradar Cinema Kinoprojekt
 
 ## Introduction
-The main project - **Bradar Cinema** website. Based on the Apollo Kino. Made by Samir 'Miles Tails' Cibis, Aleksander 'ThePanshurup' Kartuzov and Daniel Helmrosin.
+This project is the **Bradar Cinema** website, inspired by Apollo Kino. It was created by Samir 'Miles Tails' Cibis, Aleksander 'ThePanshurup' Kartuzov, and Daniel Helmrosin.
 
-This document shows which stacks were used in this project, what already works, feature list and guide how to run a project below.
+This document describes which stacks were used in this project, what already works, feature list and guides how to install and run a project below.
 
 You can see update logs in the `update-log.md` file.
-
-Below you can see guides how to install & run a project.
 
 ## Stacks used
 - Node.js
@@ -20,54 +18,54 @@ Below you can see guides how to install & run a project.
 ## What already works
 - NestJS backend starts on port 3000.
 - MySQL runs with Docker Compose.
-- MikroORM connects to MySQL and creates/uses the `movie` table.
-- Backend seeds 6 built-in movies and 3 built-in banners on the main page.
+- MikroORM connects to MySQL and creates and uses the `movie` table.
+- The backend seeds six built-in movies and three built-in banners for the main page.
 - `GET /movies` returns movies from MySQL.
-- Vue + PrimeVue frontend loads those movies from the backend and displays them as cards.
-- Faker generated movies generates with one command in the terminal and displays as card on the main page.
-- On movie cards, user can see movie name, genre, duration, rating, description, casting and movie trailer by clicking "Movie details" button. There is also the "Choose showtime" button which leads to the "Buy tickets" page.
-- On the "Buy tickets" page, user chooses a movie, then chooses cinema, date, screening (time, hall number & language) and seat/-s in the hall. After choosing all, opens a checkout, where user can see all chosen data.
-- In the developer mode (npm run dev) there are edit/add/delete buttons for movies and banners on the main page for admins usage. Also on the "Buy tickets" page, there is edit occupied seats button for seats in the current screening for admins.
+- The Vue and PrimeVue frontend loads movies from the backend and displays them as cards.
+- Faker-generated movies can be created with a single terminal command and are displayed on the main page.
+- Movie cards show each movie's title, genre, duration, rating, description, and cast. Click **Movie details** to view the trailer. The **Choose showtime** button opens the **Buy tickets** page.
+- On the **Buy tickets** page, users choose a movie, cinema, date, screening (time, hall, and language) and seat/-s. The checkout displays the selected details.
+- In developer mode (`npm run dev`), administrators can add, edit, and delete movies and banners on the main page. They can also edit occupied seats for a screening on the **Buy tickets** page.
 
 ## Feature list
 
 ### Done
 - Movie list with movie cards
-- Slidable movie banners on the top page
-- Screening booking and seat picker
-- Option to edit/add/delete movies & banners in the dev mode
-- Option to edit occupied seats in the current screening in the dev mode
-- Screenings scheludes
-- Dark & Light themes
+- Slideshow banners on the home page
+- Screening selection and seat picker
+- Options to add, edit and delete movies and banners in developer mode
+- Option to edit occupied seats for a screening in developer mode
+- Screening schedules
+- Dark and light themes
 
-### Undone or unknown
-- Checkout and ticket/-s payment
-- Sending ticket/-s on e-mail or QR-code
+### Incomplete or planned
+- Checkout and ticket payments
+- Sending tickets by email or as QR codes
 - Bradar club benefits
-- Movie lists for movie genres
+- Movie lists by genre
 - Different languages
-- Account system and customization
+- User accounts and customization
 
 ------------------------------------------------------------------------
 
-## How to install a project:
+## How to install the project
 
-### 1. Database environment installation (MySQL 8.4 - Docker Compose)
+### 1. Set up the database (MySQL 8.4 with Docker Compose)
 
-Install 'Docker Desktop' app onto your computer.
-When Docker engine is running the 'TA-24B-2' container should appear here.
+Install Docker Desktop on your computer.
+Once the Docker engine is running, the `TA-24B-2` container should appear.
 
-### 2. Backend environment installation (Node.js)
+### 2. Install Node.js
 
-Install Node.js (including npm) onto your computer.
+Install Node.js, which includes npm.
 
-### 3. Backend installation (MicroORM, NestJS)
+### 3. Install backend dependencies (MikroORM and NestJS)
 ```bash or VSC terminal
     cd backend
     npm ci
 ```
 
-### 4. Frontend installation (Vue 3 + Vue, PrimeVue)
+### 4. Install frontend dependencies (Vue 3 and PrimeVue)
 ```bash or VSC terminal
     cd frontend
     npm ci
@@ -75,48 +73,48 @@ Install Node.js (including npm) onto your computer.
 
 ------------------------------------------------------------------------
 
-## How to run a project in dev mode:
+## How to run the project in developer mode
 
-### 1. Database container
+### 1. Start the database
 ```bash or VSC terminal
     docker compose up -d --wait
 ```
 
-### 2. Backend folder
+### 2. Start the backend
 ```bash or VSC terminal
     cd backend
     $env:ALLOW_EDITING="true"
     npm run dev
 ```
 
-### 3. Frontend folder
+### 3. Start the frontend
 ```bash or VSC terminal
     cd frontend
     npm run dev
 ```
 
-### Launcher Startup on Windows:
+### Launching on Windows
 
-To run developer mode, open `start.bat` file or write `.\start.bat` command and choose 'Developer Mode'
+To start developer mode, open `start.bat` or run `.\start.bat`, then choose **Developer Mode**.
 
-### Launcher Startup on Linux:
+### Launching on Linux
 
-To run developer mode, open `start.sh` file and choose 'Developer Mode'
+To start developer mode, open `start.sh` and choose **Developer Mode**.
 
-### Launcher Startup on MacOC:
+### Launching on macOS
 
-To run developer mode, open `start.command` file and choose 'Developer Mode'
+To start developer mode, open `start.command` and choose **Developer Mode**.
 
 -------------------------------------------------------------------------
 
-## How to run a project in build mode (regular user side):
+## How to run the project in build mode (for regular users)
 
-### 1. Database container
+### 1. Start the database
 ```bash or VSC terminal
     docker compose up -d --wait
 ```
 
-### 2. Backend folder
+### 2. Build and start the backend
 ```bash in backend folder:
     cd ..\TA-24B-2\backend
     npm run build
@@ -124,36 +122,36 @@ To run developer mode, open `start.command` file and choose 'Developer Mode'
     npm start
 ```
 
-### 3. Frontend folder
+### 3. Build and preview the frontend
 ```bash in frontend folder:
     cd ..\TA-24B-2\frontend
     npm run build
     npm run preview
 ```
 
-### Launcher Startup:
+### Launching on Windows
 
-To run build mode, open `start.bat` file or write `.\start.bat` command and choose 'Build Mode' 
+To start build mode, open `start.bat` or run `.\start.bat`, then choose **Build Mode**.
 
-### Launcher Startup on Linux:
+### Launching on Linux
 
-To run developer mode, open `start.sh` file and choose 'Build Mode'
+To start build mode, open `start.sh` and choose **Build Mode**.
 
-### Launcher Startup on MacOC:
+### Launching on macOS
 
-To run developer mode, open `start.command` file and choose 'Build Mode'
+To start build mode, open `start.command` and choose **Build Mode**.
 
 ------------------------------------------------------------------------
 
 ## Attention!
-1. Start Docker before running the backend or frontend manually. Use `docker compose up -d --wait` so MySQL is ready before the backend connects.
-2. If you're using the launcher startup do not close frontend & backend terminals, which appearing after choosing mode!
-3. For manual startup, install dependencies in both `backend` and `frontend` with `npm ci`. If dependencies later become damaged, rerun `npm ci` in the affected folder.
+1. Start Docker before running the backend or frontend manually. Run `docker compose up -d --wait` to make sure MySQL is ready before the backend connects.
+2. If you use a launcher, keep the backend and frontend terminal windows open after choosing a mode.
+3. For manual startup, install dependencies in both `backend` and `frontend` with `npm ci`. If the dependencies become corrupted, rerun `npm ci` in the affected folder.
 
 ------------------------------------------------------------------------
 
-## How to generate new faker movies:
+## How to generate Faker movies
 
-The project has 6 built-in movies, but you can generate some faker movies on the movie list. To create or refresh the random movie set and generate any missing screenings for movies, open a new terminal, select backend folder `cd backend` and write `npm run movies:generate` command here.
+The project includes six built-in movies, and you can also generate Faker movies for the movie list. To create or refresh the generated movies and add any missing screenings, open a terminal, navigate to the backend folder with `cd backend` and run `npm run movies:generate`.
 
 In the developer mode, you can simply edit or delete faker movies. They work as same as built-in movies on the main page.
