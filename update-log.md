@@ -110,3 +110,7 @@
 - Fixed a problem movie screenings can overlap in the same hall by adding checking availability by time (Bug #5)
 - Rewrited all screenings time, due to screenings logic changes
 - Deleted `guide.md` file, because it's literally the second part of the `README.md` file, so `guide.md` file is unnessecary (Improvement #16)
+
+## 26.10.2026
+- Fixed a problem where screenings in the past can be shown and booked by adding a time checking for screenings and filter in **findAll()** function (Bug #6)
+- Added clock in the `SeatPicker.vue` file when you chose a movie and choosing a screening

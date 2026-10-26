@@ -1,6 +1,6 @@
 <script setup>
 import './SeatPicker.css';
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { getAssetUrl, getScreeningSeats, updateScreeningSeats } from './services/api'
 import banner from './assets/posters/banner1.jpg'
 import poster1 from './assets/posters/poster1.jpg'
@@ -30,8 +30,10 @@ const loadingSeats = ref(false)
 const savingSeats = ref(false)
 const seatError = ref('')
 const serverOccupied = ref(null)
+const currentTime = ref(new Date())
 
 let latestRequest = 0
+let clockInterval = null
 
 const screenings = computed(() => selectedMovie.value?.screenings ?? [])
 const cinemas = computed(() => [...new Map(
@@ -42,8 +44,33 @@ const cinemas = computed(() => [...new Map(
   }])
 ).values()])
 const cinemaScreenings = computed(() => screenings.value
-  .filter(screening => screening.building === selectedCinema.value)
+  .filter(screening => screening.building === selectedCinema.value && new Date(screening.startsAt).getTime() > Date.now())
   .sort((first, second) => new Date(first.startsAt) - new Date(second.startsAt)))
+const formattedCurrentDate = computed(() => {
+  const date = currentTime.value
+  return new Intl.DateTimeFormat('ee-EE', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'long'
+  }).format(date)
+})
+const formattedCurrentTime = computed(() => new Intl.DateTimeFormat('ee-EE', {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false
+}).format(currentTime.value))
+
+onMounted(() => {
+  clockInterval = setInterval(() => {
+    currentTime.value = new Date()
+  }, 1000)
+})
+
+onUnmounted(() => {
+  if (clockInterval !== null) {
+    clearInterval(clockInterval)
+  }
+})
 
 function getDateKey(value) {
   const date = new Date(value)
@@ -265,6 +292,11 @@ function toggleSeat(row, seat) {
 
 function continueToCheckout() {
   if (!selectedMovie.value || !selectedScreening.value || selectedSeats.value.length === 0 || loadingSeats.value || seatError.value) return
+  if (new Date(selectedScreening.value.startsAt).getTime() <=Date.now()) {
+    alert('This screening is already started')
+    return
+  }
+
   emit('checkout', {
     movie: selectedMovie.value,
     screening: selectedScreening.value,
@@ -298,7 +330,6 @@ watch(selectedScreening, () => {
 <template>
   <section class="booking-section">
     <button class="booking-back" type="button" @click="emit('close')">← Back to movies</button>
-
     <div v-if="!selectedMovie" class="movie-selection">
       <div class="booking-header">
         <span class="section-label">TICKETS</span>
@@ -314,7 +345,6 @@ watch(selectedScreening, () => {
       </div>
       <p v-else class="booking-empty">No movies are available right now.</p>
     </div>
-
     <template v-else>
       <header class="movie-banner" :style="{ backgroundImage: `linear-gradient(90deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,.32) 55%, rgba(0,0,0,.15) 100%), url('${getImage(selectedMovie, movieIndex)}')` }">
         <div>
@@ -323,11 +353,19 @@ watch(selectedScreening, () => {
           <button class="change-movie" type="button" @click="selectMovie(null)">Choose another movie</button>
         </div>
       </header>
-
       <section class="booking-step">
-        <div class="step-heading">
-          <span>01</span>
-          <div><h2>Choose a screening</h2><p>Select a cinema, date and available showtime.</p></div>
+        <div class="screening-header">
+          <div class="step-heading screening-heading">
+            <span>01</span>
+            <div>
+              <h2>Choose a screening</h2>
+              <p>Select a cinema, date and available showtime.</p>
+            </div>
+          </div>
+          <time class="screening-clock" :datetime="currentTime.toISOString()">
+            <span>{{ formattedCurrentDate }}</span>
+            <strong>{{ formattedCurrentTime }}</strong>
+          </time>
         </div>
         <div class="booking-filters">
           <label class="filter-field">
@@ -355,7 +393,6 @@ watch(selectedScreening, () => {
         <p v-else-if="selectedCinema" class="booking-empty">No screenings are available for this date.</p>
         <p v-else-if="selectedMovie.screenings?.length === 0" class="booking-empty">No screenings are available for this movie.</p>
       </section>
-
       <section v-if="selectedScreening" class="booking-step seat-step">
         <div class="step-heading">
           <span>02</span>
@@ -387,7 +424,6 @@ watch(selectedScreening, () => {
           </div>
         </div>
       </section>
-
       <footer v-if="selectedScreening && !editorOpen" class="booking-summary">
         <div class="selected-info"><span>Selected seats</span><strong>{{ selectedSeats.length ? selectedSeats.map(seat => `${seat.row}-${seat.seat}`).join(', ') : 'Choose at least one seat' }}</strong></div>
         <div class="price"><span>Total</span><strong>€{{ totalPrice.toFixed(2) }}</strong></div>

@@ -16,6 +16,11 @@ try {
 onMounted(() => {
   if (!booking.value?.movie || !booking.value?.screening || !booking.value?.seats?.length) {
     router.replace('/')
+    return
+  }
+  if (new Date(booking.value.screening.startsAt).getTime() <= Date.now()) {
+    sessionStorage.removeItem('pendingBooking')
+    router.replace('/')
   }
 })
 

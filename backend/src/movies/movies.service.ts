@@ -817,14 +817,22 @@ export class MoviesService implements OnModuleInit {
     }
   }
 
+  private ensureScreeningIsFuture (screening: Screening) {
+    if (screening.startsAt.getTime() <= Date.now()) {
+      throw new BadRequestException('This screening is already started');
+    }
+  }
+
   async getScreeningSeats(id: number) {
     const em = this.em.fork();
     const screening = await em.findOne(Screening, { id });
 
     if (!screening) {
       throw new NotFoundException('Screening not found');
+    
     }
 
+    this.ensureScreeningIsFuture(screening);
     return {
       screeningId: screening.id,
       blockedSeats: screening.blockedSeats ?? null
@@ -856,6 +864,7 @@ export class MoviesService implements OnModuleInit {
       throw new NotFoundException('Screening not found');
     }
 
+    this.ensureScreeningIsFuture(screening);
     screening.blockedSeats = seats;
     await em.flush();
 
@@ -867,16 +876,13 @@ export class MoviesService implements OnModuleInit {
 
   async findAll() {
     const movies = await this.em.find(Movie, { active: true }, { orderBy: { id: 'ASC' } });
-
     const [ratings, credits, screenings] = await Promise.all([
       this.em.find(MovieRating, {}, { populate: ['movie'] }),
       this.em.find(MovieCreator, {}, { populate: ['movie', 'creator'] }),
-      this.em.find(Screening, {}, { populate: ['movie', 'building'], orderBy: { startsAt: 'ASC' } }),
+      this.em.find(Screening, { startsAt: { $gte: new Date() }}, { populate: ['movie', 'building'], orderBy: { startsAt: 'ASC' } }),
     ]);
-
     const ratingsByMovie = new Map(ratings.map((rating) => [rating.movie.id, rating]));
     const creditsByMovie = new Map<number, { id: number; name: string; role: string }[]>();
-
     const screeningsByMovie = new Map<number, {
       id: number;
       building: string;
