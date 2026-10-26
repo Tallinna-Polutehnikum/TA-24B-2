@@ -1,8 +1,9 @@
-import { Entity, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, ManyToOne, PrimaryKey, Property, Unique } from '@mikro-orm/core';
 import { CinemaBuilding } from './cinema-building.entity';
 import { Movie } from './movie.entity';
 
 @Entity()
+@Unique({ properties: ['building', 'hallNumber', 'startsAt'] })
 export class Screening {
   @PrimaryKey()
   id!: number;
