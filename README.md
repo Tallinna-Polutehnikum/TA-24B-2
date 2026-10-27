@@ -1,7 +1,7 @@
 # Bradar Cinema Kinoprojekt
 
 ## Introduction
-This project is the **Bradar Cinema** website, inspired by Apollo Kino. It was created by Samir 'Miles Tails' Cibis, Aleksander 'ThePanshurup' Kartuzov, and Daniel Helmrosin.
+This project is the **Bradar Cinema** website, inspired by Apollo Kino. It was created by Samir 'Miles' Cibis, Aleksander 'ThePanshurup' Kartuzov and Daniel Helmrosin.
 
 This document describes which stacks were used in this project, what already works, feature list and guides how to install and run a project below.
 
@@ -38,7 +38,7 @@ You can see update logs in the `update-log.md` file.
 - Screening schedules
 - Dark and light themes
 
-### Incomplete or planned
+### Undone or planned
 - Checkout and ticket payments
 - Sending tickets by email or as QR codes
 - Bradar club benefits
@@ -93,15 +93,15 @@ Install Node.js, which includes npm.
     npm run dev
 ```
 
-### Launching on Windows
+### Launcher Startup on Windows
 
 To start developer mode, open `start.bat` or run `.\start.bat`, then choose **Developer Mode**.
 
-### Launching on Linux
+### Launcher Startup on Linux
 
 To start developer mode, open `start.sh` and choose **Developer Mode**.
 
-### Launching on macOS
+### Launcher Startup on macOS
 
 To start developer mode, open `start.command` and choose **Developer Mode**.
 
@@ -129,15 +129,15 @@ To start developer mode, open `start.command` and choose **Developer Mode**.
     npm run preview
 ```
 
-### Launching on Windows
+### Launcher Startup on Windows
 
 To start build mode, open `start.bat` or run `.\start.bat`, then choose **Build Mode**.
 
-### Launching on Linux
+### Launcher Startup on Linux
 
 To start build mode, open `start.sh` and choose **Build Mode**.
 
-### Launching on macOS
+### Launcher Startup on macOS
 
 To start build mode, open `start.command` and choose **Build Mode**.
 
