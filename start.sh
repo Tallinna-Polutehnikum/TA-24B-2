@@ -65,6 +65,20 @@ launch_terminal() {
   fi
 }
 
+wait_for_backend() {
+  printf '%s\n' "Waiting for the backend to finish initializing..."
+  start_time=$(date +%s)
+  while [ "$(( $(date +%s) - start_time ))" -lt 300 ]; do
+    if curl --fail --silent --output /dev/null --max-time 2 http://localhost:3000/movies; then
+      printf '%s\n' "Backend is ready."
+      return 0
+    fi
+    sleep 2
+  done
+  printf '%s\n' "Backend did not become ready within 5 minutes. Frontend was not started." >&2
+  return 1
+}
+
 if ! command -v docker >/dev/null 2>&1; then
   printf '%s\n' "Docker not found. Please install Docker and try again." >&2
   exit 1
@@ -72,6 +86,11 @@ fi
 
 if ! docker compose version >/dev/null 2>&1; then
   printf '%s\n' "Docker Compose is unavailable. Please install the Docker Compose plugin and try again." >&2
+  exit 1
+fi
+
+if ! command -v curl >/dev/null 2>&1; then
+  printf '%s\n' "curl not found. Please install curl and try again." >&2
   exit 1
 fi
 
@@ -87,6 +106,7 @@ case "$MODE" in
     sleep 3
     docker compose up -d --wait --wait-timeout 120
     launch_terminal "Backend - Development" "$SCRIPT_DIR/backend" sh -c 'if [ ! -d node_modules ]; then npm ci || exit 1; fi; ALLOW_EDITING=true npm run dev'
+    wait_for_backend
     launch_terminal "Frontend - Development" "$SCRIPT_DIR/frontend" sh -c 'if [ ! -d node_modules ]; then npm ci || exit 1; fi; npm run dev'
     sleep 12
     printf '%s\n' "Developer Mode: http://localhost:5173/" "API: http://localhost:3000"
@@ -97,6 +117,7 @@ case "$MODE" in
     sleep 3
     docker compose up -d --wait --wait-timeout 120
     launch_terminal "Backend - Production" "$SCRIPT_DIR/backend" sh -c 'if [ ! -d node_modules ]; then npm ci || exit 1; fi; npm run build && NODE_ENV=production npm start'
+    wait_for_backend
     launch_terminal "Frontend - Preview" "$SCRIPT_DIR/frontend" sh -c 'if [ ! -d node_modules ]; then npm ci || exit 1; fi; npm run build && npm run preview'
     sleep 12
     printf '%s\n' "Main page: http://localhost:4173/" "API: http://localhost:3000"

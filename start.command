@@ -35,6 +35,21 @@ launch_terminal() {
 APPLESCRIPT
 }
 
+wait_for_backend() {
+  echo "Waiting for the backend to finish initializing..."
+  local start_time
+  start_time="$(date +%s)"
+  while (( $(date +%s) - start_time < 300 )); do
+    if curl --fail --silent --output /dev/null --max-time 2 http://localhost:3000/movies; then
+      echo "Backend is ready."
+      return 0
+    fi
+    sleep 2
+  done
+  echo "Backend did not become ready within 5 minutes. Frontend was not started." >&2
+  return 1
+}
+
 if ! command -v docker >/dev/null 2>&1; then
   echo "Docker not found. Please install Docker Desktop for Mac and try again."
   exit 1
@@ -42,6 +57,11 @@ fi
 
 if ! docker compose version >/dev/null 2>&1; then
   echo "Docker Compose is unavailable. Please install the Docker Compose plugin and try again."
+  exit 1
+fi
+
+if ! command -v curl >/dev/null 2>&1; then
+  echo "curl not found. Please install curl and try again."
   exit 1
 fi
 
@@ -55,6 +75,7 @@ if [[ "$MODE" == "Developer Mode" ]]; then
   docker compose up -d --wait --wait-timeout 120
 
   launch_terminal "cd backend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && ALLOW_EDITING=true npm run dev"
+  wait_for_backend
   launch_terminal "cd frontend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && npm run dev"
 
   sleep 12
@@ -70,6 +91,7 @@ sleep 3
 docker compose up -d --wait --wait-timeout 120
 
 launch_terminal "cd backend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && npm run build && NODE_ENV=production npm start"
+wait_for_backend
 launch_terminal "cd frontend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && npm run build && npm run preview"
 
 sleep 12
