@@ -114,6 +114,8 @@ powershell -Command "Start-Sleep -Seconds 3"
 docker compose up -d --wait --wait-timeout 120
 if errorlevel 1 exit /b 1
 start "Backend - Production" cmd /k "cd /d backend && if exist node_modules (npm run build && set NODE_ENV=production && npm start) else (npm ci && npm run build && set NODE_ENV=production && npm start)"
+call :wait_for_backend
+if errorlevel 1 exit /b 1
 start "Frontend - Preview" cmd /k "cd /d frontend && if exist node_modules (npm run build && npm run preview) else (npm ci && npm run build && npm run preview)"
 powershell -Command "Start-Sleep -Seconds 12"
 echo Main page: http://localhost:4173/
@@ -126,6 +128,8 @@ powershell -Command "Start-Sleep -Seconds 3"
 docker compose up -d --wait --wait-timeout 120
 if errorlevel 1 exit /b 1
 start "Backend - Development" cmd /k "cd /d backend && if exist node_modules (set NODE_ENV=development && set ALLOW_EDITING=true && npm run dev) else (npm ci && set NODE_ENV=development && set ALLOW_EDITING=true && npm run dev)"
+call :wait_for_backend
+if errorlevel 1 exit /b 1
 start "Frontend - Development" cmd /k "cd /d frontend && if exist node_modules (npm run dev) else (npm ci && npm run dev)"
 powershell -Command "Start-Sleep -Seconds 12"
 echo Developer Mode: http://localhost:5173/
@@ -134,3 +138,9 @@ goto end
 
 :end
 endlocal
+exit /b 0
+
+:wait_for_backend
+echo Waiting for the backend to finish initializing...
+powershell -NoProfile -Command "$deadline = (Get-Date).AddMinutes(5); do { try { $response = Invoke-WebRequest -UseBasicParsing -Uri 'http://localhost:3000/movies' -TimeoutSec 2; if ($response.StatusCode -eq 200) { Write-Host 'Backend is ready.'; exit 0 } } catch { }; Start-Sleep -Seconds 2 } while ((Get-Date) -lt $deadline); Write-Error 'Backend did not become ready within 5 minutes. Frontend was not started.'; exit 1"
+exit /b %errorlevel%
