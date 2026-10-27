@@ -50,6 +50,7 @@ const slides = ref([]);
 const activeSlide = ref(0);
 const posters = [poster1, poster2, poster3, poster4, poster5, poster6];
 const theme = ref('dark');
+const backendRetryIntervalMs = 1000;
 let slideTimer;
 let backendRetryTimer;
 let backendRequestInFlight = false;
@@ -437,7 +438,7 @@ onMounted(async () => {
   browserTheme.addEventListener('change', onBrowserThemeChange);
   restartSlideTimer();
   if (!await loadBackendData()) {
-    backendRetryTimer = window.setInterval(loadBackendData, 3000);
+    backendRetryTimer = window.setInterval(loadBackendData, backendRetryIntervalMs);
   }
 });
 
