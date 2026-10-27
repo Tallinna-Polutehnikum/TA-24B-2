@@ -5,6 +5,7 @@ import { useRoute, useRouter } from 'vue-router';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Tag from 'primevue/tag';
+import Checkout from './Checkout.vue';
 import { getMovies, updateMovie, createMovie, deleteMovie, uploadMoviePoster, getAssetUrl, getBanners, updateBanner, createBanner, deleteBanner, uploadBannerImage } from './services/api.js';
 import poster1 from './assets/posters/poster1.jpg';
 import poster2 from './assets/posters/poster2.jpg';
@@ -437,7 +438,7 @@ onMounted(async () => {
   };
   browserTheme.addEventListener('change', onBrowserThemeChange);
   restartSlideTimer();
-  if (!await loadBackendData()) {
+  if (activePageName.value !== 'checkout' && !await loadBackendData()) {
     backendRetryTimer = window.setInterval(loadBackendData, backendRetryIntervalMs);
   }
 });
@@ -528,19 +529,25 @@ onUnmounted(() => {
         <div v-else-if="!filteredMovies.length" class="state">No movies found for this genre.</div>
         <div v-else class="grid">
           <Card v-for="movie in filteredMovies" :key="movie.id" class="movie-card clickable-card" @click="openMovie(movie, movies.findIndex(entry => entry.id === movie.id))">
-            <template #header><img :src="getPoster(movie, movies.findIndex(entry => entry.id === movie.id))" :alt="movie.title" @error="handlePosterError($event, movies.findIndex(entry => entry.id === movie.id))" /></template>
+            <template #header>
+              <button class="movie-card-open-button" type="button" :aria-label="`View details for ${movie.title}`" @click.stop="openMovie(movie, movies.findIndex(entry => entry.id === movie.id))">
+                <img :src="getPoster(movie, movies.findIndex(entry => entry.id === movie.id))" alt="" @error="handlePosterError($event, movies.findIndex(entry => entry.id === movie.id))" />
+              </button>
+            </template>
             <template #title>
-              <div class="movie-title-row">
-                <div class="movie-title-info">
-                  <span class="movie-title">{{ movie.title }}</span>
-                  <span class="movie-title-meta">{{ movie.genre }} · {{ movie.duration }} min</span>
+              <button class="movie-card-open-button movie-card-title-button" type="button" :aria-label="`View details for ${movie.title}`" @click.stop="openMovie(movie, movies.findIndex(entry => entry.id === movie.id))">
+                <div class="movie-title-row">
+                  <div class="movie-title-info">
+                    <span class="movie-title">{{ movie.title }}</span>
+                    <span class="movie-title-meta">{{ movie.genre }} · {{ movie.duration }} min</span>
+                  </div>
+                  <div v-if="movie.rating" class="movie-title-rating">
+                    <strong>{{ Number(movie.rating.score).toFixed(1) }}/10</strong>
+                    <small>{{ movie.rating.voteCount.toLocaleString() }} votes</small>
+                  </div>
+                  <div v-else class="movie-title-rating movie-title-rating-empty" aria-hidden="true"></div>
                 </div>
-                <div v-if="movie.rating" class="movie-title-rating">
-                  <strong>{{ Number(movie.rating.score).toFixed(1) }}/10</strong>
-                  <small>{{ movie.rating.voteCount.toLocaleString() }} votes</small>
-                </div>
-                <div v-else class="movie-title-rating movie-title-rating-empty" aria-hidden="true"></div>
-              </div>
+              </button>
             </template>
             <template #content>
               <p class="movie-description">{{ movie.description }}</p>
@@ -561,7 +568,7 @@ onUnmounted(() => {
             </template>
             <template #footer>
               <div class="card-actions">
-                <button class="details-button" type="button" @click.stop="openMovie(movie, index)">
+                <button class="details-button" type="button" @click.stop="openMovie(movie, movies.findIndex(entry => entry.id === movie.id))">
                   <i class="pi pi-info-circle" aria-hidden="true"></i> Movie details
                 </button>
                 <button class="showtime" type="button" @click.stop="openSeatPicker(movie)">
@@ -705,9 +712,10 @@ onUnmounted(() => {
     </footer>
     <div v-if="backendUnavailable" class="backend-unavailable-backdrop">
       <section class="backend-unavailable-dialog" role="alertdialog" aria-modal="true" aria-labelledby="backend-unavailable-title" aria-describedby="backend-unavailable-description">
-        <h2 id="backend-unavailable-title">Backend is not running yet</h2>
-        <p id="backend-unavailable-description">Start NestJS. This page will automatically refresh its content when it is ready.</p>
+        <h2 id="backend-unavailable-title">Couldn't load movies</h2>
+        <p id="backend-unavailable-description">Please check your connection. We'll keep trying automatically.</p>
         <span class="backend-unavailable-status" role="status">Checking connection…</span>
+        <button class="backend-unavailable-retry" type="button" @click="loadBackendData">Try again</button>
       </section>
     </div>
   </div>

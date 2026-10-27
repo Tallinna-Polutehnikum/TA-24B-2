@@ -17,7 +17,7 @@ export default createRouter({
     { path: '/about_us', name: 'aboutUs', component: App, meta: { page: 'aboutUs', view: AboutUs } },
     { path: '/club', name: 'club', component: App, meta: { page: 'club', view: Club } },
     { path: '/club/register', name: 'clubApplication', component: App, meta: { page: 'clubApplication', view: ClubApplication } },
-    { path: '/checkout', component: Checkout },
+    { path: '/checkout', name: 'checkout', component: App, meta: { page: 'checkout', view: Checkout } },
     { path: '/seatpicker', redirect: '/buy-tickets' },
     { path: '/about-us', redirect: '/about_us' },
     { path: '/:pathMatch(.*)*', redirect: '/' }

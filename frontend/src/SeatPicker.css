@@ -191,21 +191,21 @@
 .legend-seat.occupied {
   background: #292929;
 }
-:global(:root[data-theme="light"] .seat:not(.selected)) {
+:root[data-theme="light"] .seat:not(.selected) {
   border-color: #aaa;
   background: #fff;
   color: #333;
 }
-:global(:root[data-theme="light"] .seat.occupied) {
+:root[data-theme="light"] .seat.occupied {
   border-color: #b8b8b8;
   background: #b8b8b8;
   color: #666;
 }
-:global(:root[data-theme="light"] .legend-seat.free) {
+:root[data-theme="light"] .legend-seat.free {
   border-color: #aaa;
   background: #fff;
 }
-:global(:root[data-theme="light"] .legend-seat.occupied) {
+:root[data-theme="light"] .legend-seat.occupied {
   background: #b8b8b8;
 }
 .booking-summary {

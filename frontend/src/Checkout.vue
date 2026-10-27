@@ -47,7 +47,7 @@ function formatTime(value) {
 </script>
 
 <template>
-  <main v-if="booking?.movie && booking?.screening" class="checkout-page">
+  <div v-if="booking?.movie && booking?.screening" class="checkout-page">
     <header class="checkout-header">
       <button type="button" class="checkout-back" @click="returnToCinema">← Back to cinema</button>
       <span class="section-label">TICKETS</span>
@@ -79,5 +79,5 @@ function formatTime(value) {
         <button type="button" class="continue-button" @click="returnToCinema">Back to movies</button>
       </aside>
     </section>
-  </main>
+  </div>
 </template>

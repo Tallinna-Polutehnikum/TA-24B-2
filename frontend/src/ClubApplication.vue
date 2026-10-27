@@ -5,7 +5,7 @@ import { ref } from 'vue';
 const notice = ref('');
 
 function submitApplication() {
-  notice.value = 'The application form is ready, but submissions are not connected yet.';
+  notice.value = 'Your details have not been saved. The application form is not connected yet.';
 }
 </script>
 
