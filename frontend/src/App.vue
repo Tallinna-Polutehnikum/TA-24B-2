@@ -705,7 +705,6 @@ onUnmounted(() => {
     </footer>
     <div v-if="backendUnavailable" class="backend-unavailable-backdrop">
       <section class="backend-unavailable-dialog" role="alertdialog" aria-modal="true" aria-labelledby="backend-unavailable-title" aria-describedby="backend-unavailable-description">
-        <i class="pi pi-spin pi-spinner backend-unavailable-spinner" aria-hidden="true"></i>
         <h2 id="backend-unavailable-title">Backend is not running yet</h2>
         <p id="backend-unavailable-description">Start NestJS. This page will automatically refresh its content when it is ready.</p>
         <span class="backend-unavailable-status" role="status">Checking connection…</span>
