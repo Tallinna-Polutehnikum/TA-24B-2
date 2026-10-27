@@ -21,7 +21,7 @@ const filteredMovies = computed(() => movies.value.filter(movie => !selectedGenr
 const router = useRouter();
 const route = useRoute();
 const loading = ref(true);
-const error = ref('');
+const backendUnavailable = ref(false);
 const activePage = computed(() => route.meta.view ?? null);
 const activePageName = computed(() => route.meta.page ?? 'home');
 const selectedMovie = ref(null);
@@ -51,6 +51,8 @@ const activeSlide = ref(0);
 const posters = [poster1, poster2, poster3, poster4, poster5, poster6];
 const theme = ref('dark');
 let slideTimer;
+let backendRetryTimer;
+let backendRequestInFlight = false;
 let browserTheme;
 let onBrowserThemeChange;
 
@@ -399,6 +401,27 @@ async function openCheckout(booking) {
   await router.push('/checkout');
 }
 
+async function loadBackendData() {
+  if (backendRequestInFlight) return false;
+  backendRequestInFlight = true;
+
+  try {
+    const [loadedMovies, loadedBanners] = await Promise.all([getMovies(), getBanners()]);
+    movies.value = loadedMovies;
+    slides.value = loadedBanners;
+    backendUnavailable.value = false;
+    window.clearInterval(backendRetryTimer);
+    backendRetryTimer = undefined;
+    return true;
+  } catch {
+    backendUnavailable.value = true;
+    return false;
+  } finally {
+    loading.value = false;
+    backendRequestInFlight = false;
+  }
+}
+
 onMounted(async () => {
   window.addEventListener('keydown', handleModalKeydown);
   browserTheme = window.matchMedia('(prefers-color-scheme: dark)');
@@ -413,14 +436,15 @@ onMounted(async () => {
   };
   browserTheme.addEventListener('change', onBrowserThemeChange);
   restartSlideTimer();
-  try { movies.value = await getMovies(), slides.value = await getBanners(); }
-  catch (e) { error.value = 'Backend is not running yet. Start NestJS and refresh.'; }
-  finally { loading.value = false; }
+  if (!await loadBackendData()) {
+    backendRetryTimer = window.setInterval(loadBackendData, 3000);
+  }
 });
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleModalKeydown);
   window.clearInterval(slideTimer);
+  window.clearInterval(backendRetryTimer);
   browserTheme?.removeEventListener('change', onBrowserThemeChange);
   if (selectedMovie.value) document.body.style.overflow = previousBodyOverflow.value;
 });
@@ -500,7 +524,6 @@ onUnmounted(() => {
           </div>
         </div>
         <div v-if="loading" class="state">Loading movies from backend...</div>
-        <div v-else-if="error" class="state error">{{ error }}</div>
         <div v-else-if="!filteredMovies.length" class="state">No movies found for this genre.</div>
         <div v-else class="grid">
           <Card v-for="movie in filteredMovies" :key="movie.id" class="movie-card clickable-card" @click="openMovie(movie, movies.findIndex(entry => entry.id === movie.id))">
@@ -679,5 +702,13 @@ onUnmounted(() => {
       <div class="fleft">Bradar Cinema · School project</div>
       <div class="fright">Copyright © 2026 Bradar Cinema. All rights reserved.</div>
     </footer>
+    <div v-if="backendUnavailable" class="backend-unavailable-backdrop">
+      <section class="backend-unavailable-dialog" role="alertdialog" aria-modal="true" aria-labelledby="backend-unavailable-title" aria-describedby="backend-unavailable-description">
+        <i class="pi pi-spin pi-spinner backend-unavailable-spinner" aria-hidden="true"></i>
+        <h2 id="backend-unavailable-title">Backend is not running yet</h2>
+        <p id="backend-unavailable-description">Start NestJS. This page will automatically refresh its content when it is ready.</p>
+        <span class="backend-unavailable-status" role="status">Checking connection…</span>
+      </section>
+    </div>
   </div>
 </template>

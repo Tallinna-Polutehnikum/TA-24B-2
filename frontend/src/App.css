@@ -325,6 +325,46 @@ nav a:hover {
 .error { 
   color:#f0a0a0; 
 } 
+.backend-unavailable-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, .48);
+  backdrop-filter: blur(10px);
+}
+.backend-unavailable-dialog {
+  width: min(440px, 100%);
+  padding: 36px 32px;
+  border: 1px solid var(--cinema-border);
+  border-radius: 16px;
+  background: var(--cinema-surface);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .5);
+  color: var(--cinema-text);
+  text-align: center;
+}
+.backend-unavailable-spinner {
+  color: var(--cinema-accent);
+  font-size: 32px;
+}
+.backend-unavailable-dialog h2 {
+  margin: 20px 0 10px;
+  font-family: var(--cinema-font-heading);
+}
+.backend-unavailable-dialog p {
+  margin: 0;
+  color: var(--cinema-muted);
+  line-height: 1.6;
+}
+.backend-unavailable-status {
+  display: block;
+  margin-top: 20px;
+  color: var(--cinema-accent);
+  font-size: 14px;
+}
 .footer {
   color:#666;
   font-size:13px; 
