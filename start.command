@@ -74,7 +74,7 @@ if [[ "$MODE" == "Developer Mode" ]]; then
 
   docker compose up -d --wait --wait-timeout 120
 
-  launch_terminal "cd backend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && ALLOW_EDITING=true npm run dev"
+  launch_terminal "cd backend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && NODE_ENV=development ALLOW_EDITING=true npm run dev"
   wait_for_backend
   launch_terminal "cd frontend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && npm run dev"
 
@@ -90,7 +90,7 @@ sleep 3
 
 docker compose up -d --wait --wait-timeout 120
 
-launch_terminal "cd backend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && npm run build && NODE_ENV=production npm start"
+launch_terminal "cd backend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && npm run build && NODE_ENV=production ALLOW_EDITING=false npm start"
 wait_for_backend
 launch_terminal "cd frontend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && npm run build && npm run preview"
 

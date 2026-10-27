@@ -113,7 +113,7 @@ echo Starting Site in Build Mode... (c) Samir Miles Cibis, Aleksander Kartuzov, 
 powershell -Command "Start-Sleep -Seconds 3"
 docker compose up -d --wait --wait-timeout 120
 if errorlevel 1 exit /b 1
-start "Backend - Production" cmd /k "cd /d backend && if exist node_modules (npm run build && set NODE_ENV=production && npm start) else (npm ci && npm run build && set NODE_ENV=production && npm start)"
+start "Backend - Production" cmd /k "cd /d backend && if exist node_modules (npm run build && set NODE_ENV=production && set ALLOW_EDITING=false && npm start) else (npm ci && npm run build && set NODE_ENV=production && set ALLOW_EDITING=false && npm start)"
 call :wait_for_backend
 if errorlevel 1 exit /b 1
 start "Frontend - Preview" cmd /k "cd /d frontend && if exist node_modules (npm run build && npm run preview) else (npm ci && npm run build && npm run preview)"

@@ -15,6 +15,6 @@ export default defineConfig({
   password: process.env.DB_PASSWORD ?? 'apollo',
   dbName: process.env.DB_NAME ?? 'apollo_kino',
   entities: [Movie, MovieRating, Creator, MovieCreator, CinemaBuilding, Screening, Banner],
-  debug: process.env.NODE_ENV !== 'production',
+  debug: process.env.NODE_ENV?.trim().toLowerCase() === 'development',
   schemaGenerator: { disableForeignKeys: true },
 });

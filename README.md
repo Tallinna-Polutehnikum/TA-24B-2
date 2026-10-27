@@ -148,6 +148,7 @@ To start build mode, open `start.command` and choose **Build Mode**.
 1. Start Docker before running the backend or frontend manually. Run `docker compose up -d --wait` to make sure MySQL is ready before the backend connects.
 2. If you use a launcher, keep the backend and frontend terminal windows open after choosing a mode.
 3. For manual startup, install dependencies in both `backend` and `frontend` with `npm ci`. If the dependencies become corrupted, rerun `npm ci` in the affected folder.
+4. The launchers explicitly enable editing only in Developer Mode. Build Mode starts the backend in production with editing disabled, even if the terminal environment has different settings. SQL debug queries are shown only in Developer Mode; errors and startup messages remain visible in Build Mode.
 
 The launchers open the frontend terminal only after `GET /movies` responds successfully, confirming the backend has finished initializing. If the backend does not become ready within five minutes, the launcher reports an error and does not start the frontend.
 

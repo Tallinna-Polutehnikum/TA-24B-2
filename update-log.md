@@ -121,3 +121,5 @@
 ## 27.10.2026
 - Fixed some grammar mistakes with AI assist in `README.md` and `update-log.md` files (I know, I am lazy)
 - Ordered the backend loading at first place, so the frontend loading requires fully loaded backend before
+- Restored Build Mode protection in the Windows, Linux, and macOS launchers by explicitly disabling editing
+- Hid SQL debug queries in Build Mode while keeping errors and startup messages visible
