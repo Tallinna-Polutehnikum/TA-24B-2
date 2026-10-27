@@ -83,6 +83,7 @@ Install Node.js, which includes npm.
 ### 2. Start the backend
 ```bash or VSC terminal
     cd backend
+    $env:NODE_ENV="development"
     $env:ALLOW_EDITING="true"
     npm run dev
 ```
