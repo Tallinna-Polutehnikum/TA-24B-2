@@ -27,12 +27,37 @@ APPLESCRIPT
 
 launch_terminal() {
   local command="$1"
+  local shell_command="cd \"$SCRIPT_DIR\" && $command"
+  local apple_script_command
+  apple_script_command="$(printf '%s' "$shell_command" | sed 's/\\/\\\\/g; s/"/\\"/g')"
   osascript <<APPLESCRIPT
   tell application "Terminal"
     activate
-    do script "cd \"$SCRIPT_DIR\" && $command"
+    set serviceWindow to make new window
+    do script "$apple_script_command" in serviceWindow
+    return id of serviceWindow
   end tell
 APPLESCRIPT
+}
+
+minimize_terminal() {
+  local window_id="$1"
+  if [[ ! "$window_id" =~ ^[0-9]+$ ]]; then
+    echo "Could not minimize terminal window: invalid window ID." >&2
+    return 1
+  fi
+  if ! osascript <<APPLESCRIPT
+  tell application "Terminal"
+    set miniaturized of (first window whose id is $window_id) to true
+  end tell
+APPLESCRIPT
+  then
+    echo "Could not minimize terminal window $window_id." >&2
+  fi
+}
+
+open_site() {
+  open "$1"
 }
 
 wait_for_backend() {
@@ -47,6 +72,22 @@ wait_for_backend() {
     sleep 2
   done
   echo "Backend did not become ready within 5 minutes. Frontend was not started." >&2
+  return 1
+}
+
+wait_for_frontend() {
+  local port="$1"
+  echo "Waiting for Vite to start..."
+  local start_time
+  start_time="$(date +%s)"
+  while (( $(date +%s) - start_time < 300 )); do
+    if curl --fail --silent --output /dev/null --max-time 2 "http://localhost:$port/"; then
+      echo "Frontend is ready."
+      return 0
+    fi
+    sleep 1
+  done
+  echo "Frontend did not become ready within 5 minutes." >&2
   return 1
 }
 
@@ -74,11 +115,14 @@ if [[ "$MODE" == "Developer Mode" ]]; then
 
   docker compose up -d --wait --wait-timeout 120
 
-  launch_terminal "cd backend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && NODE_ENV=development ALLOW_EDITING=true npm run dev"
+  BACKEND_WINDOW_ID="$(launch_terminal "cd backend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && NODE_ENV=development ALLOW_EDITING=true npm run dev")"
   wait_for_backend
-  launch_terminal "cd frontend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && npm run dev"
+  minimize_terminal "$BACKEND_WINDOW_ID"
+  FRONTEND_WINDOW_ID="$(launch_terminal "cd frontend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && npm run dev")"
+  wait_for_frontend 5173
+  minimize_terminal "$FRONTEND_WINDOW_ID"
+  open_site "http://localhost:5173/"
 
-  sleep 12
   echo "Developer Mode: http://localhost:5173/"
   echo "API: http://localhost:3000"
   exit 0
@@ -90,10 +134,13 @@ sleep 3
 
 docker compose up -d --wait --wait-timeout 120
 
-launch_terminal "cd backend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && npm run build && NODE_ENV=production ALLOW_EDITING=false npm start"
+BACKEND_WINDOW_ID="$(launch_terminal "cd backend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && npm run build && NODE_ENV=production ALLOW_EDITING=false npm start")"
 wait_for_backend
-launch_terminal "cd frontend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && npm run build && npm run preview"
+minimize_terminal "$BACKEND_WINDOW_ID"
+FRONTEND_WINDOW_ID="$(launch_terminal "cd frontend && if [ ! -d node_modules ]; then npm ci || exit 1; fi && npm run build && npm run preview")"
+wait_for_frontend 4173
+minimize_terminal "$FRONTEND_WINDOW_ID"
+open_site "http://localhost:4173/"
 
-sleep 12
 echo "Main page: http://localhost:4173/"
 echo "API: http://localhost:3000"

@@ -128,3 +128,4 @@
 - Fixed some color issues in the website with the light theme
 - Added the Windows launcher feature: when the frontend and backend terminal windows are fully loaded they minimizes after
 - Made the Vite link automatically opens the website after the frontend loading
+- Improved Linux and macOS launchers (IMPORTANT!!! I don't know if they work properly, because I don't have any devices with the Linux or macOS operating system)

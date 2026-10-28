@@ -47,9 +47,9 @@ launch_terminal() {
   terminal_command='cd "$1" && shift && "$@"; status=$?; printf "\nProcess exited with status %s.\n" "$status"; exec "${SHELL:-/bin/bash}" -i'
 
   if command -v gnome-terminal >/dev/null 2>&1; then
-    gnome-terminal --title="$title" -- bash -c "$terminal_command" launcher "$directory" "$@"
+    gnome-terminal --window --title="$title" -- bash -c "$terminal_command" launcher "$directory" "$@"
   elif command -v konsole >/dev/null 2>&1; then
-    konsole --new-window -p "tabtitle=$title" -e bash -c "$terminal_command" launcher "$directory" "$@"
+    konsole --new-window --caption "$title" -p "tabtitle=$title" -e bash -c "$terminal_command" launcher "$directory" "$@"
   elif command -v xfce4-terminal >/dev/null 2>&1; then
     xfce4-terminal --title="$title" --execute bash -c "$terminal_command" launcher "$directory" "$@"
   elif command -v mate-terminal >/dev/null 2>&1; then
@@ -77,6 +77,48 @@ wait_for_backend() {
   done
   printf '%s\n' "Backend did not become ready within 5 minutes. Frontend was not started." >&2
   return 1
+}
+
+wait_for_frontend() {
+  port=$1
+  printf '%s\n' "Waiting for Vite to start..."
+  start_time=$(date +%s)
+  while [ "$(( $(date +%s) - start_time ))" -lt 300 ]; do
+    if curl --fail --silent --output /dev/null --max-time 2 "http://localhost:$port/"; then
+      printf '%s\n' "Frontend is ready."
+      return 0
+    fi
+    sleep 1
+  done
+  printf '%s\n' "Frontend did not become ready within 5 minutes." >&2
+  return 1
+}
+
+minimize_terminal() {
+  title=$1
+
+  if command -v xdotool >/dev/null 2>&1; then
+    window_id=$(xdotool search --onlyvisible --name "$title" 2>/dev/null | tail -n 1) || window_id=
+    if [ -n "$window_id" ]; then
+      if xdotool windowminimize "$window_id"; then
+        return 0
+      fi
+    fi
+  fi
+
+  if command -v wmctrl >/dev/null 2>&1 && wmctrl -r "$title" -b add,hidden; then
+    return 0
+  fi
+
+  printf 'Could not minimize terminal window "%s"; install xdotool or wmctrl to enable minimizing.\n' "$title" >&2
+}
+
+open_site() {
+  if ! command -v xdg-open >/dev/null 2>&1; then
+    printf '%s\n' "xdg-open not found. Open the site manually using the printed URL." >&2
+    return 1
+  fi
+  xdg-open "$1"
 }
 
 if ! command -v docker >/dev/null 2>&1; then
@@ -107,8 +149,11 @@ case "$MODE" in
     docker compose up -d --wait --wait-timeout 120
     launch_terminal "Backend - Development" "$SCRIPT_DIR/backend" sh -c 'if [ ! -d node_modules ]; then npm ci || exit 1; fi; NODE_ENV=development ALLOW_EDITING=true npm run dev'
     wait_for_backend
+    minimize_terminal "Backend - Development"
     launch_terminal "Frontend - Development" "$SCRIPT_DIR/frontend" sh -c 'if [ ! -d node_modules ]; then npm ci || exit 1; fi; npm run dev'
-    sleep 12
+    wait_for_frontend 5173
+    minimize_terminal "Frontend - Development"
+    open_site "http://localhost:5173/"
     printf '%s\n' "Developer Mode: http://localhost:5173/" "API: http://localhost:3000"
     ;;
   "Build Mode")
@@ -118,8 +163,11 @@ case "$MODE" in
     docker compose up -d --wait --wait-timeout 120
     launch_terminal "Backend - Production" "$SCRIPT_DIR/backend" sh -c 'if [ ! -d node_modules ]; then npm ci || exit 1; fi; npm run build && NODE_ENV=production ALLOW_EDITING=false npm start'
     wait_for_backend
+    minimize_terminal "Backend - Production"
     launch_terminal "Frontend - Preview" "$SCRIPT_DIR/frontend" sh -c 'if [ ! -d node_modules ]; then npm ci || exit 1; fi; npm run build && npm run preview'
-    sleep 12
+    wait_for_frontend 4173
+    minimize_terminal "Frontend - Preview"
+    open_site "http://localhost:4173/"
     printf '%s\n' "Main page: http://localhost:4173/" "API: http://localhost:3000"
     ;;
   *)
