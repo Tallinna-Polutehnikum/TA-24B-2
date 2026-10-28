@@ -128,4 +128,8 @@
 - Fixed some color issues in the website with the light theme
 - Added the Windows launcher feature: when the frontend and backend terminal windows are fully loaded they minimizes after
 - Made the Vite link automatically opens the website after the frontend loading
-- Improved Linux and macOS launchers (IMPORTANT!!! I don't know if they work properly, because I don't have any devices with the Linux or macOS operating system)
+- Improved Linux and macOS launchers (IMPORTANT!!! I don't know if they work properly on Linux, because I don't have any devices with Linux)
+- Added theaters information in About Us page.
+- Fixed a problem with macOS launcher that the developer mode was recognized as close button (Was tested in MacBook Air from late 2014)
+- Added SRS (Software Requirements Specification) document
+- Fixed the code in AboutUs.css (they were a lot of unclear and crooked fonts)

@@ -340,6 +340,17 @@ export class MoviesService implements OnModuleInit {
     await em.flush();
   }
 
+  async findCinemas() {
+    const buildings = await this.em.find(CinemaBuilding, {}, { orderBy: { id: 'ASC' } });
+
+    return buildings.map(({ name, city, address, hallCount }) => ({
+      name,
+      city,
+      address,
+      hallCount,
+    }));
+  }
+
   private hashString(value: string) {
     let hash = 0;
 
