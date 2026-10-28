@@ -37,6 +37,7 @@ You can see update logs in the `update-log.md` file.
 - Option to edit occupied seats for a screening in developer mode
 - Screening schedules
 - Dark and light themes
+- Cross-platform support (Windows, Linux & macOS)
 
 ### Undone or planned
 - Checkout and ticket payments

@@ -26,7 +26,7 @@
 <template>
   <div class="about-page">
     <h1 class="about-us">About us</h1>
-    <p>Bradar Cinema is a cinema website created as a school project by students at Techno TLN (Pärnu Mnt 57, Kesklinn). Our goal is to make discovering movies and exploring film details simple and enjoyable.</p>
+    <p>Bradar Cinema is a cinema website created as a school project by students at Techno TLN Kesklinn. Our goal is to make discovering movies and exploring film details simple and enjoyable.</p>
     <section class="developers-section" aria-labelledby="developers-heading">
       <h2 id="developers-heading">Our developers</h2>
       <div class="developer-grid">
@@ -55,7 +55,7 @@
               <li>{{ cinema.city }}</li>
               <li>{{ cinema.address }}</li>
               <li>{{ cinema.hallCount }} screening halls</li>
-              <li>Working time: in all theaters 10:00-01:00</li>
+              <li>Working time: 10:00-22:30</li>
             </ul>
           </div>
         </article>
