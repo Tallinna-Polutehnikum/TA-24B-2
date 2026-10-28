@@ -41,7 +41,7 @@ You can see update logs in the `update-log.md` file.
 ### Undone or planned
 - Checkout and ticket payments
 - Sending tickets by email or as QR codes
-- Bradar club benefits
+- Bradar club benefits and application
 - Movie lists by genre
 - Different languages
 - User accounts and customization

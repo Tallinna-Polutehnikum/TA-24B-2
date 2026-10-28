@@ -877,11 +877,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 :root[data-theme="light"] .trailer-section h3 {
   color: var(--cinema-text);
 }
-
 :root[data-theme="light"] .nav-button:hover {
-  color: #7e7d7d;
+  color: #7d7c7c;
 }
-
 :root[data-theme="light"] .nav-button.nav-active {
   color: #111827;
 }
@@ -889,6 +887,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   border-color: #ccd3df;
   background: #fff;
   color: var(--cinema-text);
+}
+:root[data-theme="light"] .theme-toggle:hover {
+  background: #e9edf5;
 }
 :root[data-theme="light"] .movie-card,
 :root[data-theme="light"] .movie-modal {
