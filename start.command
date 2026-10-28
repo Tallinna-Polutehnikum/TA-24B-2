@@ -10,7 +10,7 @@ choose_mode() {
       tell application "System Events"
         activate
       end tell
-      set selectedButton to button returned of (display dialog "Welcome back! How do you want to run the site?" with title "Bradar Cinema Software Launcher" buttons {"Build Mode", "Developer Mode"} default button "Build Mode" cancel button "Developer Mode")
+      set selectedButton to button returned of (display dialog "Welcome back! How do you want to run the site?" with title "Bradar Cinema Software Launcher" buttons {"Build Mode", "Developer Mode"} default button "Build Mode")
       selectedButton
 APPLESCRIPT
   else
@@ -33,9 +33,8 @@ launch_terminal() {
   osascript <<APPLESCRIPT
   tell application "Terminal"
     activate
-    set serviceWindow to make new window
-    do script "$apple_script_command" in serviceWindow
-    return id of serviceWindow
+    do script "$apple_script_command"
+    return id of front window
   end tell
 APPLESCRIPT
 }
