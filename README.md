@@ -46,7 +46,7 @@ You can see update logs in the `update-log.md` file.
 - Movie lists by genre
 - Different languages
 - User accounts and customization
-- Add music and some SFXs to the website
+- Background music and some SFXs on the website
 
 ------------------------------------------------------------------------
 
