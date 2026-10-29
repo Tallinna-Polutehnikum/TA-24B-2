@@ -170,12 +170,12 @@ exit /b 0
 
 :wait_for_backend
 echo Waiting for the backend to finish initializing...
-powershell -NoProfile -Command "$deadline = (Get-Date).AddMinutes(2); do { try { $response = Invoke-WebRequest -UseBasicParsing -Uri 'http://localhost:3000/movies' -TimeoutSec 2; if ($response.StatusCode -eq 200) { Write-Host 'Backend is ready.'; exit 0 } } catch { }; Start-Sleep -Seconds 2 } while ((Get-Date) -lt $deadline); Write-Error 'Backend did not become ready within 5 minutes. Frontend was not started.'; exit 1"
+powershell -NoProfile -Command "$deadline = (Get-Date).AddMinutes(5); do { try { $response = Invoke-WebRequest -UseBasicParsing -Uri 'http://localhost:3000/movies' -TimeoutSec 2; if ($response.StatusCode -eq 200) { Write-Host 'Backend is ready.'; exit 0 } } catch { }; Start-Sleep -Seconds 2 } while ((Get-Date) -lt $deadline); Write-Error 'Backend did not become ready within 5 minutes. Frontend was not started.'; exit 1"
 exit /b %errorlevel%
 
 :wait_for_frontend
 echo Waiting for Vite to start...
-powershell -NoProfile -Command "$url = 'http://localhost:%~1/'; $deadline = (Get-Date).AddMinutes(2); do { try { $response = Invoke-WebRequest -UseBasicParsing -Uri $url -TimeoutSec 2; if ($response.StatusCode -eq 200) { Write-Host 'Frontend is ready.'; exit 0 } } catch { }; Start-Sleep -Milliseconds 500 } while ((Get-Date) -lt $deadline); Write-Error 'Frontend did not start.'; exit 1"
+powershell -NoProfile -Command "$url = 'http://localhost:%~1/'; $deadline = (Get-Date).AddMinutes(5); do { try { $response = Invoke-WebRequest -UseBasicParsing -Uri $url -TimeoutSec 2; if ($response.StatusCode -eq 200) { Write-Host 'Frontend is ready.'; exit 0 } } catch { }; Start-Sleep -Milliseconds 500 } while ((Get-Date) -lt $deadline); Write-Error 'Frontend did not start.'; exit 1"
 exit /b %errorlevel%
 
 :minimize_terminal
