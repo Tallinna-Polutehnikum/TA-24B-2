@@ -132,3 +132,13 @@
 - Added theaters information in the 'About Us' page (Not finished)
 - Fixed an issue with macOS launcher when the developer mode was recognized as the close button
 - Added the SRS (Software Requirements Specification) document into the project
+
+## 29.10.2026
+- The backend deadline waiting time has been increased from 2 to 5 minutes (if it is not responsing for a long time)
+- Added search bar to find movies much faster in estimated time.
+- Improved club card registration: added a choice between digital and physical cards for flexability and durability.
+- A linux and macOS launchers have been fixed: the problem was that the linux launcher hasn't found linux terminal for vite frontend, but the backend works with only xterm terminals. in macOS launcher, it didn't minimize windows.
+- In about us we expanded the main information and added pictures to all cinemas.
+- Added coordinates where all cinemas are located.
+- Added full mobile device's support, now you can use our websites in iPhones, Android phones and tablets. All buttons and other small ditches were fixed and fully modernized for mobile devices. 
+- Added rating system in movie's description and also rating shows outside of the window (in movie cards)  

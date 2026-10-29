@@ -324,6 +324,32 @@ nav a:hover {
   flex: 1;
   padding: 10px 5px;
 }
+.movie-card-user-rating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  padding: 8px 4px 2px;
+  color: #999;
+  font-size: 12px;
+}
+.movie-card-user-rating-stars {
+  display: inline-flex;
+  gap: 1px;
+}
+.movie-card-user-rating-star {
+  color: #777;
+  font-size: 16px;
+  line-height: 1;
+}
+.movie-card-user-rating-star.selected {
+  color: #f5bd3f;
+}
+.movie-card-user-rating-value {
+  min-width: 46px;
+  text-align: left;
+}
 .movie-title-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -639,6 +665,48 @@ nav a:hover {
   color: #f1ecec;
   line-height: 1.7;
   font-size: 16px;
+}
+.user-movie-rating {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-top: 18px;
+}
+.user-movie-rating-label {
+  color: #aaa;
+  font-size: 13px;
+  font-weight: 600;
+}
+.user-movie-rating-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.user-movie-rating-star {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #777;
+  font-size: 27px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color .15s ease, transform .15s ease;
+}
+.user-movie-rating-star:hover {
+  transform: scale(1.12);
+  color: #f5bd3f;
+}
+.user-movie-rating-star.selected {
+  color: #f5bd3f;
+}
+.user-movie-rating-value {
+  color: #999;
+  font-size: 13px;
 }
 .modal-meta {
   display: grid;
@@ -1057,6 +1125,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 :root[data-theme="light"] .header-search-result small,
 :root[data-theme="light"] .header-search-more,
 :root[data-theme="light"] .header-search-empty {
+  color:var(--cinema-muted);
+}
+:root[data-theme="light"] .user-movie-rating-label,
+:root[data-theme="light"] .user-movie-rating-value {
   color:var(--cinema-muted);
 }
 :root[data-theme="light"] .logo span,

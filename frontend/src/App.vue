@@ -38,6 +38,7 @@ const activePage = computed(() => route.meta.view ?? null);
 const activePageName = computed(() => route.meta.page ?? 'home');
 const selectedMovie = ref(null);
 const selectedMovieIndex = ref(0);
+const movieUserRatings = ref({});
 const previousBodyOverflow = ref('');
 const editingMovie = ref(false);
 const creatingMovie = ref(false);
@@ -120,6 +121,10 @@ function openMovie(movie, index) {
   selectedMovie.value = movie;
   selectedMovieIndex.value = index;
   document.body.style.overflow = 'hidden';
+}
+
+function rateMovie(movieId, rating) {
+  movieUserRatings.value[movieId] = rating;
 }
 
 function closeMovie() {
@@ -622,6 +627,20 @@ onUnmounted(() => {
             </template>
             <template #content>
               <p class="movie-description">{{ movie.description }}</p>
+              <div class="movie-card-user-rating" :aria-label="movieUserRatings[movie.id] ? `Your rating: ${movieUserRatings[movie.id]} out of 5 stars` : 'Not rated yet'">
+                <span class="movie-card-user-rating-label">Your rating</span>
+                <span class="movie-card-user-rating-stars" aria-hidden="true">
+                  <span
+                    v-for="star in 5"
+                    :key="star"
+                    class="movie-card-user-rating-star"
+                    :class="{ selected: star <= (movieUserRatings[movie.id] || 0) }"
+                  >★</span>
+                </span>
+                <span class="movie-card-user-rating-value">
+                  {{ movieUserRatings[movie.id] ? `${movieUserRatings[movie.id]} / 5` : 'Not rated' }}
+                </span>
+              </div>
               <div class="movie-data">
                 <div class="movie-data-group">
                   <span class="movie-data-label">Creators</span>
@@ -707,6 +726,24 @@ onUnmounted(() => {
                 <h2>{{ selectedMovie.title }}</h2>
                 <h3>About the movie</h3>
                 <p class="modal-description">{{ selectedMovie.description || 'Description coming soon.' }}</p>
+                <div class="user-movie-rating">
+                  <span class="user-movie-rating-label">Your rating</span>
+                  <div class="user-movie-rating-stars" role="group" :aria-label="`Rate ${selectedMovie.title} from 1 to 5 stars`">
+                    <button
+                      v-for="star in 5"
+                      :key="star"
+                      type="button"
+                      class="user-movie-rating-star"
+                      :class="{ selected: star <= (movieUserRatings[selectedMovie.id] || 0) }"
+                      :aria-label="`${star} out of 5 stars`"
+                      :aria-pressed="movieUserRatings[selectedMovie.id] === star"
+                      @click="rateMovie(selectedMovie.id, star)"
+                    >★</button>
+                  </div>
+                  <span class="user-movie-rating-value" aria-live="polite">
+                    {{ movieUserRatings[selectedMovie.id] ? `Your rating: ${movieUserRatings[selectedMovie.id]} / 5` : 'Select 1 to 5 stars' }}
+                  </span>
+                </div>
                 <div class="modal-meta">
                   <div>
                     <span>Rating</span>
