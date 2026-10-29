@@ -1,6 +1,6 @@
 <script setup>
 import './App.css';
-import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
@@ -17,7 +17,18 @@ import banner from './assets/posters/banner1.jpg';
 const movies = ref([]);
 const selectedGenre = ref('');
 const genreOptions = computed(() => [...new Set(movies.value.flatMap(movie => String(movie.genre || '').split(/[,/;|]/).map(genre => genre.trim()).filter(Boolean)))].sort((a, b) => a.localeCompare(b)));
-const filteredMovies = computed(() => movies.value.filter(movie => !selectedGenre.value || String(movie.genre || '').split(/[,/;|]/).some(genre => genre.trim().toLocaleLowerCase() === selectedGenre.value.toLocaleLowerCase())));
+const searchQuery = ref('');
+const searchFocused = ref(false);
+const searchMatches = computed(() => {
+  const query = searchQuery.value.trim().toLocaleLowerCase();
+  return query ? movies.value.filter(movie => String(movie.title || '').toLocaleLowerCase().includes(query)) : [];
+});
+const searchSuggestions = computed(() => searchMatches.value.slice(0, 8));
+const filteredMovies = computed(() => movies.value.filter(movie => {
+  const matchesGenre = !selectedGenre.value || String(movie.genre || '').split(/[,/;|]/).some(genre => genre.trim().toLocaleLowerCase() === selectedGenre.value.toLocaleLowerCase());
+  const matchesSearch = !searchQuery.value.trim() || String(movie.title || '').toLocaleLowerCase().includes(searchQuery.value.trim().toLocaleLowerCase());
+  return matchesGenre && matchesSearch;
+}));
 
 const router = useRouter();
 const route = useRoute();
@@ -385,6 +396,25 @@ function goToMovies() {
   router.push({ path: '/', hash: '#movies' });
 }
 
+async function selectSearchMovie(movie) {
+  searchFocused.value = false;
+  await router.push('/');
+  await nextTick();
+  openMovie(movie, movies.value.findIndex(entry => entry.id === movie.id));
+}
+
+function handleSearchFocusout(event) {
+  if (!event.currentTarget.contains(event.relatedTarget)) searchFocused.value = false;
+}
+
+function handleSearchKeydown(event) {
+  if (event.key === 'Escape') searchFocused.value = false;
+  if (event.key === 'Enter' && searchSuggestions.value.length) {
+    event.preventDefault();
+    selectSearchMovie(searchSuggestions.value[0]);
+  }
+}
+
 function openSeatPicker(movie = null) {
   selectedBookingMovie.value = movie;
   router.push('/buy-tickets');
@@ -457,6 +487,47 @@ onUnmounted(() => {
     <header class="topbar">
       <div class="brand">
         <a href="/" class="logo" aria-label="Go to main screen" @click.prevent="goHome">BRADAR <span>CINEMA</span></a>
+        <div class="header-search" @focusout="handleSearchFocusout">
+          <label class="sr-only" for="header-movie-search">Search movies by title</label>
+          <div class="header-search-input">
+            <i class="pi pi-search" aria-hidden="true"></i>
+            <input
+              id="header-movie-search"
+              v-model="searchQuery"
+              type="search"
+              placeholder="Search movies…"
+              autocomplete="off"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-controls="header-movie-search-results"
+              :aria-expanded="searchFocused && searchQuery.trim().length > 0"
+              @focus="searchFocused = true"
+              @keydown="handleSearchKeydown"
+            />
+            <button v-if="searchQuery" type="button" class="header-search-clear" aria-label="Clear search" @click="searchQuery = ''; searchFocused = true">
+              <i class="pi pi-times" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div v-if="searchFocused && searchQuery.trim()" id="header-movie-search-results" class="header-search-results" role="listbox" aria-label="Movie search results">
+            <button
+              v-for="movie in searchSuggestions"
+              :key="movie.id"
+              type="button"
+              class="header-search-result"
+              role="option"
+              @mousedown.prevent
+              @click="selectSearchMovie(movie)"
+            >
+              <img :src="getPoster(movie, movies.findIndex(entry => entry.id === movie.id))" alt="" />
+              <span>
+                <strong>{{ movie.title }}</strong>
+                <small>{{ movie.genre }}</small>
+              </span>
+            </button>
+            <p v-if="!searchMatches.length" class="header-search-empty">No movies found.</p>
+            <p v-else-if="searchMatches.length > searchSuggestions.length" class="header-search-more">{{ searchMatches.length - searchSuggestions.length }} more results — continue typing</p>
+          </div>
+        </div>
         <nav class="logo-actions" aria-label="Main navigation">
           <Button class="nav-button" :class="{ 'nav-active': activePageName === 'home' }" label="Movies" size="small" text @click="goToMovies" />
           <Button class="nav-button" :class="{ 'nav-active': activePageName === 'buyTickets' }" label="Buy tickets" size="small" text @click="openSeatPicker()" />
@@ -526,7 +597,7 @@ onUnmounted(() => {
           </div>
         </div>
         <div v-if="loading" class="state">Loading movies from backend...</div>
-        <div v-else-if="!filteredMovies.length" class="state">No movies found for this genre.</div>
+        <div v-else-if="!filteredMovies.length" class="state">{{ searchQuery.trim() ? 'No movies match your search.' : 'No movies found for this genre.' }}</div>
         <div v-else class="grid">
           <Card v-for="movie in filteredMovies" :key="movie.id" class="movie-card clickable-card" @click="openMovie(movie, movies.findIndex(entry => entry.id === movie.id))">
             <template #header>
