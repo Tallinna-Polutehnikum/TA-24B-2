@@ -33,16 +33,23 @@
   margin: 0;
   color: var(--cinema-muted);
 }
+
+.attention {
+  color: var(--cinema-muted);
+  margin:0;
+  font-size: small;
+}
 .application-form {
   display: grid;
   gap: 20px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 890px;
+  height: auto;
   padding: 28px;
   border: 1px solid var(--cinema-border);
   border-radius: 8px;
   background: var(--cinema-surface);
-  width: 890px;
-  height: 520px;
-  position: center;
 }
 .application-form label {
   display: grid;
@@ -71,6 +78,94 @@
   margin: 0;
   color: var(--cinema-muted);
   font-size: 14px;
+}
+
+.application-form .group-label {
+  display: block;
+}
+
+.radio-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.manual {
+  gap: 12px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid var(--cinema-border);
+  border-radius: 4px;
+  background: var(--cinema-page);
+  color: var(--cinema-text);
+  font: inherit;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color .2s ease, background-color .2s ease;
+}
+.application-form .radio-label {
+  display: flex;
+}
+
+.radio-label input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+.radio-label:focus-within {
+  outline: 2px solid var(--cinema-accent);
+  outline-offset: 2px;
+}
+.radio-label:has(input:checked) {
+  border-color: var(--cinema-accent);
+}
+.radio-label:hover {
+  border-color: var(--cinema-accent);
+}
+
+.custom-radio {
+  height: 18px;
+  width: 18px;
+  flex: 0 0 18px;
+  box-sizing: border-box;
+  background-color: var(--cinema-page);
+  border: 1px solid var(--cinema-border);
+  border-radius: 50%;
+  margin-right: 8px;
+  display: inline-block;
+  position: relative;
+}
+
+.radio-label:hover input ~ .custom-radio {
+  border-color: var(--cinema-accent);
+}
+
+.radio-label input:checked ~ .custom-radio {
+  background-color: var(--cinema-accent);
+  border-color: var(--cinema-accent);
+}
+
+.custom-radio:after {
+  content: "";
+  position: absolute;
+  display: none;
+  top: 5px;
+  left: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: white;
+}
+
+.radio-label input:checked ~ .custom-radio:after {
+  display: block;
 }
 @media (max-width: 500px) {
   .application-page {
