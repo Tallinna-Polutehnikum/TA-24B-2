@@ -98,15 +98,15 @@ Install Node.js, which includes npm.
 
 ### Launcher Startup on Windows
 
-To start developer mode, open `start.bat` or run `.\start.bat`, then choose **Developer Mode**.
+To start developer mode, open `start.bat` or run `.\start.bat` in the terminal, then choose **Developer Mode**.
 
 ### Launcher Startup on Linux
 
-To start developer mode, open `start.sh` and choose **Developer Mode**.
+To start developer mode, open `start.sh` or run `sh start.bat` in the terminal, then choose **Developer Mode**.
 
 ### Launcher Startup on macOS
 
-To start developer mode, open `start.command` and choose **Developer Mode**.
+To start developer mode, open `start.command` or run `sh start.command` in the terminal, then  choose **Developer Mode**.
 
 -------------------------------------------------------------------------
 
@@ -134,15 +134,15 @@ To start developer mode, open `start.command` and choose **Developer Mode**.
 
 ### Launcher Startup on Windows
 
-To start build mode, open `start.bat` or run `.\start.bat`, then choose **Build Mode**.
+To start build mode, open `start.bat` or run `.\start.bat` in the terminal, then choose **Build Mode**.
 
 ### Launcher Startup on Linux
 
-To start build mode, open `start.sh` and choose **Build Mode**.
+To start build mode, open `start.sh` or run `sh start.sh` in the terminal, then  choose **Build Mode**.
 
 ### Launcher Startup on macOS
 
-To start build mode, open `start.command` and choose **Build Mode**.
+To start build mode, open `start.command` or run `sh start.command` in the terminal, then choose **Build Mode**.
 
 ------------------------------------------------------------------------
 

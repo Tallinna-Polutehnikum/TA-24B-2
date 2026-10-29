@@ -12,6 +12,6 @@ async function bootstrap() {
   mkdirSync(uploadDirectory, { recursive: true });
   app.useStaticAssets(uploadDirectory, { prefix: '/uploads/' });
   await app.listen(Number(process.env.PORT ?? 3000));
-  console.log(`Apollo Kino API: http://localhost:${process.env.PORT ?? 3000}`);
+  console.log(`Bradar Cinema API: http://localhost:${process.env.PORT ?? 3000}`);
 }
 bootstrap();
