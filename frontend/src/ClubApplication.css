@@ -175,3 +175,30 @@
     padding: 20px 16px;
   }
 }
+@media (max-width: 600px) {
+  .application-page {
+    padding: 28px 14px 40px;
+  }
+  .application-header {
+    margin-bottom: 24px;
+  }
+  .application-header h1 {
+    font-size: clamp(30px, 9vw, 40px);
+    overflow-wrap: anywhere;
+  }
+  .application-form {
+    gap: 16px;
+    padding: 20px 14px;
+  }
+  .radio-group {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .radio-label input {
+    width: 1px;
+    height: 1px;
+    padding: 0;
+  }
+  .application-form .continue-button {
+    width: 100%;
+  }
+}

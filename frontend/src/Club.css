@@ -379,3 +379,61 @@ padding: 20px;
     padding: 16px;
 }
 }
+@media (max-width: 600px) {
+  .club-name {
+    padding: 24px 16px 0;
+    font-size: clamp(30px, 9vw, 42px);
+  }
+  .commentclub {
+    padding: 0 18px;
+    font-size: 14px;
+  }
+  .offers-slider {
+    width: calc(100% - 24px);
+    margin: 24px auto;
+  }
+  .club-slide,
+  .club-slide:nth-child(3) {
+    flex-basis: 100%;
+    min-height: 0;
+    padding: 24px 16px;
+  }
+  .club-slide .card-container {
+    min-height: 0;
+    overflow: hidden;
+  }
+  .club-slide .card-3d {
+    width: min(300px, calc(100vw - 72px));
+    height: auto;
+    aspect-ratio: 1.6 / 1;
+  }
+  .club-slide:nth-child(2) .offers-content,
+  .club-slide:nth-child(2) .offers-details {
+    position: static;
+    inset: auto;
+  }
+  .club-slide .offers,
+  .club-slide .tutorial {
+    margin-bottom: 18px;
+    font-size: 22px;
+  }
+  .club-slide .offers-list {
+    padding-left: 20px;
+    font-size: 14px;
+  }
+  .club-slide .club-cta {
+    display: block;
+    text-align: center;
+  }
+  .club-slide .tutorial-content {
+    gap: 16px;
+  }
+  .club-slide .levels-panel {
+    padding: 16px 12px;
+  }
+  .club-slide .level-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+}
