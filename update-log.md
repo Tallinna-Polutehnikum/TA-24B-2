@@ -141,4 +141,5 @@
 - In about us we expanded the main information and added pictures to all cinemas.
 - Added coordinates where all cinemas are located.
 - Added full mobile device's support, now you can use our websites in iPhones, Android phones and tablets. All buttons and other small ditches were fixed and fully modernized for mobile devices. 
-- Added rating system in movie's description and also rating shows outside of the window (in movie cards)  
+- Added rating system in movie's description and also rating shows outside of the window (in movie cards)
+- Added new theaters folder for the pictures.  
