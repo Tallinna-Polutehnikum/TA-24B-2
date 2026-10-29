@@ -324,6 +324,24 @@
   color: #fff;
   border-color: #fff;
 }
+:root[data-theme="light"] .booking-back {
+  border-color: var(--cinema-border);
+  color: var(--cinema-text);
+}
+:root[data-theme="light"] .booking-back:hover {
+  border-color: var(--cinema-border);
+  background: #e9edf5;
+  color: var(--cinema-text);
+}
+.change-movie {
+  border-color: rgba(255, 255, 255, 0.8);
+  color: #fff;
+}
+.change-movie:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #fff;
+  color: #fff;
+}
 .movie-selection-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));

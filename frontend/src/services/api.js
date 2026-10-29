@@ -9,6 +9,12 @@ export async function getMovies() {
   return response.json();
 }
 
+export async function getCinemas() {
+  const response = await fetch(`${API_URL}/movies/cinemas`);
+  if (!response.ok) throw new Error('Could not load cinemas');
+  return response.json();
+}
+
 export async function updateMovie(id, changes) {
   const response = await fetch(`${API_URL}/movies/${id}`, {
     method: 'PATCH',

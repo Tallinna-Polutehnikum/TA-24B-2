@@ -37,14 +37,16 @@ You can see update logs in the `update-log.md` file.
 - Option to edit occupied seats for a screening in developer mode
 - Screening schedules
 - Dark and light themes
+- Cross-platform support (Windows, Linux & macOS)
 
 ### Undone or planned
 - Checkout and ticket payments
 - Sending tickets by email or as QR codes
-- Bradar club benefits
+- Bradar club benefits and application
 - Movie lists by genre
 - Different languages
 - User accounts and customization
+- Background music and some SFXs on the website
 
 ------------------------------------------------------------------------
 
@@ -145,12 +147,12 @@ To start build mode, open `start.command` and choose **Build Mode**.
 ------------------------------------------------------------------------
 
 ## Attention!
-1. Start Docker before running the backend or frontend manually. Run `docker compose up -d --wait` to make sure MySQL is ready before the backend connects.
-2. If you use a launcher, keep the backend and frontend terminal windows open after choosing a mode.
-3. For manual startup, install dependencies in both `backend` and `frontend` with `npm ci`. If the dependencies become corrupted, rerun `npm ci` in the affected folder.
-4. The launchers explicitly enable editing only in Developer Mode. Build Mode starts the backend in production with editing disabled, even if the terminal environment has different settings. SQL debug queries are shown only in Developer Mode; errors and startup messages remain visible in Build Mode.
+1. If you are using a launcher, don't close the backend and frontend terminal windows after choosing a mode. They both will minimize after running the project.
+2. For manual startup, install dependencies in both `backend` and `frontend` with `npm ci`. If the dependencies become corrupted, rerun `npm ci` in the affected folder. Also open the frontend and backend folders separatly in two VSC terminals.
 
-The launchers open the frontend terminal only after `GET /movies` responds successfully, confirming the backend has finished initializing. If the backend does not become ready within five minutes, the launcher reports an error and does not start the frontend.
+After `GET /movies` responds successfully, the launchers minimize the backend terminal and start the frontend. Once the frontend responds successfully, its terminal is minimized and the site opens automatically in your browser: `http://localhost:5173/` in Developer Mode or `http://localhost:4173/` in Build Mode. If either service does not become ready within two minutes, the launcher reports an error.
+
+The launchers explicitly enable editing only in Developer Mode. Build Mode starts the backend in production with editing disabled, even if the terminal environment has different settings. SQL debug queries are shown only in Developer Mode; errors and startup messages remain visible in Build Mode.
 
 ------------------------------------------------------------------------
 

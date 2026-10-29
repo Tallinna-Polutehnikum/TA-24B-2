@@ -74,7 +74,7 @@ export class MoviesService implements OnModuleInit {
       { seedKey: 'builtin-3', title: 'Rain Man', genre: 'Drama', duration: 134, description: 'A story about two brothers, one is a selfish car dealer and another with autistic abilities to calculate, but with father"s inherited money.', posterUrl: '/poster3.jpg', trailerUrl: 'https://www.youtube.com/watch?v=rrTQEP41NL4', active: true },
       { seedKey: 'builtin-4', title: 'Pokémon: the First Movie', genre: 'Adventure', duration: 96, description: 'Witness the legendary battle of Mewtwo and mythical 151st Pokemon Mew. Who will prevail?', posterUrl: '/poster4.jpg', trailerUrl: 'https://www.youtube.com/watch?v=hX-NHafvY5I', active: true },
       { seedKey: 'builtin-5', title: '1917', genre: 'Drama/War Action', duration: 119, description: 'A quiet tense history about two men, who is going to the long trip among bombs and artillery to save people in No man"s land from imminent death.', posterUrl: '/poster5.jpg', trailerUrl: 'https://www.youtube.com/watch?v=UcmZN0Mbl04', active: true },
-      { seedKey: 'builtin-6', title: 'Re:Zero Tallinn Edition', genre: 'Anime', duration: 1000, description: 'DID YOU SAY STAIRS?! *feels the aura*.', posterUrl: '/poster6.jpg', active: true }
+      { seedKey: 'builtin-6', title: 'Re:Zero Tallinn Edition', genre: 'Anime', duration: 67, description: 'DID YOU SAY STAIRS?! *feels the aura*.', posterUrl: '/poster6.jpg', active: true }
     ];
 
     const defaultBanners = [
@@ -338,6 +338,17 @@ export class MoviesService implements OnModuleInit {
     }
 
     await em.flush();
+  }
+
+  async findCinemas() {
+    const buildings = await this.em.find(CinemaBuilding, {}, { orderBy: { id: 'ASC' } });
+
+    return buildings.map(({ name, city, address, hallCount }) => ({
+      name,
+      city,
+      address,
+      hallCount,
+    }));
   }
 
   private hashString(value: string) {

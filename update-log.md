@@ -123,3 +123,12 @@
 - Ordered the backend loading at first place, so the frontend loading requires fully loaded backend before
 - Restored Build Mode protection in the Windows, Linux, and macOS launchers by explicitly disabling editing
 - Hid SQL debug queries in Build Mode while keeping errors and startup messages visible
+
+## 28.10.2026
+- Fixed some color issues in the website with the light theme
+- Added the Windows launcher feature: when the frontend and backend terminal windows are fully loaded they minimizes after
+- Made the Vite link automatically opens the website after the frontend loading
+- Improved Linux and macOS launchers (IMPORTANT!!! I don't know if they work properly on Linux, because I don't have any devices with Linux, macOS launcher was tested in MacBook Air from late 2014)
+- Added theaters information in the 'About Us' page (Not finished)
+- Fixed an issue with macOS launcher when the developer mode was recognized as the close button
+- Added the SRS (Software Requirements Specification) document into the project

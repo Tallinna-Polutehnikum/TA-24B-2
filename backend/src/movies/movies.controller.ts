@@ -23,6 +23,9 @@ export class MoviesController {
   @Get()
   findAll() { return this.movies.findAll(); }
 
+  @Get('cinemas')
+  findCinemas() { return this.movies.findCinemas(); }
+
   @Post('regenerate')
   @UseGuards(EditingEnabledGuard)
   regenerate() {

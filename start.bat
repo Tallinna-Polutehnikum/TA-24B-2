@@ -113,11 +113,25 @@ echo Starting Site in Build Mode... (c) Samir Miles Cibis, Aleksander Kartuzov, 
 powershell -Command "Start-Sleep -Seconds 3"
 docker compose up -d --wait --wait-timeout 120
 if errorlevel 1 exit /b 1
-start "Backend - Production" cmd /k "cd /d backend && if exist node_modules (npm run build && set NODE_ENV=production && set ALLOW_EDITING=false && npm start) else (npm ci && npm run build && set NODE_ENV=production && set ALLOW_EDITING=false && npm start)"
+where wt.exe >nul 2>nul
+if errorlevel 1 (
+    start "Backend - Production" cmd /k "title Backend - Production && cd /d backend && if exist node_modules (npm run build && set NODE_ENV=production && set ALLOW_EDITING=false && npm start) else (npm ci && npm run build && set NODE_ENV=production && set ALLOW_EDITING=false && npm start)"
+) else (
+    start "" wt.exe -w new new-tab --startingDirectory "%~dp0." --title "Backend - Production" --suppressApplicationTitle cmd /k "title Backend - Production && cd /d backend && if exist node_modules (npm run build && set NODE_ENV=production && set ALLOW_EDITING=false && npm start) else (npm ci && npm run build && set NODE_ENV=production && set ALLOW_EDITING=false && npm start)"
+)
 call :wait_for_backend
 if errorlevel 1 exit /b 1
-start "Frontend - Preview" cmd /k "cd /d frontend && if exist node_modules (npm run build && npm run preview) else (npm ci && npm run build && npm run preview)"
-powershell -Command "Start-Sleep -Seconds 12"
+call :minimize_terminal "Backend - Production"
+where wt.exe >nul 2>nul
+if errorlevel 1 (
+    start "Frontend - Preview" cmd /k "title Frontend - Preview && cd /d frontend && if exist node_modules (npm run build && npm run preview) else (npm ci && npm run build && npm run preview)"
+) else (
+    start "" wt.exe -w new new-tab --startingDirectory "%~dp0." --title "Frontend - Preview" --suppressApplicationTitle cmd /k "title Frontend - Preview && cd /d frontend && if exist node_modules (npm run build && npm run preview) else (npm ci && npm run build && npm run preview)"
+)
+call :wait_for_frontend 4173
+if errorlevel 1 exit /b 1
+call :minimize_terminal "Frontend - Preview"
+start "" "http://localhost:4173/"
 echo Main page: http://localhost:4173/
 echo API: http://localhost:3000
 goto end
@@ -127,11 +141,25 @@ echo Starting Site in Developer Mode... (c) Samir Miles Cibis, Aleksander Kartuz
 powershell -Command "Start-Sleep -Seconds 3"
 docker compose up -d --wait --wait-timeout 120
 if errorlevel 1 exit /b 1
-start "Backend - Development" cmd /k "cd /d backend && if exist node_modules (set NODE_ENV=development && set ALLOW_EDITING=true && npm run dev) else (npm ci && set NODE_ENV=development && set ALLOW_EDITING=true && npm run dev)"
+where wt.exe >nul 2>nul
+if errorlevel 1 (
+    start "Backend - Development" cmd /k "title Backend - Development && cd /d backend && if exist node_modules (set NODE_ENV=development && set ALLOW_EDITING=true && npm run dev) else (npm ci && set NODE_ENV=development && set ALLOW_EDITING=true && npm run dev)"
+) else (
+    start "" wt.exe -w new new-tab --startingDirectory "%~dp0." --title "Backend - Development" --suppressApplicationTitle cmd /k "title Backend - Development && cd /d backend && if exist node_modules (set NODE_ENV=development && set ALLOW_EDITING=true && npm run dev) else (npm ci && set NODE_ENV=development && set ALLOW_EDITING=true && npm run dev)"
+)
 call :wait_for_backend
 if errorlevel 1 exit /b 1
-start "Frontend - Development" cmd /k "cd /d frontend && if exist node_modules (npm run dev) else (npm ci && npm run dev)"
-powershell -Command "Start-Sleep -Seconds 12"
+call :minimize_terminal "Backend - Development"
+where wt.exe >nul 2>nul
+if errorlevel 1 (
+    start "Frontend - Development" cmd /k "title Frontend - Development && cd /d frontend && if exist node_modules (npm run dev) else (npm ci && npm run dev)"
+) else (
+    start "" wt.exe -w new new-tab --startingDirectory "%~dp0." --title "Frontend - Development" --suppressApplicationTitle cmd /k "title Frontend - Development && cd /d frontend && if exist node_modules (npm run dev) else (npm ci && npm run dev)"
+)
+call :wait_for_frontend 5173
+if errorlevel 1 exit /b 1
+call :minimize_terminal "Frontend - Development"
+start "" "http://localhost:5173/"
 echo Developer Mode: http://localhost:5173/
 echo API: http://localhost:3000
 goto end
@@ -142,5 +170,14 @@ exit /b 0
 
 :wait_for_backend
 echo Waiting for the backend to finish initializing...
-powershell -NoProfile -Command "$deadline = (Get-Date).AddMinutes(5); do { try { $response = Invoke-WebRequest -UseBasicParsing -Uri 'http://localhost:3000/movies' -TimeoutSec 2; if ($response.StatusCode -eq 200) { Write-Host 'Backend is ready.'; exit 0 } } catch { }; Start-Sleep -Seconds 2 } while ((Get-Date) -lt $deadline); Write-Error 'Backend did not become ready within 5 minutes. Frontend was not started.'; exit 1"
+powershell -NoProfile -Command "$deadline = (Get-Date).AddMinutes(2); do { try { $response = Invoke-WebRequest -UseBasicParsing -Uri 'http://localhost:3000/movies' -TimeoutSec 2; if ($response.StatusCode -eq 200) { Write-Host 'Backend is ready.'; exit 0 } } catch { }; Start-Sleep -Seconds 2 } while ((Get-Date) -lt $deadline); Write-Error 'Backend did not become ready within 5 minutes. Frontend was not started.'; exit 1"
 exit /b %errorlevel%
+
+:wait_for_frontend
+echo Waiting for Vite to start...
+powershell -NoProfile -Command "$url = 'http://localhost:%~1/'; $deadline = (Get-Date).AddMinutes(2); do { try { $response = Invoke-WebRequest -UseBasicParsing -Uri $url -TimeoutSec 2; if ($response.StatusCode -eq 200) { Write-Host 'Frontend is ready.'; exit 0 } } catch { }; Start-Sleep -Milliseconds 500 } while ((Get-Date) -lt $deadline); Write-Error 'Frontend did not start.'; exit 1"
+exit /b %errorlevel%
+
+:minimize_terminal
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0minimize-terminal.ps1" -WindowTitle "%~1"
+exit /b

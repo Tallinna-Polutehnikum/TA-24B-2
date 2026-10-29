@@ -1,22 +1,19 @@
-# ==========================================
-# Зависимости и пакетные менеджеры
-# ==========================================
+# Dependencies and package managers
 node_modules/
 .npm/
 .eslintcache
 .stylelintcache
 
-# Локальные кэши pnpm / Yarn v2+
+# Local pnpm / Yarn v2+ caches
 .pnpm-store/
 .yarn/cache/
 .yarn/unplugged/
 .yarn/build-state.yml
 .pnp.*
 
-# ==========================================
-# Инструменты сборки и монорепозиториев
-# ==========================================
-# Общие директории дистрибутивов подпроектов
+
+# Build and monorepo tools
+# Shared distribution directories for subprojects
 dist/
 out/
 build/
@@ -24,17 +21,15 @@ build/
 .nuxt/
 .docusaurus/
 
-# Кэш инструментов оркестрации монорепозиториев
+# Monorepo orchestration tool caches
 .turbo/
 .nx/
 .cache/
 
-# Специфичные для TypeScript файлы кэша сборки
+# TypeScript build cache files
 *.tsbuildinfo
 
-# ==========================================
-# Логи и диагностика
-# ==========================================
+# Logs and diagnostics
 logs
 *.log
 npm-debug.log*
@@ -43,14 +38,12 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
-# Тесты и покрытие
+# Tests and coverage
 coverage/
 .nyc_output/
 
-# ==========================================
-# Секреты и Переменные Окружения
-# ==========================================
-# Игнорируем ВСЕ .env файлы, но разрешаем коммитить безопасные .env.example
+# Secrets and environment variables
+# Ignore all .env files, but allow safe .env.example files to be committed
 .env
 .env.local
 .env.development.local
@@ -58,9 +51,7 @@ coverage/
 .env.production.local
 *.env.local
 
-# ==========================================
-# Настройки IDE и Операционных Систем
-# ==========================================
+# IDE and operating system settings
 .vscode/
 !.vscode/extensions.json
 !.vscode/settings.json
@@ -72,6 +63,6 @@ coverage/
 *.sln
 *.swp
 
-# Системные файлы
+# System files
 .DS_Store
 Thumbs.db
