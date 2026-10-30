@@ -5,7 +5,6 @@ import { useRoute, useRouter } from 'vue-router';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Tag from 'primevue/tag';
-import Checkout from './Checkout.vue';
 import { getMovies, updateMovie, createMovie, deleteMovie, uploadMoviePoster, getAssetUrl, getBanners, updateBanner, createBanner, deleteBanner, uploadBannerImage } from './services/api.js';
 import poster1 from './assets/posters/poster1.jpg';
 import poster2 from './assets/posters/poster2.jpg';
@@ -433,6 +432,10 @@ function openClub() {
   router.push('/club');
 }
 
+function openVouchers() {
+  router.push('/vouchers');
+}
+
 async function openCheckout(booking) {
   sessionStorage.setItem('pendingBooking', JSON.stringify(booking));
   await router.push('/checkout');
@@ -538,6 +541,7 @@ onUnmounted(() => {
           <Button class="nav-button" :class="{ 'nav-active': activePageName === 'buyTickets' }" label="Buy tickets" size="small" text @click="openSeatPicker()" />
           <Button class="nav-button" :class="{ 'nav-active': activePageName === 'aboutUs' }" label="About Us" size="small" text @click="openAboutUs()"/>
           <Button class="nav-button" :class="{ 'nav-active': activePageName === 'club' || activePageName === 'clubApplication' }" label="Bradar Club" size="small" text @click="openClub()"/>
+          <Button class="nav-button" :class="{ 'nav-active': activePageName === 'vouchers' }" label="Vouchers" size="small" text @click="openVouchers()"/>
         </nav>
         <button class="theme-toggle" type="button" :aria-label="theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'" @click="setTheme(theme === 'dark' ? 'light' : 'dark')">
           <i :class="theme === 'dark' ? 'pi pi-sun' : 'pi pi-moon'" aria-hidden="true"></i>

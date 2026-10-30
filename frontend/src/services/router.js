@@ -4,6 +4,7 @@ import AboutUs from '../AboutUs.vue'
 import Club from '../Club.vue'
 import ClubApplication from '../ClubApplication.vue'
 import Checkout from '../Checkout.vue'
+import Vouchers from '../Vouchers.vue'
 import SeatPicker from '../SeatPicker.vue'
 
 export default createRouter({
@@ -17,6 +18,7 @@ export default createRouter({
     { path: '/about_us', name: 'aboutUs', component: App, meta: { page: 'aboutUs', view: AboutUs } },
     { path: '/club', name: 'club', component: App, meta: { page: 'club', view: Club } },
     { path: '/club/register', name: 'clubApplication', component: App, meta: { page: 'clubApplication', view: ClubApplication } },
+    { path: '/vouchers', name: 'vouchers', component: App, meta: { page: 'vouchers', view: Vouchers } },
     { path: '/checkout', name: 'checkout', component: App, meta: { page: 'checkout', view: Checkout } },
     { path: '/seatpicker', redirect: '/buy-tickets' },
     { path: '/about-us', redirect: '/about_us' },
