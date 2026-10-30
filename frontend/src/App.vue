@@ -595,7 +595,6 @@ onUnmounted(() => {
           <div><h3>Top Movies</h3></div>
           <div class="movie-heading-actions">
             <span>{{ filteredMovies.length }} of {{ movies.length }} movies</span>
-            <button v-if="canEditBanners" class="edit-movie-button add-movie-button" type="button" @click="startBannerCreate">+ Add banner</button>
             <button v-if="canEditMovies" class="edit-movie-button add-movie-button" type="button" @click="startMovieCreate">+ Add movie</button>
             <label class="genre-heading-control" for="movie-genre-filter">
               <span class="sr-only">Filter movies by genre</span>
