@@ -424,6 +424,11 @@ function openSeatPicker(movie = null) {
   router.push('/buy-tickets');
 }
 
+function openMovieShowtimes(movie) {
+  closeMovie();
+  openSeatPicker(movie);
+}
+
 function openAboutUs() {
   router.push('/about_us');
 }
@@ -722,9 +727,17 @@ onUnmounted(() => {
             </div>
           </form>
           <template v-else>
-            <button v-if="canEditMovies" class="edit-movie-button" type="button" @click="startMovieEdit(selectedMovie)">Edit movie</button>
+            <div v-if="canEditMovies" class="movie-modal-actions">
+              <button class="edit-movie-button" type="button" @click="startMovieEdit(selectedMovie)">Edit movie</button>
+            </div>
             <div class="modal-layout">
-              <img class="modal-poster" :src="getPoster(selectedMovie, selectedMovieIndex)" :alt="selectedMovie.title" @error="handlePosterError($event, selectedMovieIndex)" />
+              <div class="modal-poster-column">
+                <img class="modal-poster" :src="getPoster(selectedMovie, selectedMovieIndex)" :alt="selectedMovie.title" @error="handlePosterError($event, selectedMovieIndex)" />
+                <button class="showtime modal-showtime-button" type="button" @click="openMovieShowtimes(selectedMovie)">
+                  <i class="pi pi-ticket" aria-hidden="true"></i>
+                  Choose showtime
+                </button>
+              </div>
               <div class="modal-copy">
                 <span class="modal-genre">{{ selectedMovie.genre }} · {{ selectedMovie.duration }} min</span>
                 <h2>{{ selectedMovie.title }}</h2>

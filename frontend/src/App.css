@@ -766,6 +766,29 @@ nav a:hover {
   color: #aaa;
   text-align: center;
 }
+.movie-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+.movie-modal-actions .edit-movie-button {
+  margin: 0;
+}
+.modal-poster-column {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  min-width: 0;
+}
+.modal-showtime-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
 .trailer-fallback a {
   display: inline-flex;
   gap: 8px;
@@ -1563,9 +1586,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     padding-top: 24px;
   }
   .modal-poster {
-    width: min(180px, 60%);
+    width: 100%;
     height: auto;
     aspect-ratio: 2 / 3;
+  }
+  .modal-poster-column {
+    width: min(180px, 60%);
   }
   .modal-copy h2 {
     margin-right: 28px;
