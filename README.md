@@ -7,6 +7,8 @@ This document describes which stacks were used in this project, what already wor
 
 You can see update logs in the `update-log.md` file.
 
+You can discover Bradar Cinema's Software Requirements Specification in the `SRS Documentation.md` file.
+
 ## Stacks used
 - Node.js
 - NestJS
