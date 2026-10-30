@@ -143,3 +143,10 @@
 - Added full mobile device's support, now you can use our websites in iPhones, Android phones and tablets. All buttons and other small ditches were fixed and fully modernized for mobile devices. 
 - Added rating system in movie's description and also rating shows outside of the window (in movie cards)
 - Added new theaters folder for the pictures.  
+
+## 30.10.2026
+- Added new SRS documentation as md file
+- Added new Vouncher page for the gift card, best offers, deals for families etc
+- Moved add banner button to banners to not be misunderstood.
+- Added new Choose showtime button for movie windows to make for users and for client more comfort
+- Improved genre category style 

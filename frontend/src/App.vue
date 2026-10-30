@@ -16,6 +16,7 @@ import banner from './assets/posters/banner1.jpg';
 const movies = ref([]);
 const selectedGenre = ref('');
 const genreOptions = computed(() => [...new Set(movies.value.flatMap(movie => String(movie.genre || '').split(/[,/;|]/).map(genre => genre.trim()).filter(Boolean)))].sort((a, b) => a.localeCompare(b)));
+const genreMenuOpen = ref(false);
 const searchQuery = ref('');
 const searchFocused = ref(false);
 const searchMatches = computed(() => {
@@ -419,6 +420,19 @@ function handleSearchKeydown(event) {
   }
 }
 
+function handleGenreFilterFocusout(event) {
+  if (!event.currentTarget.contains(event.relatedTarget)) genreMenuOpen.value = false;
+}
+
+function handleGenreFilterKeydown(event) {
+  if (event.key === 'Escape') genreMenuOpen.value = false;
+}
+
+function selectGenre(genre) {
+  selectedGenre.value = genre;
+  genreMenuOpen.value = false;
+}
+
 function openSeatPicker(movie = null) {
   selectedBookingMovie.value = movie;
   router.push('/buy-tickets');
@@ -601,13 +615,35 @@ onUnmounted(() => {
           <div class="movie-heading-actions">
             <span>{{ filteredMovies.length }} of {{ movies.length }} movies</span>
             <button v-if="canEditMovies" class="edit-movie-button add-movie-button" type="button" @click="startMovieCreate">+ Add movie</button>
-            <label class="genre-heading-control" for="movie-genre-filter">
-              <span class="sr-only">Filter movies by genre</span>
-              <select id="movie-genre-filter" v-model="selectedGenre" class="genre-filter-select" aria-label="Filter movies by genre">
-                <option value="">All genres</option>
-                <option v-for="genre in genreOptions" :key="genre" :value="genre">{{ genre }}</option>
-              </select>
-            </label>
+            <div class="genre-heading-control" @focusout="handleGenreFilterFocusout" @keydown="handleGenreFilterKeydown">
+              <button
+                id="movie-genre-filter"
+                class="genre-filter-select"
+                type="button"
+                aria-haspopup="listbox"
+                :aria-expanded="genreMenuOpen"
+                aria-controls="movie-genre-options"
+                @click="genreMenuOpen = !genreMenuOpen"
+              >
+                {{ selectedGenre || 'All genres' }}
+              </button>
+              <div v-if="genreMenuOpen" id="movie-genre-options" class="genre-filter-options" role="listbox" aria-label="Filter movies by genre">
+                <button
+                  type="button"
+                  role="option"
+                  :aria-selected="selectedGenre === ''"
+                  @click="selectGenre('')"
+                >All genres</button>
+                <button
+                  v-for="genre in genreOptions"
+                  :key="genre"
+                  type="button"
+                  role="option"
+                  :aria-selected="selectedGenre === genre"
+                  @click="selectGenre(genre)"
+                >{{ genre }}</button>
+              </div>
+            </div>
           </div>
         </div>
         <div v-if="loading" class="state">Loading movies from backend...</div>

@@ -1376,13 +1376,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 :root[data-theme="light"] .page .genre-heading-control .genre-filter-select:hover { background-color: #e9edf5; }
 
 .page .genre-heading-control {
+  position: relative;
   display: inline-flex;
   align-items: center;
 }
 .page .genre-heading-control .genre-filter-select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   min-width: 145px;
   max-width: 210px;
-  appearance: none;
   padding: 10px 40px 10px 14px;
   border: 1px solid #555;
   border-radius: 8px;
@@ -1391,6 +1394,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   background-repeat: no-repeat;
   background-position: right 13px center;
   color: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 .page .genre-heading-control .genre-filter-select:hover {
   background-color: #292929;
@@ -1398,6 +1404,35 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .page .genre-heading-control .genre-filter-select:focus-visible {
   outline: none;
   box-shadow: inset 0 0 0 2px var(--cinema-accent);
+}
+.genre-filter-options {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 30;
+  display: grid;
+  min-width: 100%;
+  max-height: min(320px, 50vh);
+  overflow-y: auto;
+  padding: 4px;
+  border: 1px solid var(--cinema-border);
+  border-radius: 8px;
+  background: var(--cinema-surface-raised);
+}
+.genre-filter-options button {
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  color: var(--cinema-text);
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.genre-filter-options button:hover,
+.genre-filter-options button[aria-selected="true"] {
+  background: var(--cinema-accent);
+  color: #fff;
 }
 .page .sr-only {
   position: absolute;

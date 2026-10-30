@@ -19,10 +19,12 @@ function goToMovies() {
       :style="{ backgroundImage: `url('${banner}')` }"
     ></div>
     <div class="hero-copy">
-      <Tag value="NOW IN THEATERS" severity="secondary" />
-      <h1>Crime Patrol: The Amazing full FMV-movie</h1>
-      <p>For only 9.99€</p>
-      <Button class="see-movies-button" label="See movies" icon="pi pi-angle-down" @click="goToMovies" />
+      <Tag value="Great Gifts!" severity="secondary" />
+      <h2 class="voucher-title">More movies!</h2>
+      <h2 class="voucher-title">More memories!</h2>
+      <h2 class="voucher-title">More happiness!</h2>
+      <p>All vouchers for families, your birthday parties, for special holidays only in Bradar Cinema!</p>
+      <Button type="button" class="vouchers-button" label="SEE OFFERS" icon="pi pi-sort-down-fill" @click="goToMovies" />
     </div>
   </section>
 </template>
