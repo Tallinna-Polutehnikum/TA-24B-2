@@ -1,0 +1,28 @@
+.page:has(.vouchers-hero) {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.page:has(.vouchers-hero) > main {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.vouchers-hero {
+  flex: 0 0 480px;
+  width: 100%;
+  height: 480px;
+  min-height: 480px;
+}
+
+@media (max-width: 600px) {
+  .vouchers-hero {
+    flex-basis: 390px;
+    height: 390px;
+    min-height: 390px;
+  }
+}
