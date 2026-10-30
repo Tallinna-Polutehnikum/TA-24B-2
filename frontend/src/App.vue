@@ -587,6 +587,7 @@ onUnmounted(() => {
           ></button>
           <button type="button" aria-label="Next banner" @click="stepSlide(1)"><i class="pi pi-chevron-right" aria-hidden="true"></i></button>
           <button v-if="canEditBanners && slides.length" class="banner-edit-button" type="button" @click="startBannerEdit(slides[activeSlide])">Edit banner</button>
+          <button v-if="canEditBanners" class="banner-edit-button" type="button" @click="startBannerCreate">Add banner</button>
         </div>
       </section>
       <section id="movies" class="content">
