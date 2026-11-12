@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "scripts": {
+    "movies:generate": "npm --prefix backend run movies:generate"
+  }
+}

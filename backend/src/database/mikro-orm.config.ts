@@ -17,4 +17,13 @@ export default defineConfig({
   entities: [Movie, MovieRating, Creator, MovieCreator, CinemaBuilding, Screening, Banner],
   debug: process.env.NODE_ENV?.trim().toLowerCase() === 'development',
   schemaGenerator: { disableForeignKeys: true },
+  migrations: {
+    path: './dist/database/migrations',
+    pathTs: './src/database/migrations',
+  },
+  seeder: {
+    path: './dist/database/seeders',
+    pathTs: './src/database/seeders',
+    defaultSeeder: 'DatabaseSeeder',
+  },
 });

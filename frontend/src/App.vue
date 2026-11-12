@@ -379,7 +379,15 @@ function getPoster(movie, index) {
 }
 
 function handlePosterError(event, index) {
-  event.target.src = posters[index % posters.length];
+  const image = event.currentTarget;
+
+  if (image.currentSrc.includes('picsum.photos')) {
+    image.classList.add('poster-unavailable');
+    image.removeAttribute('src');
+    return;
+  }
+
+  image.src = posters[index % posters.length];
 }
 
 function getBannerImage(image) {

@@ -75,6 +75,34 @@ Install Node.js, which includes npm.
     npm ci
 ```
 
+## Database migrations and seed data
+
+The backend no longer changes the database schema or inserts built-in data when it starts. Run migrations and the seeder explicitly from the `backend` folder.
+
+For a fresh clone with an empty database:
+```bash
+cd backend
+npm run db:migrate
+npm run db:seed
+```
+
+For a database created by an earlier version of this project, back it up first, then run:
+```bash
+cd backend
+npm run db:baseline
+npm run db:seed
+```
+
+`db:baseline` records the initial migration only if the existing schema matches the current entities. It does not alter application tables or data, and stops if the schemas differ. Do not run `db:migrate` against an existing untracked database before baselining it; the initial migration creates tables and is intended for an empty database.
+
+To intentionally drop and recreate all tables and load the default data, run `npm run db:fresh` from `backend`. **This deletes all data in the configured database.**
+
+Available commands:
+- `npm run db:migrate` applies pending migrations.
+- `npm run db:seed` inserts any missing built-in movies, banners, cinemas, ratings, creators, and screenings.
+- `npm run db:fresh` drops the schema, reapplies migrations, and runs the default seeder.
+- `npm run db:baseline` adopts a matching existing schema without changing its data.
+
 ------------------------------------------------------------------------
 
 ## How to run the project in developer mode
@@ -82,6 +110,13 @@ Install Node.js, which includes npm.
 ### 1. Start the database
 ```bash or VSC terminal
     docker compose up -d --wait
+```
+
+On a fresh install, initialize the database once before starting the backend:
+```bash or VSC terminal
+    cd backend
+    npm run db:migrate
+    npm run db:seed
 ```
 
 ### 2. Start the backend
