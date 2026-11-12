@@ -83,6 +83,11 @@ export class MoviesController {
     return this.movies.getScreeningSeats(id);
   }
 
+  @Get(':id/screenings')
+  getMovieScreenings(@Param('id', ParseIntPipe) id: number) {
+    return this.movies.findMovieScreenings(id);
+  }
+
   @Patch('screenings/:id/seats')
   @UseGuards(EditingEnabledGuard)
   setScreeningSeats(

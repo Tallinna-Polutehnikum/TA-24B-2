@@ -1,7 +1,7 @@
 <script setup>
 import './SeatPicker.css';
 import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
-import { getAssetUrl, getScreeningSeats, updateScreeningSeats } from './services/api'
+import { getAssetUrl, getMovieScreenings, getScreeningSeats, updateScreeningSeats } from './services/api'
 import banner from './assets/posters/banner1.jpg'
 import poster1 from './assets/posters/poster1.jpg'
 import poster2 from './assets/posters/poster2.jpg'
@@ -31,11 +31,15 @@ const savingSeats = ref(false)
 const seatError = ref('')
 const serverOccupied = ref(null)
 const currentTime = ref(new Date())
+const movieScreenings = ref([])
+const loadingScreenings = ref(false)
+const screeningError = ref('')
 
 let latestRequest = 0
+let latestScreeningsRequest = 0
 let clockInterval = null
 
-const screenings = computed(() => selectedMovie.value?.screenings ?? [])
+const screenings = computed(() => movieScreenings.value)
 const cinemas = computed(() => [...new Map(
   screenings.value.map(screening => [screening.building, {
     name: screening.building,
@@ -268,6 +272,35 @@ function selectMovie(movie) {
   selectedDate.value = ''
   selectedScreeningId.value = ''
   selectedSeats.value = []
+  void fetchMovieScreenings(movie)
+}
+
+async function fetchMovieScreenings(movie = selectedMovie.value) {
+  const request = ++latestScreeningsRequest
+  movieScreenings.value = []
+  screeningError.value = ''
+
+  if (!movie) {
+    loadingScreenings.value = false
+    return
+  }
+
+  loadingScreenings.value = true
+  try {
+    const data = await getMovieScreenings(movie.id)
+
+    if (request === latestScreeningsRequest && selectedMovie.value?.id === movie.id) {
+      movieScreenings.value = data
+    }
+  } catch (error) {
+    if (request === latestScreeningsRequest && selectedMovie.value?.id === movie.id) {
+      screeningError.value = 'Could not load screenings.'
+    }
+  } finally {
+    if (request === latestScreeningsRequest) {
+      loadingScreenings.value = false
+    }
+  }
 }
 
 function selectScreening(screening) {
@@ -370,7 +403,7 @@ watch(selectedScreening, () => {
         <div class="booking-filters">
           <label class="filter-field">
             <span>Cinema</span>
-            <select v-model="selectedCinema">
+            <select v-model="selectedCinema" :disabled="loadingScreenings || !cinemas.length">
               <option disabled value="">Choose cinema</option>
               <option v-for="cinema in cinemas" :key="cinema.name" :value="cinema.name">{{ cinema.name }} · {{ cinema.city }}</option>
             </select>
@@ -390,8 +423,10 @@ watch(selectedScreening, () => {
             <b>€{{ Number(screening.ticketPrice).toFixed(2) }}</b>
           </button>
         </div>
+        <p v-if="loadingScreenings" class="booking-empty">Loading screenings...</p>
+        <p v-else-if="screeningError" class="booking-empty">{{ screeningError }} <button type="button" @click="fetchMovieScreenings()">Retry</button></p>
         <p v-else-if="selectedCinema" class="booking-empty">No screenings are available for this date.</p>
-        <p v-else-if="selectedMovie.screenings?.length === 0" class="booking-empty">No screenings are available for this movie.</p>
+        <p v-else-if="!cinemas.length" class="booking-empty">No screenings are available for this movie.</p>
       </section>
       <section v-if="selectedScreening" class="booking-step seat-step">
         <div class="step-heading">

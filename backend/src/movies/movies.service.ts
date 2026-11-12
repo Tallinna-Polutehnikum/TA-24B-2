@@ -479,23 +479,15 @@ export class MoviesService {
 
   async findAll() {
     const movies = await this.em.find(Movie, { active: true }, { orderBy: { id: 'ASC' } });
-    const [ratings, credits, screenings] = await Promise.all([
-      this.em.find(MovieRating, {}, { populate: ['movie'] }),
-      this.em.find(MovieCreator, {}, { populate: ['movie', 'creator'] }),
-      this.em.find(Screening, { startsAt: { $gte: new Date() }}, { populate: ['movie', 'building'], orderBy: { startsAt: 'ASC' } }),
-    ]);
+    const movieIds = movies.map(({ id }) => id);
+    const [ratings, credits] = movieIds.length === 0
+      ? [[], []]
+      : await Promise.all([
+        this.em.find(MovieRating, { movie: { $in: movieIds } }),
+        this.em.find(MovieCreator, { movie: { $in: movieIds } }, { populate: ['creator'] }),
+      ]);
     const ratingsByMovie = new Map(ratings.map((rating) => [rating.movie.id, rating]));
     const creditsByMovie = new Map<number, { id: number; name: string; role: string }[]>();
-    const screeningsByMovie = new Map<number, {
-      id: number;
-      building: string;
-      address: string;
-      city: string;
-      hallNumber: number;
-      startsAt: Date;
-      language: string;
-      ticketPrice: number;
-    }[]>();
 
     for (const credit of credits) {
       const movieCredits = creditsByMovie.get(credit.movie.id) ?? [];
@@ -503,27 +495,8 @@ export class MoviesService {
       creditsByMovie.set(credit.movie.id, movieCredits);
     }
 
-    for (const screening of screenings) {
-      const movieScreenings = screeningsByMovie.get(screening.movie.id) ?? [];
-
-      movieScreenings.push({
-        id: screening.id,
-        building: screening.building.name,
-        address: screening.building.address,
-        city: screening.building.city,
-        hallNumber: screening.hallNumber,
-        startsAt: screening.startsAt,
-        language: screening.language,
-        ticketPrice: screening.ticketPrice,
-      });
-
-      screeningsByMovie.set(screening.movie.id, movieScreenings);
-    }
-
     return movies.map((movie) => {
       const rating = ratingsByMovie.get(movie.id);
-      const movieScreenings = screeningsByMovie.get(movie.id) ?? [];
-      const screeningDates = movieScreenings.map((screening) => new Date(screening.startsAt)).sort((a, b) => a.getTime() - b.getTime());
 
       return {
         id: movie.id,
@@ -536,11 +509,31 @@ export class MoviesService {
         trailerUrl: movie.trailerUrl,
         rating: rating ? { score: rating.score, voteCount: rating.voteCount } : null,
         creators: creditsByMovie.get(movie.id) ?? [],
-        rentalStart: screeningDates[0] ?? null,
-        rentalEnd: screeningDates.at(-1) ?? null,
-        screenings: movieScreenings,
       };
     });
+  }
+
+  async findMovieScreenings(id: number) {
+    const movie = await this.em.findOne(Movie, { id, active: true });
+
+    if (!movie) throw new NotFoundException('Movie not found');
+
+    const screenings = await this.em.find(
+      Screening,
+      { movie, startsAt: { $gte: new Date() } },
+      { populate: ['building'], orderBy: { startsAt: 'ASC' } },
+    );
+
+    return screenings.map((screening) => ({
+      id: screening.id,
+      building: screening.building.name,
+      address: screening.building.address,
+      city: screening.building.city,
+      hallNumber: screening.hallNumber,
+      startsAt: screening.startsAt,
+      language: screening.language,
+      ticketPrice: screening.ticketPrice,
+    }));
   }
 
   findOne(id: number) {

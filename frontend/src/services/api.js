@@ -9,6 +9,12 @@ export async function getMovies() {
   return response.json();
 }
 
+export async function getMovieScreenings(movieId) {
+  const response = await fetch(`${API_URL}/movies/${movieId}/screenings`);
+  if (!response.ok) throw new Error('Could not load screenings');
+  return response.json();
+}
+
 export async function getCinemas() {
   const response = await fetch(`${API_URL}/movies/cinemas`);
   if (!response.ok) throw new Error('Could not load cinemas');

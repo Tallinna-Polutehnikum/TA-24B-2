@@ -22,7 +22,7 @@ You can discover Bradar Cinema's Software Requirements Specification in the `SRS
 - MySQL runs with Docker Compose.
 - MikroORM connects to MySQL and creates and uses the `movie` table.
 - The backend seeds six built-in movies and three built-in banners for the main page.
-- `GET /movies` returns movies from MySQL.
+- `GET /movies` returns active movie details, ratings, and creators; `GET /movies/:id/screenings` returns that movie's upcoming screenings when requested by the ticket picker.
 - The Vue and PrimeVue frontend loads movies from the backend and displays them as cards.
 - Faker-generated movies can be created with a single terminal command and are displayed on the main page.
 - Movie cards show each movie's title, genre, duration, rating, description, and cast. Click **Movie details** to view the trailer. The **Choose showtime** button opens the **Buy tickets** page.
