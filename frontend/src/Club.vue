@@ -30,7 +30,7 @@
             <ul class="offers-list">
               <li>Movie discounts of up to 70%!</li>
               <li>Premium access to NeonLights AI</li>
-              <li>Spend over €10 and get a free drink at any of our cinemas!</li>
+              <li>Spend over 10€ and get a free drink at any of our cinemas!</li>
               <li>Family members get 60% off their tickets!</li>
               <li>Early bookings to the next new movies!</li>
             </ul>
@@ -63,7 +63,7 @@
                 <li class="level-item level-three">
                   <div class="level-heading"><span>Level 3</span><strong>50% off discounts</strong></div>
                   <div class="level-track"><span style="width: 50%"></span></div>
-                  <p>Free drink with purchases over €14, plus 60% off tickets for family members</p>
+                  <p>Free drink with purchases over 14€, plus 60% off tickets for family members</p>
                 </li>
                 <li class="level-item level-four">
                   <div class="level-heading"><span>Level 4</span><strong>60% off discounts</strong></div>

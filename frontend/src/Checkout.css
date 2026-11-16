@@ -47,6 +47,11 @@ font-size: 28px;
 .checkout-genre {
 margin: 0 0 28px;
 }
+.checkout-voucher-description {
+max-width: 620px;
+color: var(--cinema-text);
+line-height: 1.6;
+}
 .checkout-facts {
 margin: 0;
 }

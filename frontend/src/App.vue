@@ -585,7 +585,7 @@ onUnmounted(() => {
         @close="goToMovies"
         @checkout="openCheckout"
       />
-      <component v-else :is="activePage" />
+      <component v-else :is="activePage" @checkout="openCheckout" />
     </main>
     <main v-else>
       <section class="hero" aria-label="Featured movies">

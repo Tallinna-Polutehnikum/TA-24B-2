@@ -144,3 +144,55 @@ export async function uploadBannerImage(file) {
   }
   return response.json();
 }
+
+export async function getVoucherOffers() {
+  const response = await fetch(`${API_URL}/vouchers`);
+  if (!response.ok) throw new Error('Could not load voucher offers');
+  return response.json();
+}
+
+export async function createVoucherOffer(offer) {
+  const response = await fetch(`${API_URL}/vouchers`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(offer),
+  });
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'Could not create voucher offer');
+  }
+  return response.json();
+}
+
+export async function updateVoucherOffer(id, changes) {
+  const response = await fetch(`${API_URL}/vouchers/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(changes),
+  });
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'Could not save voucher offer');
+  }
+  return response.json();
+}
+
+export async function deleteVoucherOffer(id) {
+  const response = await fetch(`${API_URL}/vouchers/${id}`, { method: 'DELETE' });
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'Could not delete voucher offer');
+  }
+  return response.json();
+}
+
+export async function uploadVoucherImage(file) {
+  const formData = new FormData();
+  formData.append('image', file);
+  const response = await fetch(`${API_URL}/vouchers/upload`, { method: 'POST', body: formData });
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'Could not upload voucher image');
+  }
+  return response.json();
+}
