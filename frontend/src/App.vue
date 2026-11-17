@@ -13,6 +13,7 @@ import poster4 from './assets/posters/poster4.jpg';
 import poster5 from './assets/posters/poster5.jpg';
 import poster6 from './assets/posters/poster6.jpg'; 
 import banner from './assets/posters/banner1.jpg';
+import menuMusic from './assets/music/menu.mp3';
 const movies = ref([]);
 const selectedGenre = ref('');
 const genreOptions = computed(() => [...new Set(movies.value.flatMap(movie => String(movie.genre || '').split(/[,/;|]/).map(genre => genre.trim()).filter(Boolean)))].sort((a, b) => a.localeCompare(b)));
@@ -68,6 +69,9 @@ const slides = ref([]);
 const activeSlide = ref(0);
 const posters = [poster1, poster2, poster3, poster4, poster5, poster6];
 const theme = ref('dark');
+const menuAudio = ref(null);
+const musicEnabled = ref(false);
+const musicError = ref('');
 const backendRetryIntervalMs = 1000;
 let slideTimer;
 let backendRetryTimer;
@@ -79,6 +83,34 @@ function setTheme(value) {
   theme.value = value;
   localStorage.setItem('bradar-theme', value);
   document.documentElement.setAttribute('data-theme', value);
+}
+
+async function startMenuMusic() {
+  const audio = menuAudio.value;
+  if (!audio) return;
+  musicError.value = '';
+  audio.volume = 0.3;
+  audio.muted = false;
+  try {
+    await audio.play();
+    musicEnabled.value = true;
+  } catch (error) {
+    musicEnabled.value = false;
+    if (error?.name !== 'NotAllowedError') {
+      musicError.value = 'Could not play background music.';
+    }
+  }
+}
+
+function toggleMenuMusic() {
+  const audio = menuAudio.value;
+  if (!audio) return;
+  if (musicEnabled.value) {
+    audio.muted = true;
+    musicEnabled.value = false;
+    return;
+  }
+  void startMenuMusic();
 }
 
 function nextSlide(step = 1) {
@@ -496,6 +528,7 @@ async function loadBackendData() {
 
 onMounted(async () => {
   window.addEventListener('keydown', handleModalKeydown);
+  void startMenuMusic();
   browserTheme = window.matchMedia('(prefers-color-scheme: dark)');
   const saved = localStorage.getItem('bradar-theme');
   theme.value = saved === 'light' || saved === 'dark' ? saved : (browserTheme.matches ? 'dark' : 'light');
@@ -517,6 +550,7 @@ onUnmounted(() => {
   window.removeEventListener('keydown', handleModalKeydown);
   window.clearInterval(slideTimer);
   window.clearInterval(backendRetryTimer);
+  menuAudio.value?.pause();
   browserTheme?.removeEventListener('change', onBrowserThemeChange);
   if (selectedMovie.value) document.body.style.overflow = previousBodyOverflow.value;
 });
@@ -524,6 +558,7 @@ onUnmounted(() => {
 
 <template>
   <div class="page" id="bradarcinema.ee">
+    <audio ref="menuAudio" :src="menuMusic" loop preload="auto"></audio>
     <header class="topbar">
       <div class="brand">
         <a href="/" class="logo" aria-label="Go to main screen" @click.prevent="goHome">BRADAR <span>CINEMA</span></a>
@@ -577,10 +612,24 @@ onUnmounted(() => {
           <Button class="nav-button" :class="{ 'nav-active': activePageName === 'club' || activePageName === 'clubApplication' }" label="Bradar Club" size="small" text @click="openClub()"/>
           <Button class="nav-button" :class="{ 'nav-active': activePageName === 'vouchers' }" label="Vouchers" size="small" text @click="openVouchers()"/>
         </nav>
-        <button class="theme-toggle" type="button" :aria-label="theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'" @click="setTheme(theme === 'dark' ? 'light' : 'dark')">
-          <i :class="theme === 'dark' ? 'pi pi-sun' : 'pi pi-moon'" aria-hidden="true"></i>
-          {{ theme === 'dark' ? 'Light' : 'Dark' }} mode
-        </button>
+        <div class="header-controls">
+          <button
+            class="music-toggle"
+            :class="{ 'music-toggle-enabled': musicEnabled }"
+            type="button"
+            :aria-label="musicEnabled ? 'Mute background music' : 'Play background music'"
+            :aria-pressed="musicEnabled"
+            :title="musicError || (musicEnabled ? 'Mute background music' : 'Play background music')"
+            @click="toggleMenuMusic"
+          >
+            <i :class="musicEnabled ? 'pi pi-volume-up' : 'pi pi-volume-off'" aria-hidden="true"></i>
+          </button>
+          <button class="theme-toggle" type="button" :aria-label="theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'" @click="setTheme(theme === 'dark' ? 'light' : 'dark')">
+            <i :class="theme === 'dark' ? 'pi pi-sun' : 'pi pi-moon'" aria-hidden="true"></i>
+            {{ theme === 'dark' ? 'Light' : 'Dark' }} mode
+          </button>
+        </div>
+        <span v-if="musicError" class="sr-only" role="status">{{ musicError }}</span>
       </div>
     </header>
     <main v-if="activePage">
