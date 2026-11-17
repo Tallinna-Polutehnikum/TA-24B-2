@@ -4,15 +4,29 @@ import { useRouter } from 'vue-router';
 import Button from 'primevue/button';
 import Tag from 'primevue/tag';
 import './Vouchers.css';
-import { createVoucherOffer, deleteVoucherOffer, getAssetUrl, getVoucherOffers, updateVoucherOffer, uploadVoucherImage } from './services/api.js';
+import { createVoucherOffer, deleteVoucherOffer, getAssetUrl, getBanners, getVoucherOffers, updateVoucherOffer, uploadVoucherImage } from './services/api.js';
 import banner from './assets/v-banners/vbanner1.png';
 
 const router = useRouter();
 const emit = defineEmits(['checkout']);
 const canEditVouchers = import.meta.env.DEV;
+const canEditBanners = import.meta.env.DEV;
 const seasonalOffers = ref([]);
 const loadingOffers = ref(true);
 const offersError = ref('');
+const voucherBanners = ref([]);
+const activeBannerIndex = ref(0);
+const bannerLoadError = ref('');
+const editingBanner = ref(false);
+const savingBanner = ref(false);
+const bannerForm = ref(null);
+const bannerError = ref('');
+const voucherBannerText = ref({
+  firstTitle: 'More movies!',
+  secondTitle: 'More memories!',
+  thirdTitle: 'More happiness!',
+  subtitle: 'All vouchers for families, your birthday parties, for special holidays only in Bradar Cinema!',
+});
 const editingOffer = ref(false);
 const creatingOffer = ref(false);
 const savingOffer = ref(false);
@@ -23,6 +37,78 @@ const selectedOffer = ref(null);
 const imageFileInput = ref(null);
 const offerError = ref('');
 const previousBodyOverflow = ref('');
+const bannerSlideGradients = [
+  'linear-gradient(90deg, rgba(0, 0, 0, .9), rgba(38, 91, 174, .38))',
+  'linear-gradient(90deg, rgba(0, 0, 0, .9), rgba(164, 52, 48, .4))',
+  'linear-gradient(90deg, rgba(0, 0, 0, .9), rgba(36, 126, 91, .4))',
+  'linear-gradient(90deg, rgba(0, 0, 0, .9), rgba(133, 72, 163, .4))',
+];
+let bannerSlideTimer;
+
+function getBannerGradient(index) {
+  return bannerSlideGradients[index % bannerSlideGradients.length];
+}
+
+function nextBanner(step = 1) {
+  if (!voucherBanners.value.length) return;
+  activeBannerIndex.value = (activeBannerIndex.value + step + voucherBanners.value.length) % voucherBanners.value.length;
+}
+
+function stepBanner(step) {
+  nextBanner(step);
+  restartBannerTimer();
+}
+
+function goToBanner(index) {
+  activeBannerIndex.value = index;
+  restartBannerTimer();
+}
+
+function restartBannerTimer() {
+  window.clearInterval(bannerSlideTimer);
+  if (voucherBanners.value.length > 1) {
+    bannerSlideTimer = window.setInterval(() => nextBanner(), 5500);
+  }
+}
+
+function startBannerEdit() {
+  if (!canEditBanners || !voucherBanners.value.length) return;
+  window.clearInterval(bannerSlideTimer);
+  bannerForm.value = { ...voucherBannerText.value };
+  bannerError.value = '';
+  editingBanner.value = true;
+  previousBodyOverflow.value = document.body.style.overflow;
+  document.body.style.overflow = 'hidden';
+}
+
+function closeBannerEditor() {
+  editingBanner.value = false;
+  bannerForm.value = null;
+  bannerError.value = '';
+  document.body.style.overflow = previousBodyOverflow.value;
+  restartBannerTimer();
+}
+
+async function saveBanner() {
+  if (!bannerForm.value || savingBanner.value) return;
+  savingBanner.value = true;
+  bannerError.value = '';
+  try {
+    const updatedText = {
+      firstTitle: bannerForm.value.firstTitle.trim(),
+      secondTitle: bannerForm.value.secondTitle.trim(),
+      thirdTitle: bannerForm.value.thirdTitle.trim(),
+      subtitle: bannerForm.value.subtitle.trim(),
+    };
+    localStorage.setItem('bradar-vouchers-banner-text', JSON.stringify(updatedText));
+    voucherBannerText.value = updatedText;
+    closeBannerEditor();
+  } catch (error) {
+    bannerError.value = error instanceof Error ? error.message : 'Could not save banner.';
+  } finally {
+    savingBanner.value = false;
+  }
+}
 
 const offers = [
   {
@@ -190,32 +276,71 @@ async function uploadImage(event) {
 
 onMounted(async () => {
   try {
-    seasonalOffers.value = await getVoucherOffers();
+    const savedText = localStorage.getItem('bradar-vouchers-banner-text');
+    if (savedText) {
+      const parsedText = JSON.parse(savedText);
+      if (['firstTitle', 'secondTitle', 'thirdTitle', 'subtitle'].every(field => typeof parsedText[field] === 'string')) {
+        voucherBannerText.value = parsedText;
+      } else {
+        throw new Error('Saved voucher banner text is invalid.');
+      }
+    }
   } catch (error) {
-    offersError.value = error instanceof Error ? error.message : 'Could not load seasonal voucher offers.';
-  } finally {
-    loadingOffers.value = false;
+    bannerLoadError.value = error instanceof Error ? error.message : 'Could not load voucher banner text.';
   }
+
+  await Promise.all([
+    getVoucherOffers()
+      .then(loadedOffers => { seasonalOffers.value = loadedOffers; })
+      .catch(error => { offersError.value = error instanceof Error ? error.message : 'Could not load seasonal voucher offers.'; })
+      .finally(() => { loadingOffers.value = false; }),
+    getBanners()
+      .then(loadedBanners => {
+        voucherBanners.value = loadedBanners;
+        restartBannerTimer();
+      })
+      .catch(error => { bannerLoadError.value = error instanceof Error ? error.message : 'Could not load banners.'; }),
+  ]);
 });
 
 onUnmounted(() => {
-  if (editingOffer.value) document.body.style.overflow = previousBodyOverflow.value;
+  window.clearInterval(bannerSlideTimer);
+  if (editingOffer.value || editingBanner.value) document.body.style.overflow = previousBodyOverflow.value;
 });
 </script>
 
 <template>
   <section class="hero vouchers-hero" aria-label="Vouchers banner">
-    <div
-      class="hero-background"
-      :style="{ backgroundImage: `url('${banner}')` }"
-    ></div>
+    <Transition name="slide-fade">
+      <div
+        :key="activeBannerIndex"
+        class="hero-background"
+        :style="{ backgroundImage: `${getBannerGradient(activeBannerIndex)}, url('${banner}')` }"
+      ></div>
+    </Transition>
     <div class="hero-copy">
       <Tag value="Great Gifts!" severity="secondary" />
-      <h2 class="voucher-title">More movies!</h2>
-      <h2 class="voucher-title">More memories!</h2>
-      <h2 class="voucher-title">More happiness!</h2>
-      <p>All vouchers for families, your birthday parties, for special holidays only in Bradar Cinema!</p>
+      <h2 class="voucher-title">{{ voucherBannerText.firstTitle }}</h2>
+      <h2 class="voucher-title">{{ voucherBannerText.secondTitle }}</h2>
+      <h2 class="voucher-title">{{ voucherBannerText.thirdTitle }}</h2>
+      <p>{{ voucherBannerText.subtitle }}</p>
       <Button type="button" class="vouchers-button" label="SEE OFFERS" icon="pi pi-arrow-down" @click="goToOffers" />
+    </div>
+    <div v-if="bannerLoadError" class="vouchers-banner-error" role="alert">{{ bannerLoadError }}</div>
+    <div v-if="voucherBanners.length" class="banner-controls" aria-label="Banner controls">
+      <button type="button" aria-label="Previous banner" @click="stepBanner(-1)"><i class="pi pi-chevron-left" aria-hidden="true"></i></button>
+      <button
+        v-for="(_, index) in voucherBanners"
+        :key="index"
+        type="button"
+        class="banner-dot"
+        :class="{ active: activeBannerIndex === index }"
+        :aria-label="`Show banner ${index + 1}`"
+        :aria-current="activeBannerIndex === index ? 'true' : undefined"
+        @click="goToBanner(index)"
+      ></button>
+      <button type="button" aria-label="Next banner" @click="stepBanner(1)"><i class="pi pi-chevron-right" aria-hidden="true"></i></button>
+      <button v-if="canEditBanners" class="banner-edit-button" type="button" @click="startBannerEdit">Edit banner</button>
     </div>
   </section>
   <section id="vouchers-offers" class="vouchers-offers" aria-labelledby="vouchers-offers-title">
@@ -310,6 +435,25 @@ onUnmounted(() => {
         <button class="details-button" type="button" :disabled="savingOffer || deletingOffer || uploadingImage" @click="closeOfferEditor">Cancel</button>
         <button class="showtime" type="submit" :disabled="savingOffer || deletingOffer || uploadingImage">
           {{ uploadingImage ? 'Uploading…' : savingOffer ? 'Saving…' : creatingOffer ? 'Add voucher' : 'Save changes' }}
+        </button>
+      </div>
+    </form>
+  </div>
+  <div v-if="canEditBanners && editingBanner" class="voucher-editor-backdrop" @click.self="closeBannerEditor">
+    <form class="voucher-editor" role="dialog" aria-modal="true" aria-label="Edit banner" @submit.prevent="saveBanner">
+      <button class="voucher-editor-close" type="button" aria-label="Close editor" @click="closeBannerEditor">×</button>
+      <h2>Edit banner</h2>
+      <div class="voucher-editor-fields">
+        <label class="voucher-editor-full-width">First title<input v-model="bannerForm.firstTitle" required maxlength="160" /></label>
+        <label class="voucher-editor-full-width">Second title<input v-model="bannerForm.secondTitle" required maxlength="160" /></label>
+        <label class="voucher-editor-full-width">Third title<input v-model="bannerForm.thirdTitle" required maxlength="160" /></label>
+        <label class="voucher-editor-full-width">Subtitle<textarea v-model="bannerForm.subtitle" maxlength="300" rows="3"></textarea></label>
+      </div>
+      <p v-if="bannerError" class="edit-error" role="alert">{{ bannerError }}</p>
+      <div class="edit-actions">
+        <button class="details-button" type="button" :disabled="savingBanner" @click="closeBannerEditor">Cancel</button>
+        <button class="showtime" type="submit" :disabled="savingBanner">
+          {{ savingBanner ? 'Saving…' : 'Save changes' }}
         </button>
       </div>
     </form>

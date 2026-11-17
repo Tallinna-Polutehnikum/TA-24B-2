@@ -12,8 +12,8 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": null,
-          "scale": null,
+          "precision": 10,
+          "scale": 0,
           "default": null,
           "comment": null,
           "enumItems": [],
@@ -46,7 +46,7 @@
           "length": 300,
           "precision": null,
           "scale": null,
-          "default": "''",
+          "default": "",
           "comment": null,
           "enumItems": [],
           "mappedType": "string"
@@ -74,7 +74,7 @@
           "autoincrement": false,
           "primary": false,
           "nullable": true,
-          "unique": false,
+          "unique": true,
           "length": 64,
           "precision": null,
           "scale": null,
@@ -91,9 +91,9 @@
           "primary": false,
           "nullable": false,
           "unique": false,
-          "length": 1,
-          "precision": null,
-          "scale": null,
+          "length": null,
+          "precision": 3,
+          "scale": 0,
           "default": "true",
           "comment": null,
           "enumItems": [],
@@ -106,26 +106,25 @@
           "columnNames": [
             "seed_key"
           ],
-          "composite": false,
           "keyName": "banner_seed_key_unique",
-          "constraint": true,
+          "unique": true,
           "primary": false,
-          "unique": true
+          "constraint": true
         },
         {
-          "keyName": "PRIMARY",
           "columnNames": [
             "id"
           ],
-          "composite": false,
-          "constraint": true,
+          "keyName": "PRIMARY",
+          "unique": true,
           "primary": true,
-          "unique": true
+          "constraint": true
         }
       ],
       "checks": [],
       "foreignKeys": {},
-      "nativeEnums": {}
+      "nativeEnums": {},
+      "comment": ""
     },
     {
       "columns": {
@@ -138,8 +137,8 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": null,
-          "scale": null,
+          "precision": 10,
+          "scale": 0,
           "default": null,
           "comment": null,
           "enumItems": [],
@@ -152,7 +151,7 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "unique": false,
+          "unique": true,
           "length": 64,
           "precision": null,
           "scale": null,
@@ -218,8 +217,8 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": null,
-          "scale": null,
+          "precision": 10,
+          "scale": 0,
           "default": null,
           "comment": null,
           "enumItems": [],
@@ -232,26 +231,25 @@
           "columnNames": [
             "seed_key"
           ],
-          "composite": false,
           "keyName": "cinema_building_seed_key_unique",
-          "constraint": true,
+          "unique": true,
           "primary": false,
-          "unique": true
+          "constraint": true
         },
         {
-          "keyName": "PRIMARY",
           "columnNames": [
             "id"
           ],
-          "composite": false,
-          "constraint": true,
+          "keyName": "PRIMARY",
+          "unique": true,
           "primary": true,
-          "unique": true
+          "constraint": true
         }
       ],
       "checks": [],
       "foreignKeys": {},
-      "nativeEnums": {}
+      "nativeEnums": {},
+      "comment": ""
     },
     {
       "columns": {
@@ -264,8 +262,8 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": null,
-          "scale": null,
+          "precision": 10,
+          "scale": 0,
           "default": null,
           "comment": null,
           "enumItems": [],
@@ -294,7 +292,7 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "unique": false,
+          "unique": true,
           "length": 64,
           "precision": null,
           "scale": null,
@@ -310,26 +308,25 @@
           "columnNames": [
             "seed_key"
           ],
-          "composite": false,
           "keyName": "creator_seed_key_unique",
-          "constraint": true,
+          "unique": true,
           "primary": false,
-          "unique": true
+          "constraint": true
         },
         {
-          "keyName": "PRIMARY",
           "columnNames": [
             "id"
           ],
-          "composite": false,
-          "constraint": true,
+          "keyName": "PRIMARY",
+          "unique": true,
           "primary": true,
-          "unique": true
+          "constraint": true
         }
       ],
       "checks": [],
       "foreignKeys": {},
-      "nativeEnums": {}
+      "nativeEnums": {},
+      "comment": ""
     },
     {
       "columns": {
@@ -342,8 +339,8 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": null,
-          "scale": null,
+          "precision": 10,
+          "scale": 0,
           "default": null,
           "comment": null,
           "enumItems": [],
@@ -389,7 +386,7 @@
           "primary": false,
           "nullable": false,
           "unique": false,
-          "length": null,
+          "length": 65535,
           "precision": null,
           "scale": null,
           "default": null,
@@ -406,8 +403,8 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": null,
-          "scale": null,
+          "precision": 10,
+          "scale": 0,
           "default": null,
           "comment": null,
           "enumItems": [],
@@ -445,6 +442,38 @@
           "enumItems": [],
           "mappedType": "string"
         },
+        "active": {
+          "name": "active",
+          "type": "tinyint(1)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 3,
+          "scale": 0,
+          "default": "true",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "boolean"
+        },
+        "seed_key": {
+          "name": "seed_key",
+          "type": "varchar(64)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": true,
+          "length": 64,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "string"
+        },
         "trailer_url": {
           "name": "trailer_url",
           "type": "varchar(500)",
@@ -460,38 +489,6 @@
           "comment": null,
           "enumItems": [],
           "mappedType": "string"
-        },
-        "seed_key": {
-          "name": "seed_key",
-          "type": "varchar(64)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "unique": false,
-          "length": 64,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "enumItems": [],
-          "mappedType": "string"
-        },
-        "active": {
-          "name": "active",
-          "type": "tinyint(1)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": 1,
-          "precision": null,
-          "scale": null,
-          "default": "true",
-          "comment": null,
-          "enumItems": [],
-          "mappedType": "boolean"
         }
       },
       "name": "movie",
@@ -500,26 +497,25 @@
           "columnNames": [
             "seed_key"
           ],
-          "composite": false,
           "keyName": "movie_seed_key_unique",
-          "constraint": true,
+          "unique": true,
           "primary": false,
-          "unique": true
+          "constraint": true
         },
         {
-          "keyName": "PRIMARY",
           "columnNames": [
             "id"
           ],
-          "composite": false,
-          "constraint": true,
+          "keyName": "PRIMARY",
+          "unique": true,
           "primary": true,
-          "unique": true
+          "constraint": true
         }
       ],
       "checks": [],
       "foreignKeys": {},
-      "nativeEnums": {}
+      "nativeEnums": {},
+      "comment": ""
     },
     {
       "columns": {
@@ -532,8 +528,8 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": null,
-          "scale": null,
+          "precision": 10,
+          "scale": 0,
           "default": null,
           "comment": null,
           "enumItems": [],
@@ -548,8 +544,8 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": null,
-          "scale": null,
+          "precision": 10,
+          "scale": 0,
           "default": null,
           "comment": null,
           "enumItems": [],
@@ -564,8 +560,8 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": null,
-          "scale": null,
+          "precision": 10,
+          "scale": 0,
           "default": null,
           "comment": null,
           "enumItems": [],
@@ -592,65 +588,63 @@
       "indexes": [
         {
           "columnNames": [
-            "movie_id"
+            "creator_id"
           ],
-          "composite": false,
-          "keyName": "movie_creator_movie_id_index",
-          "constraint": false,
+          "keyName": "movie_creator_creator_id_index",
+          "unique": false,
           "primary": false,
-          "unique": false
+          "constraint": false
         },
         {
           "columnNames": [
-            "creator_id"
+            "movie_id"
           ],
-          "composite": false,
-          "keyName": "movie_creator_creator_id_index",
-          "constraint": false,
+          "keyName": "movie_creator_movie_id_index",
+          "unique": false,
           "primary": false,
-          "unique": false
+          "constraint": false
         },
         {
-          "keyName": "PRIMARY",
           "columnNames": [
             "id"
           ],
-          "composite": false,
-          "constraint": true,
+          "keyName": "PRIMARY",
+          "unique": true,
           "primary": true,
-          "unique": true
+          "constraint": true
         }
       ],
       "checks": [],
       "foreignKeys": {
-        "movie_creator_movie_id_foreign": {
-          "constraintName": "movie_creator_movie_id_foreign",
-          "columnNames": [
-            "movie_id"
-          ],
-          "localTableName": "movie_creator",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "movie",
-          "deleteRule": "cascade",
-          "updateRule": "cascade"
-        },
         "movie_creator_creator_id_foreign": {
-          "constraintName": "movie_creator_creator_id_foreign",
           "columnNames": [
             "creator_id"
           ],
+          "constraintName": "movie_creator_creator_id_foreign",
           "localTableName": "movie_creator",
+          "referencedTableName": "creator",
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "creator",
-          "deleteRule": "cascade",
-          "updateRule": "cascade"
+          "updateRule": "cascade",
+          "deleteRule": "cascade"
+        },
+        "movie_creator_movie_id_foreign": {
+          "columnNames": [
+            "movie_id"
+          ],
+          "constraintName": "movie_creator_movie_id_foreign",
+          "localTableName": "movie_creator",
+          "referencedTableName": "movie",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "updateRule": "cascade",
+          "deleteRule": "cascade"
         }
       },
-      "nativeEnums": {}
+      "nativeEnums": {},
+      "comment": ""
     },
     {
       "columns": {
@@ -663,8 +657,8 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": null,
-          "scale": null,
+          "precision": 10,
+          "scale": 0,
           "default": null,
           "comment": null,
           "enumItems": [],
@@ -677,10 +671,10 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "unique": false,
+          "unique": true,
           "length": null,
-          "precision": null,
-          "scale": null,
+          "precision": 10,
+          "scale": 0,
           "default": null,
           "comment": null,
           "enumItems": [],
@@ -695,7 +689,7 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": null,
+          "precision": 22,
           "scale": null,
           "default": null,
           "comment": null,
@@ -711,8 +705,8 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": null,
-          "scale": null,
+          "precision": 10,
+          "scale": 0,
           "default": null,
           "comment": null,
           "enumItems": [],
@@ -725,40 +719,39 @@
           "columnNames": [
             "movie_id"
           ],
-          "composite": false,
           "keyName": "movie_rating_movie_id_unique",
-          "constraint": true,
+          "unique": true,
           "primary": false,
-          "unique": true
+          "constraint": true
         },
         {
-          "keyName": "PRIMARY",
           "columnNames": [
             "id"
           ],
-          "composite": false,
-          "constraint": true,
+          "keyName": "PRIMARY",
+          "unique": true,
           "primary": true,
-          "unique": true
+          "constraint": true
         }
       ],
       "checks": [],
       "foreignKeys": {
         "movie_rating_movie_id_foreign": {
-          "constraintName": "movie_rating_movie_id_foreign",
           "columnNames": [
             "movie_id"
           ],
+          "constraintName": "movie_rating_movie_id_foreign",
           "localTableName": "movie_rating",
+          "referencedTableName": "movie",
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "movie",
-          "deleteRule": "cascade",
-          "updateRule": "cascade"
+          "updateRule": "cascade",
+          "deleteRule": "cascade"
         }
       },
-      "nativeEnums": {}
+      "nativeEnums": {},
+      "comment": ""
     },
     {
       "columns": {
@@ -771,8 +764,8 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": null,
-          "scale": null,
+          "precision": 10,
+          "scale": 0,
           "default": null,
           "comment": null,
           "enumItems": [],
@@ -785,7 +778,7 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "unique": false,
+          "unique": true,
           "length": 100,
           "precision": null,
           "scale": null,
@@ -803,8 +796,8 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": null,
-          "scale": null,
+          "precision": 10,
+          "scale": 0,
           "default": null,
           "comment": null,
           "enumItems": [],
@@ -817,10 +810,10 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "unique": false,
+          "unique": true,
           "length": null,
-          "precision": null,
-          "scale": null,
+          "precision": 10,
+          "scale": 0,
           "default": null,
           "comment": null,
           "enumItems": [],
@@ -835,8 +828,8 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": null,
-          "scale": null,
+          "precision": 10,
+          "scale": 0,
           "default": null,
           "comment": null,
           "enumItems": [],
@@ -850,7 +843,7 @@
           "primary": false,
           "nullable": false,
           "unique": false,
-          "length": null,
+          "length": 0,
           "precision": null,
           "scale": null,
           "default": null,
@@ -883,7 +876,7 @@
           "nullable": false,
           "unique": false,
           "length": null,
-          "precision": null,
+          "precision": 22,
           "scale": null,
           "default": null,
           "comment": null,
@@ -911,87 +904,216 @@
       "indexes": [
         {
           "columnNames": [
-            "seed_key"
+            "id"
           ],
-          "composite": false,
-          "keyName": "screening_seed_key_unique",
-          "constraint": true,
-          "primary": false,
-          "unique": true
+          "keyName": "PRIMARY",
+          "unique": true,
+          "primary": true,
+          "constraint": true
         },
         {
-          "columnNames": [
-            "movie_id"
-          ],
-          "composite": false,
-          "keyName": "screening_movie_id_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
-        },
-        {
-          "columnNames": [
-            "building_id"
-          ],
-          "composite": false,
-          "keyName": "screening_building_id_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
-        },
-        {
-          "keyName": "screening_building_id_hall_number_starts_at_unique",
           "columnNames": [
             "building_id",
             "hall_number",
             "starts_at"
           ],
-          "composite": true,
-          "constraint": true,
+          "keyName": "screening_building_id_hall_number_starts_at_unique",
+          "unique": true,
           "primary": false,
-          "unique": true
+          "constraint": true,
+          "composite": true
         },
         {
-          "keyName": "PRIMARY",
           "columnNames": [
-            "id"
+            "building_id"
           ],
-          "composite": false,
-          "constraint": true,
-          "primary": true,
-          "unique": true
+          "keyName": "screening_building_id_index",
+          "unique": false,
+          "primary": false,
+          "constraint": false
+        },
+        {
+          "columnNames": [
+            "movie_id"
+          ],
+          "keyName": "screening_movie_id_index",
+          "unique": false,
+          "primary": false,
+          "constraint": false
+        },
+        {
+          "columnNames": [
+            "seed_key"
+          ],
+          "keyName": "screening_seed_key_unique",
+          "unique": true,
+          "primary": false,
+          "constraint": true
         }
       ],
       "checks": [],
       "foreignKeys": {
-        "screening_movie_id_foreign": {
-          "constraintName": "screening_movie_id_foreign",
-          "columnNames": [
-            "movie_id"
-          ],
-          "localTableName": "screening",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "movie",
-          "deleteRule": "cascade",
-          "updateRule": "cascade"
-        },
         "screening_building_id_foreign": {
-          "constraintName": "screening_building_id_foreign",
           "columnNames": [
             "building_id"
           ],
+          "constraintName": "screening_building_id_foreign",
           "localTableName": "screening",
+          "referencedTableName": "cinema_building",
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "cinema_building",
-          "deleteRule": "cascade",
-          "updateRule": "cascade"
+          "updateRule": "cascade",
+          "deleteRule": "cascade"
+        },
+        "screening_movie_id_foreign": {
+          "columnNames": [
+            "movie_id"
+          ],
+          "constraintName": "screening_movie_id_foreign",
+          "localTableName": "screening",
+          "referencedTableName": "movie",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "updateRule": "cascade",
+          "deleteRule": "cascade"
         }
       },
-      "nativeEnums": {}
+      "nativeEnums": {},
+      "comment": ""
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 10,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "label": {
+          "name": "label",
+          "type": "varchar(160)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 160,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "string"
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(160)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 160,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "string"
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 65535,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "text"
+        },
+        "price": {
+          "name": "price",
+          "type": "double",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 22,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "double"
+        },
+        "image": {
+          "name": "image",
+          "type": "varchar(500)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": 500,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "string"
+        },
+        "active": {
+          "name": "active",
+          "type": "tinyint(1)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 3,
+          "scale": 0,
+          "default": "true",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "boolean"
+        }
+      },
+      "name": "voucher_offer",
+      "indexes": [
+        {
+          "columnNames": [
+            "id"
+          ],
+          "keyName": "PRIMARY",
+          "unique": true,
+          "primary": true,
+          "constraint": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {},
+      "nativeEnums": {},
+      "comment": ""
     }
   ],
   "nativeEnums": {}

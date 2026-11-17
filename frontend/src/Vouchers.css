@@ -18,6 +18,15 @@
   min-height: 480px;
 }
 
+.vouchers-banner-error {
+  position: absolute;
+  top: 16px;
+  left: 6vw;
+  max-width: min(440px, 80%);
+  color: #ff9e9e;
+  overflow-wrap: anywhere;
+}
+
 button.vouchers-button {
   height: 40px;
   padding: 9px 15px;
