@@ -1,6 +1,6 @@
 <script setup>
 import './App.css';
-import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue';
+import { computed, ref, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
@@ -36,6 +36,11 @@ const loading = ref(true);
 const backendUnavailable = ref(false);
 const activePage = computed(() => route.meta.view ?? null);
 const activePageName = computed(() => route.meta.page ?? 'home');
+const showHeaderSearch = computed(() => activePageName.value === 'home' || activePageName.value === 'vouchers');
+watch(activePageName, () => {
+  searchQuery.value = '';
+  searchFocused.value = false;
+});
 const selectedMovie = ref(null);
 const selectedMovieIndex = ref(0);
 const movieUserRatings = ref({});
@@ -522,20 +527,22 @@ onUnmounted(() => {
     <header class="topbar">
       <div class="brand">
         <a href="/" class="logo" aria-label="Go to main screen" @click.prevent="goHome">BRADAR <span>CINEMA</span></a>
-        <div class="header-search" @focusout="handleSearchFocusout">
-          <label class="sr-only" for="header-movie-search">Search movies by title</label>
+        <div v-if="showHeaderSearch" class="header-search" @focusout="handleSearchFocusout">
+          <label class="sr-only" :for="activePageName === 'vouchers' ? 'header-voucher-search' : 'header-movie-search'">
+            {{ activePageName === 'vouchers' ? 'Search vouchers' : 'Search movies by title' }}
+          </label>
           <div class="header-search-input">
             <i class="pi pi-search" aria-hidden="true"></i>
             <input
-              id="header-movie-search"
+              :id="activePageName === 'vouchers' ? 'header-voucher-search' : 'header-movie-search'"
               v-model="searchQuery"
               type="search"
-              placeholder="Search movies…"
+              :placeholder="activePageName === 'vouchers' ? 'Search vouchers…' : 'Search movies…'"
               autocomplete="off"
               role="combobox"
               aria-autocomplete="list"
-              aria-controls="header-movie-search-results"
-              :aria-expanded="searchFocused && searchQuery.trim().length > 0"
+              :aria-controls="activePageName === 'home' ? 'header-movie-search-results' : undefined"
+              :aria-expanded="activePageName === 'home' && searchFocused && searchQuery.trim().length > 0"
               @focus="searchFocused = true"
               @keydown="handleSearchKeydown"
             />
@@ -543,7 +550,7 @@ onUnmounted(() => {
               <i class="pi pi-times" aria-hidden="true"></i>
             </button>
           </div>
-          <div v-if="searchFocused && searchQuery.trim()" id="header-movie-search-results" class="header-search-results" role="listbox" aria-label="Movie search results">
+          <div v-if="activePageName === 'home' && searchFocused && searchQuery.trim()" id="header-movie-search-results" class="header-search-results" role="listbox" aria-label="Movie search results">
             <button
               v-for="movie in searchSuggestions"
               :key="movie.id"
@@ -583,6 +590,12 @@ onUnmounted(() => {
         :movie="selectedBookingMovie"
         :movies="movies"
         @close="goToMovies"
+        @checkout="openCheckout"
+      />
+      <component
+        :is="activePage"
+        v-else-if="activePageName === 'vouchers'"
+        :search-query="searchQuery"
         @checkout="openCheckout"
       />
       <component v-else :is="activePage" @checkout="openCheckout" />

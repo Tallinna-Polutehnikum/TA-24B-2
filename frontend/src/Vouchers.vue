@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Button from 'primevue/button';
 import Tag from 'primevue/tag';
@@ -8,6 +8,12 @@ import { createVoucherOffer, deleteVoucherOffer, getAssetUrl, getBanners, getVou
 import banner from './assets/v-banners/vbanner1.png';
 
 const router = useRouter();
+const props = defineProps({
+  searchQuery: {
+    type: String,
+    default: '',
+  },
+});
 const emit = defineEmits(['checkout']);
 const canEditVouchers = import.meta.env.DEV;
 const canEditBanners = import.meta.env.DEV;
@@ -168,6 +174,15 @@ const offers = [
     imageAlt: 'Offer 5',
   },
 ];
+
+function matchesSearch(offer) {
+  const query = props.searchQuery.trim().toLocaleLowerCase();
+  return !query || [offer.label, offer.title, offer.description, offer.price]
+    .some(value => String(value ?? '').toLocaleLowerCase().includes(query));
+}
+
+const filteredOffers = computed(() => offers.filter(matchesSearch));
+const filteredSeasonalOffers = computed(() => seasonalOffers.value.filter(matchesSearch));
 
 function goToOffers() {
   document.getElementById('vouchers-offers')?.scrollIntoView({ behavior: 'smooth' });
@@ -345,8 +360,8 @@ onUnmounted(() => {
   </section>
   <section id="vouchers-offers" class="vouchers-offers" aria-labelledby="vouchers-offers-title">
     <h2 id="vouchers-offers-title" class="main-overlay-title">Special Vouchers and Gift Cards!</h2>
-    <div class="vouchers-offers-grid">
-      <article v-for="(offer, index) in offers" :key="`${offer.title}-${index}`" class="vouchers-offer-card">
+    <div v-if="filteredOffers.length" class="vouchers-offers-grid">
+      <article v-for="(offer, index) in filteredOffers" :key="`${offer.title}-${index}`" class="vouchers-offer-card">
         <div class="vouchers-offer-image">
           <img v-if="offer.image" :src="offer.image" :alt="offer.imageAlt" />
           <div v-else class="vouchers-offer-image-placeholder" aria-hidden="true">
@@ -358,7 +373,7 @@ onUnmounted(() => {
         <div class="vouchers-offer-copy">
           <h3>{{ offer.title }}</h3>
           <p>{{ offer.description }}</p>
-          <h3 class="vouchers-offer-price">{{ offer.price ? `€${offer.price.toFixed(2)}` : 'Contact us for price' }}</h3>
+          <h3 style="padding-top: 20px;", class="vouchers-offer-price">{{ offer.price ? `€${offer.price.toFixed(2)}` : 'Contact us for price' }}</h3>
           <button
             type="button"
             class="showtime vouchers-offer-checkout"
@@ -379,9 +394,10 @@ onUnmounted(() => {
     </div>
     <p v-if="offersError" class="vouchers-offers-error" role="alert">{{ offersError }}</p>
     <p v-else-if="loadingOffers" class="vouchers-offers-status" role="status">Loading seasonal vouchers…</p>
-    <p v-else-if="!seasonalOffers.length" class="vouchers-offers-status">No seasonal vouchers yet.</p>
-    <div v-else class="vouchers-offers-grid">
-      <article v-for="offer in seasonalOffers" :key="offer.id" class="vouchers-offer-card">
+    <p v-else-if="!seasonalOffers.length && !searchQuery.trim()" class="vouchers-offers-status">No seasonal vouchers yet.</p>
+    <p v-else-if="searchQuery.trim() && !filteredSeasonalOffers.length && filteredOffers.length" class="vouchers-offers-status">No seasonal vouchers match your search.</p>
+    <div v-else-if="filteredSeasonalOffers.length" class="vouchers-offers-grid">
+      <article v-for="offer in filteredSeasonalOffers" :key="offer.id" class="vouchers-offer-card">
         <div class="vouchers-offer-image">
           <img v-if="offer.image" :src="getAssetUrl(offer.image)" :alt="offer.title" />
           <div v-else class="vouchers-offer-image-placeholder" aria-hidden="true">
@@ -404,6 +420,13 @@ onUnmounted(() => {
       </article>
     </div>
   </section>
+  <p
+    v-if="searchQuery.trim() && !filteredOffers.length && !filteredSeasonalOffers.length && !loadingOffers && !offersError"
+    class="vouchers-offers-status"
+    role="status"
+  >
+    No vouchers match your search.
+  </p>
   <div v-if="canEditVouchers && editingOffer" class="voucher-editor-backdrop" @click.self="closeOfferEditor">
     <form class="voucher-editor" role="dialog" aria-modal="true" :aria-label="creatingOffer ? 'Add seasonal voucher' : 'Edit seasonal voucher'" @submit.prevent="saveOffer">
       <button class="voucher-editor-close" type="button" aria-label="Close editor" @click="closeOfferEditor">×</button>
