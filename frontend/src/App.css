@@ -15,8 +15,116 @@ a {
   flex-direction: column;
   background: radial-gradient(circle at 80% 0%, #222 0, #090909 40%); 
 }
-.page > main {
+.page > main,
+.site-content > main {
   flex: 1;
+}
+.site-content {
+  display: flex;
+  min-height: 100vh;
+  flex: 1;
+  flex-direction: column;
+  opacity: 1;
+  pointer-events: none;
+  transition: opacity .9s ease;
+}
+.site-content-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.site-audio {
+  display: none;
+}
+.brand-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: rgba(0, 0, 0, .28);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  opacity: 1;
+  transition: opacity .9s ease;
+}
+.brand-intro-fading {
+  opacity: 0;
+}
+.brand-intro-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+.brand-intro-wordmark {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: .2em;
+  padding: 20px;
+  text-align: center;
+  white-space: nowrap;
+}
+.brand-intro-word {
+  font-family: "Outfit", sans-serif;
+  font-size: clamp(30px, 9vw, 120px);
+  font-weight: 900;
+  letter-spacing: .16em;
+  line-height: .95;
+  opacity: 0;
+  text-shadow: 0 0 26px rgba(61, 119, 243, .4);
+  transform: translateY(28px) scale(.82);
+}
+.brand-intro-word-bradar {
+  color: #3d77f3;
+  animation: brand-intro-hit .8s cubic-bezier(.2, .8, .2, 1) forwards;
+}
+.brand-intro-word-cinema {
+  color: #e2dfdf;
+  font-weight: 400;
+  letter-spacing: .08em;
+  animation: brand-intro-hit .8s cubic-bezier(.2, .8, .2, 1) forwards;
+}
+.brand-intro-start {
+  min-width: 150px;
+  padding: 11px 20px;
+  border: 1px solid rgba(255, 255, 255, .48);
+  border-radius: 24px;
+  background: rgba(25, 30, 45, .8);
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+}
+.brand-intro-start:hover {
+  border-color: #3d77f3;
+  background: rgba(61, 119, 243, .25);
+}
+.brand-intro-error {
+  margin: 0;
+  color: #ff9e9e;
+  text-align: center;
+}
+@keyframes brand-intro-hit {
+  0% {
+    opacity: 0;
+    filter: blur(10px);
+    transform: translateY(28px) scale(.82);
+  }
+  62% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(-4px) scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
 }
 .topbar { 
   min-height: 104px; 

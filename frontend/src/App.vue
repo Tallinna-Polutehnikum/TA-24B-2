@@ -14,6 +14,7 @@ import poster5 from './assets/posters/poster5.jpg';
 import poster6 from './assets/posters/poster6.jpg'; 
 import banner from './assets/posters/banner1.jpg';
 import menuMusic from './assets/music/menu.mp3';
+import logoMusic from './assets/music/logo.mp3';
 const movies = ref([]);
 const selectedGenre = ref('');
 const genreOptions = computed(() => [...new Set(movies.value.flatMap(movie => String(movie.genre || '').split(/[,/;|]/).map(genre => genre.trim()).filter(Boolean)))].sort((a, b) => a.localeCompare(b)));
@@ -70,11 +71,21 @@ const activeSlide = ref(0);
 const posters = [poster1, poster2, poster3, poster4, poster5, poster6];
 const theme = ref('dark');
 const menuAudio = ref(null);
+const logoAudio = ref(null);
 const musicEnabled = ref(false);
 const musicError = ref('');
+const introVisible = ref(true);
+const introFading = ref(false);
+const siteContentVisible = ref(false);
+const introStep = ref(0);
+const introSoundBlocked = ref(false);
+const introPreviousBodyOverflow = ref('');
+const introBodyLocked = ref(false);
 const backendRetryIntervalMs = 1000;
 let slideTimer;
 let backendRetryTimer;
+let introFadeTimer;
+const introTimers = [];
 let backendRequestInFlight = false;
 let browserTheme;
 let onBrowserThemeChange;
@@ -111,6 +122,69 @@ function toggleMenuMusic() {
     return;
   }
   void startMenuMusic();
+}
+
+async function startBrandIntro() {
+  if (!introBodyLocked.value) {
+    introPreviousBodyOverflow.value = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    introBodyLocked.value = true;
+  }
+  const audio = logoAudio.value;
+  if (audio) {
+    audio.volume = 0.85;
+    audio.currentTime = 0;
+    audio.muted = false;
+    try {
+      await audio.play();
+    } catch (error) {
+      if (error?.name === 'NotAllowedError') {
+        introSoundBlocked.value = true;
+        return;
+      }
+      musicError.value = 'Could not play the intro sound.';
+    }
+  }
+
+  introTimers.forEach(window.clearTimeout);
+  introTimers.length = 0;
+  introSoundBlocked.value = false;
+  introStep.value = 0;
+  introFading.value = false;
+  siteContentVisible.value = false;
+  introTimers.push(window.setTimeout(() => { introStep.value = 1; }, 250));
+  introTimers.push(window.setTimeout(() => { introStep.value = 2; }, 1450));
+  introTimers.push(window.setTimeout(finishBrandIntro, 3600));
+}
+
+function finishBrandIntro() {
+  if (!introVisible.value || introFading.value) return;
+  introFading.value = true;
+  siteContentVisible.value = true;
+
+  const audio = logoAudio.value;
+  if (audio && !audio.paused) {
+    const initialVolume = audio.volume;
+    const fadeStartedAt = performance.now();
+    introFadeTimer = window.setInterval(() => {
+      const progress = Math.min((performance.now() - fadeStartedAt) / 900, 1);
+      audio.volume = initialVolume * (1 - progress);
+      if (progress === 1) {
+        window.clearInterval(introFadeTimer);
+        audio.pause();
+        audio.currentTime = 0;
+        audio.volume = 0.85;
+      }
+    }, 40);
+  }
+
+  introTimers.push(window.setTimeout(() => {
+    introVisible.value = false;
+    document.body.style.overflow = introPreviousBodyOverflow.value;
+    introBodyLocked.value = false;
+    audio?.pause();
+    void startMenuMusic();
+  }, 900));
 }
 
 function nextSlide(step = 1) {
@@ -528,7 +602,7 @@ async function loadBackendData() {
 
 onMounted(async () => {
   window.addEventListener('keydown', handleModalKeydown);
-  void startMenuMusic();
+  void startBrandIntro();
   browserTheme = window.matchMedia('(prefers-color-scheme: dark)');
   const saved = localStorage.getItem('bradar-theme');
   theme.value = saved === 'light' || saved === 'dark' ? saved : (browserTheme.matches ? 'dark' : 'light');
@@ -550,6 +624,10 @@ onUnmounted(() => {
   window.removeEventListener('keydown', handleModalKeydown);
   window.clearInterval(slideTimer);
   window.clearInterval(backendRetryTimer);
+  window.clearInterval(introFadeTimer);
+  introTimers.forEach(window.clearTimeout);
+  if (introBodyLocked.value) document.body.style.overflow = introPreviousBodyOverflow.value;
+  logoAudio.value?.pause();
   menuAudio.value?.pause();
   browserTheme?.removeEventListener('change', onBrowserThemeChange);
   if (selectedMovie.value) document.body.style.overflow = previousBodyOverflow.value;
@@ -558,7 +636,9 @@ onUnmounted(() => {
 
 <template>
   <div class="page" id="bradarcinema.ee">
-    <audio ref="menuAudio" :src="menuMusic" loop preload="auto"></audio>
+    <audio ref="logoAudio" class="site-audio" :src="logoMusic" preload="auto" aria-hidden="true"></audio>
+    <audio ref="menuAudio" class="site-audio" :src="menuMusic" loop preload="auto" aria-hidden="true"></audio>
+    <div class="site-content" :class="{ 'site-content-visible': siteContentVisible }">
     <header class="topbar">
       <div class="brand">
         <a href="/" class="logo" aria-label="Go to main screen" @click.prevent="goHome">BRADAR <span>CINEMA</span></a>
@@ -949,5 +1029,24 @@ onUnmounted(() => {
         <button class="backend-unavailable-retry" type="button" @click="loadBackendData">Try again</button>
       </section>
     </div>
+    </div>
+      <div
+        v-if="introVisible"
+        class="brand-intro"
+        :class="{ 'brand-intro-fading': introFading }"
+        role="status"
+        aria-label="Bradar Cinema"
+      >
+        <div class="brand-intro-content">
+          <div class="brand-intro-wordmark" aria-hidden="true">
+            <span v-if="introStep >= 1" class="brand-intro-word brand-intro-word-bradar">BRADAR</span>
+            <span v-if="introStep >= 2" class="brand-intro-word brand-intro-word-cinema">CINEMA</span>
+          </div>
+          <button v-if="introSoundBlocked" class="brand-intro-start" type="button" @click="startBrandIntro">
+            Start intro
+          </button>
+          <p v-if="musicError" class="brand-intro-error" role="status">{{ musicError }}</p>
+        </div>
+      </div>
   </div>
 </template>

@@ -150,3 +150,15 @@
 - Moved add banner button to banners to not be misunderstood.
 - Added new Choose showtime button for movie windows to make for users and for client more comfort
 - Improved genre category style 
+
+## 16.11 - 18.11.2026
+- Made GET movies active returns to have playable active movies only
+- Added migration system and removed old updateSchema to not have any problems with saved databases
+- Upgraded voucher menu, which has already base with cards, vouchers and special seasonal tickets
+- Added edit, add and delete voucher cards for seasonal and special categories. For the main category is useless and will be always the same as now.
+- Added Edit banner for voucher banners
+- Also there is more than 1 banner at least in the voucher page
+- Fixed migration system for adding vouchers (when you wanted to add a new voucher, page showed an internal server error 500 )
+- Added search bar for vouchers and hid movie search bar from other page where is unnecessary.
+- Added background music for site
+- Added intro for our site (The start intro button will appear if browser will block an automatic load)
