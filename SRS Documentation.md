@@ -167,7 +167,7 @@ TA-24B-2/                                     # Bradar Cinema project
 │   ├── package.json                          # Backend dependencies and scripts
 │   └── tsconfig.json                         # TypeScript compiler configuration
 │
-├── frontend/                                 # Vue & PrimeVue + Vite application
+├── frontend/                                 # Vue 3 + Vite & PrimeVue application
 │   ├── dist/                                 # Production build files
 │   ├── node_modules/                         # Installed Node.js dependencies
 │   ├── public/                               # Public static files
