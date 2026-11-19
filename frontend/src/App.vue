@@ -12,7 +12,7 @@ import poster3 from './assets/posters/poster3.jpg';
 import poster4 from './assets/posters/poster4.jpg';
 import poster5 from './assets/posters/poster5.jpg';
 import poster6 from './assets/posters/poster6.jpg'; 
-import banner from './assets/posters/banner1.jpg';
+import banner from './assets/banners/banner1.jpg';
 import menuMusic from './assets/music/menu.mp3';
 import logoMusic from './assets/music/logo.mp3';
 const movies = ref([]);

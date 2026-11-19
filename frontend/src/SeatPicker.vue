@@ -2,7 +2,7 @@
 import './SeatPicker.css';
 import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { getAssetUrl, getMovieScreenings, getScreeningSeats, updateScreeningSeats } from './services/api'
-import banner from './assets/posters/banner1.jpg'
+import banner from './assets/banners/banner1.jpg'
 import poster1 from './assets/posters/poster1.jpg'
 import poster2 from './assets/posters/poster2.jpg'
 import poster3 from './assets/posters/poster3.jpg'

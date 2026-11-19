@@ -2,12 +2,12 @@
   import { onMounted, ref } from 'vue';
   import './AboutUs.css';
   import { getCinemas } from './services/api';
-  import interplexImage from './assets/theaters/interplex.jpg';
-  import shafferImage from './assets/theaters/shaffer.jpg';
-  import inCinematicoImage from './assets/theaters/incinematico.jpg';
-  import cinemaCubedImage from './assets/theaters/cinemacubed.jpg';
-  import apollyonImage from './assets/theaters/apollyon.jpg';
-  import howtocinemaImage from './assets/theaters/howtocinema.jpg';
+  import interplexImage from './assets/cinemas/interplex.jpg';
+  import shafferImage from './assets/cinemas/shaffer.jpg';
+  import inCinematicoImage from './assets/cinemas/incinematico.jpg';
+  import cinemaCubedImage from './assets/cinemas/cinemacubed.jpg';
+  import apollyonImage from './assets/cinemas/apollyon.jpg';
+  import howtocinemaImage from './assets/cinemas/howtocinema.jpg';
 
   const cinemas = ref([]);
   const cinemasLoading = ref(true);
