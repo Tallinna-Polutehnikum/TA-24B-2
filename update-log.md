@@ -162,3 +162,7 @@
 - Added search bar for vouchers and hid movie search bar from other page where is unnecessary.
 - Added background music for site
 - Added intro for our site (The start intro button will appear if browser will block an automatic load)
+
+## 19.11.2026
+- Fixed migration error project can't run
+- Refreshed the Project Structure in the SRS documentation

@@ -2,17 +2,20 @@
 
 ## Cinema Web Application
 
-The document was made by Samir Cibis, Daniel Helmrosin and Aleksander Kartuzov; K-TA-24B
+The document was made by Samir Cibis and Aleksander Kartuzov; K-TA-24B
+This document includes TA-24B-2 AKA Bradar Cinema's functionality and development documentation.
 
 ## 1. Introduction
 
 ### 1.1 Purpose
 
-The purpose of this document is to specify the requirements for the development of a cinema web application that allows users to view movie sessions, browse showtimes, and purchase tickets online. 
+The purpose of this document is to describe the requirements for the development of a cinema web application which allows users to browse movies, view available screenings, select the screening and review ticket details after. The system is planned to support ticket purchasing online and electronic ticket delivery (QR-code and e-mail) in future development. 
 
 ### 1.2 Scope
 
-This document outlines the functional and non-functional requirements for the Cinema Web Application. The system will provide features for users to search for movies, view available sessions, select seats, and complete ticket purchases. 
+This document outlines the functional and non-functional requirements for the Cinema Web Application. The system will provide main features such as browsing movies in the main page, viewing movie cards for movie information, selecting a movie screening, by choosing a cinema, date & seat(-s), reviewing ticket details in the checkout (and purchasing & delivering tickets in the future development).
+
+The application also includes features like movie searching, filtering movies by genre, dark & light themes and launching build & developer modes: build mode for regular users running and developer mode for managing movies, banners and seats in the webpage.
 
 ## 2. General Description
 
@@ -137,46 +140,84 @@ This architecture is suitable because each part has a clear responsibility. For 
 #### Project Structure
 
 ```text
-TA-24B-2/
-├── frontend/                       # Vue.js + Vite + PrimeVue
-│   ├── src/
-│   │   ├── assets/                  # Posters and banners
-│   │   ├── services/
-│   │   │   └── api.js               # Requests to the backend
-│   │   ├── App.vue                  # Main page and movie listings
-│   │   ├── seatpicker.vue           # Session and seat selection
-│   │   ├── Checkout.vue             # Checkout page
-│   │   ├── router.js                # Website routes
-│   │   └── main.js                  # Starts the Vue application
-│   └── package.json
-├── backend/                         # NestJS + Node.js
-│   ├── src/
-│   │   ├── database/
-│   │   │   └── mikro-orm.config.ts  # Database connection settings
-│   │   ├── movies/
-│   │   │   ├── movies.module.ts     # Movies module
-│   │   │   ├── movies.controller.ts # Handles API requests
-│   │   │   ├── movies.service.ts    # Movie-related logic
-│   │   │   ├── movie.entity.ts      # Movie data model
-│   │   │   ├── movie-rating.entity.ts
-│   │   │   ├── creator.entity.ts
-│   │   │   ├── movie-creator.entity.ts
-│   │   │   ├── cinema-building.entity.ts
-│   │   │   └── screening.entity.ts
-│   │   ├── app.module.ts            # Main application module
-│   │   └── main.ts                 # Starts the backend
-│   ├── uploads/                     # Uploaded movie posters
-│   └── package.json
-├── docker-compose.yml               # Runs MySQL using Docker
-├── start.bat                        # Starts the project
-├── README.md                        # Project description
-├── guide.md                         # Setup and usage instructions
-├── update-log.md                    # Change history
-└── update.txt
+TA-24B-2/                                     # Bradar Cinema project
+├── backend/                                  # NestJS + Node.js backend
+│   ├── src/                                  # Backend content
+│   │   ├── banners/                          # Banner API, service, module and entity
+│   │   ├── common/                           # Shared editing mode configuration and guards
+│   │   │   ├── editing.ts                    # Shared editing-mode settings
+│   │   │   └── guards/                       # Project usage rules
+│   │   │       └── editing-enabled.guard.ts  # Restricts routes when editing is disabled
+│   │   ├── database/                         # Database configuration
+│   │   │   ├── migrations/                   # Database migrations
+│   │   │   ├── seeders/                      # Database seeders
+│   │   │   ├── baseline.ts                   # Database baseline setup
+│   │   │   └── mikro-orm.config.ts           # MikroORM configuration
+│   │   ├── movies/                           # Movies API, entities, seeding and generation
+│   │   ├── vouchers/                         # Voucher API, service, module and entity
+│   │   ├── app.module.ts                     # Registers backend modules and configuration
+│   │   └── main.ts                           # Backend entry point
+│   ├── runtime/                              # Runtime data directories
+│   │   ├── logs/                             # Application logs
+│   │   └── uploads/                          # Runtime upload storage
+│   ├── uploads/                              # Uploaded banner and movie images
+│   ├── .env.example                          # Example backend environment variables
+│   ├── nest-cli.json                         # Nest CLI configuration
+│   ├── package-lock.json                     # Backend Node.js modules
+│   ├── package.json                          # Backend dependencies and scripts
+│   └── tsconfig.json                         # TypeScript compiler configuration
+│
+├── frontend/                                 # Vue & PrimeVue + Vite application
+│   ├── dist/                                 # Production build files
+│   ├── node_modules/                         # Installed Node.js dependencies
+│   ├── public/                               # Public static files
+│   │   └── assets/                           # Poster and banner files
+│   ├── src/                                  # Frontend content
+│   │   ├── assets/                           # Project assets (posters, banners, v-banners, favicon, music & other)
+│   │   │   ├── banners/                      # Banner images
+│   │   │   ├── cinemas/                      # Cinema building images
+│   │   │   ├── favicon/                      # Browser and app icons
+│   │   │   ├── music/                        # Application music
+│   │   │   ├── other/                        # Additional graphics
+│   │   │   ├── posters/                      # Movie posters
+│   │   │   └── v-banners/                    # Voucher banner images
+│   │   ├── services/                         # Frontend service
+│   │   │   ├── api.js                        # Backend API requests
+│   │   │   ├── main.js                       # Frontend entry point
+│   │   │   └── router.js                     # Page routes
+│   │   ├── App.vue                           # Main page component
+│   │   ├── App.css                           # Main page styles
+│   │   ├── AboutUs.vue                       # About Us page component
+│   │   ├── AboutUs.css                       # About Us page styles
+│   │   ├── Checkout.vue                      # Checkout page component
+│   │   ├── Checkout.css                      # Checkout page styles
+│   │   ├── SeatPicker.vue                    # Screenings & seat selection page component
+│   │   ├── SeatPicker.css                    # Screenings & seat selection page styles
+│   │   ├── Club.vue                          # Cinema club page component
+│   │   ├── Club.css                          # Cinema club page styles
+│   │   ├── ClubApplication.vue               # Cinema club application form page component
+│   │   ├── ClubApplication.css               # Cinema club application form page styles
+│   │   ├── Vouchers.vue                      # Vouchers page component
+│   │   └── Vouchers.css                      # Vouchers page styles
+│   ├── .gitignore                            # Ignoring files for commit in the frontend
+│   ├── index.html                            # HTML document loaded by Vite
+│   ├── package-lock.json                     # Frontend Node.js modules
+│   ├── package.json                          # Frontend dependencies and scripts
+│   └── vite.config.js                        # Vite development and build configuration
+│
+├── .gitignore                                # All ignoring files for commit in the project
+├── bradar_cinema_readme.bin                  # Samir's easter egg (README.md file on Sega Mega Drive)
+├── docker-compose.yml                        # Docker container running (MySQL database)
+├── minimize-terminal.ps1                     # Minimizing the backend & frontend terminal during the project running on Windows
+├── README.md                                 # Project overview and setup instructions
+├── SRS Documentation.md                      # Software Requirements Specification documentation
+├── start.bat                                 # Windows project startup script
+├── start.command                             # macOS project startup script
+├── start.sh                                  # Linux project startup script
+└── update-log.md                             # Project changes history
 ```
 
 #### How the components communicate
-
 
 ```text
 User, customer & admin
