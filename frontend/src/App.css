@@ -327,8 +327,39 @@ nav a:hover {
 .hero-copy { 
   max-width:620px; 
 } 
-.hero-copy .see-movies-button {
-  gap: 0.5rem;
+button.see-movies-button,
+button.vouchers-button {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 22px;
+  border: 1px solid var(--cinema-accent);
+  border-radius: 999px;
+  background: var(--cinema-accent);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
+  box-sizing: border-box;
+  font: 700 14px/1 var(--cinema-font-body);
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.25s ease;
+}
+
+.page .hero-copy button.see-movies-button:hover,
+.page .hero-copy button.vouchers-button:hover {
+  background: var(--cinema-accent);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
+  border-color: rgba(255, 255, 255, 0.95);
+}
+
+button.see-movies-button:focus-visible,
+button.vouchers-button:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 3px;
 }
 .page h1 { 
   font-size:clamp(42px,6vw,76px); 
