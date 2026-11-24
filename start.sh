@@ -8,28 +8,36 @@ choose_mode() {
   if command -v zenity >/dev/null 2>&1; then
     zenity --list --radiolist \
       --title="Bradar Cinema Software Launcher" \
-      --text="Welcome back! How do you want to run the site?" \
-      --column="" --column="Mode" \
-      TRUE "Build Mode" FALSE "Developer Mode"
+      --text="Choose how to launch Bradar Cinema.\n\nBuild Mode runs the production-ready preview. Developer Mode enables editing tools." \
+      --width=620 --height=340 \
+      --ok-label="Start mode" --cancel-label="Cancel" \
+      --column="" --column="Mode" --column="Description" --print-column=2 \
+      TRUE "Build Mode" "Production-ready preview" \
+      FALSE "Developer Mode" "Editing and development"
   elif command -v kdialog >/dev/null 2>&1; then
     selected=$(kdialog --title "Bradar Cinema Software Launcher" \
-      --menu "Welcome back! How do you want to run the site?" \
-      build "Build Mode" developer "Developer Mode") || return 1
+      --menu "Choose how to launch Bradar Cinema.\n\nBuild Mode runs the production-ready preview. Developer Mode enables editing tools." \
+      build "Build Mode - Production-ready preview" \
+      developer "Developer Mode - Editing and development") || return 1
     case "$selected" in
       build) printf '%s\n' "Build Mode" ;;
       developer) printf '%s\n' "Developer Mode" ;;
       *) return 1 ;;
     esac
   elif [ -t 0 ]; then
-    printf '%s\n' "Welcome back! How do you want to run the site?" \
-      "1) Build Mode" "2) Developer Mode" >&2
+    printf '\n\033[1;36m  BRADAR CINEMA\033[0m\n'
+    printf '\033[1m  Choose how to launch\033[0m\n\n'
+    printf '  \033[1;32m1) Build Mode\033[0m\n'
+    printf '     Production-ready preview; editing is disabled.\n\n'
+    printf '  \033[1;34m2) Developer Mode\033[0m\n'
+    printf '     Development tools and editing are enabled.\n\n'
     while :; do
-      printf 'Choose [1/2] (default 1): ' >&2
+      printf '  Choose [1/2] (default 1): ' >&2
       read -r choice || return 1
       case "$choice" in
         ""|1) printf '%s\n' "Build Mode"; return 0 ;;
         2) printf '%s\n' "Developer Mode"; return 0 ;;
-        *) printf '%s\n' "Please enter 1 or 2." >&2 ;;
+        *) printf '%s\n' "  Please enter 1 or 2." >&2 ;;
       esac
     done
   else

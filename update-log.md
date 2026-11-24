@@ -166,3 +166,9 @@
 ## 19.11.2026
 - Fixed migration error project can't run
 - Refreshed the Project Structure in the SRS documentation
+
+## 24.11.2026
+- Refreshed the Windows and Linux launcher mode-selection screens
+- Changed the Windows launcher to a blue color theme and added an exit message
+- Fixed command-shell parsing of the Windows exit message
+- Shortened the launcher note so it fits visibly in the window

@@ -7,96 +7,91 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -STA -Command ^
 "Add-Type -AssemblyName System.Windows.Forms; ^
 $form = New-Object System.Windows.Forms.Form; ^
 $form.Text = 'Bradar Cinema Software Launcher'; ^
-$form.Size = New-Object System.Drawing.Size(420,210); ^
+$form.ClientSize = New-Object System.Drawing.Size(540,370); ^
 $form.StartPosition = 'CenterScreen'; ^
 $form.FormBorderStyle = 'FixedDialog'; ^
+$form.Font = New-Object System.Drawing.Font('Segoe UI',10); ^
 $form.MaximizeBox = $false; ^
+$form.MinimizeBox = $false; ^
 $theme = (Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name AppsUseLightTheme -ErrorAction SilentlyContinue).AppsUseLightTheme; ^
 $isDark = $theme -eq 0; ^
 if ($isDark) { ^
-    $form.BackColor = [System.Drawing.Color]::FromArgb(32,32,32); ^
-    $form.ForeColor = [System.Drawing.Color]::White; ^
+    $form.BackColor = [System.Drawing.Color]::FromArgb(22,29,43); ^
+    $form.ForeColor = [System.Drawing.Color]::FromArgb(232,240,250); ^
+    $cardColor = [System.Drawing.Color]::FromArgb(36,49,68); ^
+    $mutedColor = [System.Drawing.Color]::FromArgb(161,183,210); ^
+    $cardHover = [System.Drawing.Color]::FromArgb(48,65,88); ^
 } else { ^
-    $form.BackColor = [System.Drawing.Color]::FromArgb(248,248,248); ^
-    $form.ForeColor = [System.Drawing.Color]::Black; ^
+    $form.BackColor = [System.Drawing.Color]::FromArgb(242,247,253); ^
+    $form.ForeColor = [System.Drawing.Color]::FromArgb(32,49,70); ^
+    $cardColor = [System.Drawing.Color]::FromArgb(227,237,250); ^
+    $mutedColor = [System.Drawing.Color]::FromArgb(88,111,142); ^
+    $cardHover = [System.Drawing.Color]::FromArgb(212,228,247); ^
 }; ^
-$label = New-Object System.Windows.Forms.Label; ^
-$label.Text = 'Welcome back! How to you want to run site?'; ^
-$label.Location = New-Object System.Drawing.Point(50,25); ^
-$label.Size = New-Object System.Drawing.Size(370,30); ^
-$label.Font = New-Object System.Drawing.Font('Segoe UI',11); ^
-$form.Controls.Add($label); ^
+$brand = New-Object System.Windows.Forms.Label; ^
+$brand.Text = 'BRADAR CINEMA'; ^
+$brand.Location = New-Object System.Drawing.Point(34,24); ^
+$brand.Size = New-Object System.Drawing.Size(470,22); ^
+$brand.ForeColor = [System.Drawing.Color]::FromArgb(73,139,211); ^
+$brand.Font = New-Object System.Drawing.Font('Segoe UI Semibold',9); ^
+$form.Controls.Add($brand); ^
+$heading = New-Object System.Windows.Forms.Label; ^
+$heading.Text = 'Choose how to launch'; ^
+$heading.Location = New-Object System.Drawing.Point(32,55); ^
+$heading.Size = New-Object System.Drawing.Size(470,38); ^
+$heading.Font = New-Object System.Drawing.Font('Segoe UI Semibold',20); ^
+$form.Controls.Add($heading); ^
+$subtitle = New-Object System.Windows.Forms.Label; ^
+$subtitle.Text = 'Select a mode to start the site.'; ^
+$subtitle.Location = New-Object System.Drawing.Point(35,100); ^
+$subtitle.Size = New-Object System.Drawing.Size(470,25); ^
+$subtitle.ForeColor = $mutedColor; ^
+$form.Controls.Add($subtitle); ^
 $build = New-Object System.Windows.Forms.Button; ^
-$build.Text = 'Build Mode'; ^
-$build.Location = New-Object System.Drawing.Point(45,85); ^
-$build.Size = New-Object System.Drawing.Size(145,45); ^
+$build.Text = 'BUILD MODE' + [Environment]::NewLine + 'User-mode preview. Promo release for show' + [Environment]::NewLine + [Environment]::NewLine + 'Start Build Mode'; ^
+$build.Location = New-Object System.Drawing.Point(34,148); ^
+$build.Size = New-Object System.Drawing.Size(228,142); ^
+$build.TextAlign = [System.Drawing.ContentAlignment]::MiddleLeft; ^
+$build.Padding = New-Object System.Windows.Forms.Padding(18,12,12,12); ^
+$build.Font = New-Object System.Drawing.Font('Segoe UI Semibold',11); ^
+$build.BackColor = [System.Drawing.Color]::FromArgb(63,120,189); ^
+$build.ForeColor = [System.Drawing.Color]::White; ^
+$build.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat; ^
+$build.FlatAppearance.BorderSize = 0; ^
+$build.FlatAppearance.MouseOverBackColor = [System.Drawing.Color]::FromArgb(52,106,174); ^
 $build.DialogResult = [System.Windows.Forms.DialogResult]::Yes; ^
 $form.Controls.Add($build); ^
 $dev = New-Object System.Windows.Forms.Button; ^
-$dev.Text = 'Developer Mode'; ^
-$dev.Location = New-Object System.Drawing.Point(210,85); ^
-$dev.Size = New-Object System.Drawing.Size(160,45); ^
+$dev.Text = 'DEVELOPER MODE' + [Environment]::NewLine + 'For editing and development' + [Environment]::NewLine + [Environment]::NewLine + 'Start Developer Mode'; ^
+$dev.Location = New-Object System.Drawing.Point(278,148); ^
+$dev.Size = New-Object System.Drawing.Size(228,142); ^
+$dev.TextAlign = [System.Drawing.ContentAlignment]::MiddleLeft; ^
+$dev.Padding = New-Object System.Windows.Forms.Padding(18,12,12,12); ^
+$dev.Font = New-Object System.Drawing.Font('Segoe UI Semibold',11); ^
+$dev.BackColor = $cardColor; ^
+$dev.ForeColor = $form.ForeColor; ^
+$dev.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat; ^
+$dev.FlatAppearance.BorderSize = 0; ^
+$dev.FlatAppearance.MouseOverBackColor = $cardHover; ^
 $dev.DialogResult = [System.Windows.Forms.DialogResult]::No; ^
 $form.Controls.Add($dev); ^
-$buttonBorder = if ($isDark) { [System.Drawing.Color]::FromArgb(105,105,105) } else { [System.Drawing.Color]::FromArgb(160,160,160) }; ^
-$hoverBg = if ($isDark) { [System.Drawing.Color]::FromArgb(48,48,48) } else { [System.Drawing.Color]::FromArgb(225,225,225) }; ^
-$hoverBorder = if ($isDark) { [System.Drawing.Color]::FromArgb(160,160,160) } else { [System.Drawing.Color]::FromArgb(100,100,100) }; ^
-$normalBg = $form.BackColor; ^
-$buttonPaint = { ^
-    param($sender,$e) ^
-    $e.Graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias; ^
-    $radius = 5; ^
-    $d = $radius * 2; ^
-    $x = 2; ^
-    $y = 2; ^
-    $w = $sender.ClientSize.Width - 5; ^
-    $h = $sender.ClientSize.Height - 5; ^
-    $path = New-Object System.Drawing.Drawing2D.GraphicsPath; ^
-    $path.AddArc($x,$y,$d,$d,180,90); ^
-    $path.AddArc(($x+$w-$d),$y,$d,$d,270,90); ^
-    $path.AddArc(($x+$w-$d),($y+$h-$d),$d,$d,0,90); ^
-    $path.AddArc($x,($y+$h-$d),$d,$d,90,90); ^
-    $path.CloseFigure(); ^
-    $hovered = $sender.Tag -eq 'hover'; ^
-    $borderColor = if ($hovered) { $hoverBorder } else { $buttonBorder }; ^
-    $fillColor = if ($hovered) { $hoverBg } else { $normalBg }; ^
-    $brush = New-Object System.Drawing.SolidBrush($fillColor); ^
-    $pen = New-Object System.Drawing.Pen($borderColor,1.5); ^
-    $e.Graphics.FillPath($brush,$path); ^
-    $e.Graphics.DrawPath($pen,$path); ^
-    [System.Windows.Forms.TextRenderer]::DrawText($e.Graphics,$sender.Text,$sender.Font,$sender.ClientRectangle,$sender.ForeColor,([System.Windows.Forms.TextFormatFlags]::HorizontalCenter -bor [System.Windows.Forms.TextFormatFlags]::VerticalCenter -bor [System.Windows.Forms.TextFormatFlags]::SingleLine)); ^
-    $brush.Dispose(); ^
-    $pen.Dispose(); ^
-    $path.Dispose(); ^
-}.GetNewClosure(); ^
-$buttonEnter = { ^
-    param($sender,$e) ^
-    $sender.Tag = 'hover'; ^
-    $sender.Invalidate(); ^
-}; ^
-$buttonLeave = { ^
-    param($sender,$e) ^
-    $sender.Tag = $null; ^
-    $sender.Invalidate(); ^
-}; ^
-foreach ($btn in @($build,$dev)) { ^
-    $btn.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat; ^
-    $btn.UseVisualStyleBackColor = $false; ^
-    $btn.BackColor = $normalBg; ^
-    $btn.ForeColor = $form.ForeColor; ^
-    $btn.FlatAppearance.BorderSize = 0; ^
-    $btn.FlatAppearance.MouseOverBackColor = $normalBg; ^
-    $btn.FlatAppearance.MouseDownBackColor = $normalBg; ^
-    $btn.Region = $null; ^
-    $btn.Add_Paint($buttonPaint); ^
-    $btn.Add_MouseEnter($buttonEnter); ^
-    $btn.Add_MouseLeave($buttonLeave); ^
-}; ^
+$footer = New-Object System.Windows.Forms.Label; ^
+$footer.Text = 'Build Mode disables editing. Developer Mode enables editing.'; ^
+$footer.Location = New-Object System.Drawing.Point(35,318); ^
+$footer.Size = New-Object System.Drawing.Size(470,24); ^
+$footer.ForeColor = $mutedColor; ^
+$footer.Font = New-Object System.Drawing.Font('Segoe UI',9); ^
+$form.Controls.Add($footer); ^
 $form.AcceptButton = $build; ^
 $dwmCode = 'using System; using System.Runtime.InteropServices; public class DwmApi { [DllImport(@dwmapi.dll@)] public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size); }'.Replace('@',[char]34); ^
 Add-Type -TypeDefinition $dwmCode; ^
 if ($isDark) { $darkMode = 1; $handle = $form.Handle; $status = [DwmApi]::DwmSetWindowAttribute($handle,20,[ref]$darkMode,4); if ($status -ne 0) { $status = [DwmApi]::DwmSetWindowAttribute($handle,19,[ref]$darkMode,4) } }; ^
-$form.CancelButton = $dev; ^
+$form.Add_FormClosing({ ^
+    param($sender,$eventArgs) ^
+    if ($sender.DialogResult -ne [System.Windows.Forms.DialogResult]::Yes -and $sender.DialogResult -ne [System.Windows.Forms.DialogResult]::No) { ^
+        $closeMessage = [System.Windows.Forms.MessageBox]::Show($sender,'Goodbye!','Exit Launcher',[System.Windows.Forms.MessageBoxButtons]::OK,[System.Windows.Forms.MessageBoxIcon]::Information) ^
+    } ^
+}); ^
 $result = $form.ShowDialog(); ^
 $form.Dispose(); ^
 if ($result -eq [System.Windows.Forms.DialogResult]::Yes) { exit 10 }; ^
