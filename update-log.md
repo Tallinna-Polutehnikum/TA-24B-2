@@ -172,3 +172,8 @@
 - Changed the Windows launcher to a blue color theme and added an exit message
 - Fixed command-shell parsing of the Windows exit message
 - Shortened the launcher note so it fits visibly in the window
+- Improved voucher-page mobile layout 
+- Aligned voucher text banner with the header 
+- Made banner buttons better for the main and voucher pages 
+- Added developer-only image editing for current vouchers
+- We wrote in Forms: we made an optimization for voucher page which will improve its further usage and made it much better for design.

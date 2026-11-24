@@ -20,6 +20,12 @@ const canEditBanners = import.meta.env.DEV;
 const seasonalOffers = ref([]);
 const loadingOffers = ref(true);
 const offersError = ref('');
+const currentOfferImages = ref({});
+const currentOfferImageError = ref('');
+const editingCurrentOffer = ref(null);
+const currentOfferImage = ref('');
+const savingCurrentOfferImage = ref(false);
+const currentOfferImageInput = ref(null);
 const voucherBanners = ref([]);
 const activeBannerIndex = ref(0);
 const bannerLoadError = ref('');
@@ -118,6 +124,7 @@ async function saveBanner() {
 
 const offers = [
   {
+    imageKey: 'family-voucher',
     label: '5 vouchers for family',
     title: 'Family Voucher (5 times)',
     description: 'You can watch movies 5 times every time with your family.',
@@ -126,6 +133,7 @@ const offers = [
     imageAlt: 'Offer 1',
   },
   {
+    imageKey: 'solo-voucher',
     label: '3 vouchers',
     title: 'A lone wanderer Voucher (3 times)',
     description: 'You can watch movies 3 times as a lone wanderer.',
@@ -134,6 +142,7 @@ const offers = [
     imageAlt: 'Offer 2',
   },
   {
+    imageKey: 'friends-voucher',
     label: '3 vouchers for 3 friends',
     title: 'Friends Voucher (3 times)',
     description: 'You can watch movies 3 times with your friends.',
@@ -142,6 +151,7 @@ const offers = [
     imageAlt: 'Offer 3',
   },
   {
+    imageKey: 'school-voucher',
     label: '5 vouchers for 32 students',
     title: 'School Voucher (up for 32 students)',
     description: 'For teachers, it is a great way to reward your students for their hard work and dedication.',
@@ -150,6 +160,7 @@ const offers = [
     imageAlt: 'Offer 4',
   },
   {
+    imageKey: 'gift-card-10',
     label: 'Gift Cards',
     title: '10€ Gift Card',
     description: 'For people, who wants to have fun together with their loved ones, this is a great way to enjoy a movie night.',
@@ -158,6 +169,7 @@ const offers = [
     imageAlt: 'Offer 5',
   },
   {
+    imageKey: 'gift-card-20',
     label: 'Gift Cards',
     title: '20€ Gift Card',
     description: 'For people, who wants to have fun together with their loved ones, this is a great way to enjoy a movie night.',
@@ -166,6 +178,7 @@ const offers = [
     imageAlt: 'Offer 5',
   },
   {
+    imageKey: 'gift-card-50',
     label: 'Gift Cards',
     title: '50€ Gift Card',
     description: 'For people, who wants to have fun together with their loved ones, this is a great way to enjoy a movie night.',
@@ -181,7 +194,9 @@ function matchesSearch(offer) {
     .some(value => String(value ?? '').toLocaleLowerCase().includes(query));
 }
 
-const filteredOffers = computed(() => offers.filter(matchesSearch));
+const filteredOffers = computed(() => offers
+  .map(offer => ({ ...offer, image: currentOfferImages.value[offer.imageKey] ?? offer.image }))
+  .filter(matchesSearch));
 const filteredSeasonalOffers = computed(() => seasonalOffers.value.filter(matchesSearch));
 
 function goToOffers() {
@@ -289,7 +304,74 @@ async function uploadImage(event) {
   }
 }
 
+function startCurrentOfferImageEdit(offer) {
+  editingCurrentOffer.value = offer;
+  currentOfferImage.value = offer.image ?? '';
+  currentOfferImageError.value = '';
+  previousBodyOverflow.value = document.body.style.overflow;
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCurrentOfferImageEdit() {
+  editingCurrentOffer.value = null;
+  currentOfferImage.value = '';
+  currentOfferImageError.value = '';
+  document.body.style.overflow = previousBodyOverflow.value;
+}
+
+async function uploadCurrentOfferImage(event) {
+  const input = event.target;
+  const file = input.files?.[0];
+  input.value = '';
+  if (!file || !editingCurrentOffer.value || uploadingImage.value || savingCurrentOfferImage.value) return;
+  uploadingImage.value = true;
+  currentOfferImageError.value = '';
+  try {
+    const uploaded = await uploadVoucherImage(file);
+    currentOfferImage.value = uploaded.image;
+  } catch (error) {
+    currentOfferImageError.value = error instanceof Error ? error.message : 'Could not upload voucher image.';
+  } finally {
+    uploadingImage.value = false;
+  }
+}
+
+function saveCurrentOfferImage() {
+  if (!editingCurrentOffer.value || savingCurrentOfferImage.value || uploadingImage.value) return;
+  savingCurrentOfferImage.value = true;
+  currentOfferImageError.value = '';
+  try {
+    const updatedImages = {
+      ...currentOfferImages.value,
+      [editingCurrentOffer.value.imageKey]: currentOfferImage.value.trim(),
+    };
+    localStorage.setItem('bradar-current-voucher-images', JSON.stringify(updatedImages));
+    currentOfferImages.value = updatedImages;
+    closeCurrentOfferImageEdit();
+  } catch (error) {
+    currentOfferImageError.value = error instanceof Error ? error.message : 'Could not save voucher image.';
+  } finally {
+    savingCurrentOfferImage.value = false;
+  }
+}
+
+function loadCurrentOfferImages() {
+  try {
+    const savedImages = localStorage.getItem('bradar-current-voucher-images');
+    if (!savedImages) return;
+    const parsedImages = JSON.parse(savedImages);
+    if (!parsedImages || typeof parsedImages !== 'object' || Array.isArray(parsedImages)
+      || Object.values(parsedImages).some(image => typeof image !== 'string')) {
+      throw new Error('Saved voucher images are invalid.');
+    }
+    currentOfferImages.value = parsedImages;
+  } catch (error) {
+    currentOfferImageError.value = error instanceof Error ? error.message : 'Could not load voucher images.';
+  }
+}
+
 onMounted(async () => {
+  loadCurrentOfferImages();
   try {
     const savedText = localStorage.getItem('bradar-vouchers-banner-text');
     if (savedText) {
@@ -320,7 +402,9 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.clearInterval(bannerSlideTimer);
-  if (editingOffer.value || editingBanner.value) document.body.style.overflow = previousBodyOverflow.value;
+  if (editingOffer.value || editingBanner.value || editingCurrentOffer.value) {
+    document.body.style.overflow = previousBodyOverflow.value;
+  }
 });
 </script>
 
@@ -360,15 +444,27 @@ onUnmounted(() => {
   </section>
   <section id="vouchers-offers" class="vouchers-offers" aria-labelledby="vouchers-offers-title">
     <h2 id="vouchers-offers-title" class="main-overlay-title">Special Vouchers and Gift Cards!</h2>
+    <p v-if="currentOfferImageError && !editingCurrentOffer" class="vouchers-offers-error" role="alert">
+      {{ currentOfferImageError }}
+    </p>
     <div v-if="filteredOffers.length" class="vouchers-offers-grid">
       <article v-for="(offer, index) in filteredOffers" :key="`${offer.title}-${index}`" class="vouchers-offer-card">
         <div class="vouchers-offer-image">
-          <img v-if="offer.image" :src="offer.image" :alt="offer.imageAlt" />
+          <img v-if="offer.image" :src="getAssetUrl(offer.image)" :alt="offer.imageAlt" />
           <div v-else class="vouchers-offer-image-placeholder" aria-hidden="true">
             <i class="pi pi-image"></i>
             <span>Add image</span>
           </div>
           <span class="vouchers-offer-label">{{ offer.label }}</span>
+          <button
+            v-if="canEditVouchers"
+            type="button"
+            class="vouchers-offer-image-edit"
+            :aria-label="`Edit image for ${offer.title}`"
+            @click="startCurrentOfferImageEdit(offer)"
+          >
+            Edit image
+          </button>
         </div>
         <div class="vouchers-offer-copy">
           <h3>{{ offer.title }}</h3>
@@ -385,6 +481,48 @@ onUnmounted(() => {
       </article>
     </div>
   </section>
+  <div v-if="canEditVouchers && editingCurrentOffer" class="voucher-editor-backdrop" @click.self="closeCurrentOfferImageEdit">
+    <form
+      class="voucher-editor voucher-image-editor"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="`Edit image for ${editingCurrentOffer.title}`"
+      @submit.prevent="saveCurrentOfferImage"
+    >
+      <button class="voucher-editor-close" type="button" aria-label="Close image editor" @click="closeCurrentOfferImageEdit">×</button>
+      <h2>Edit voucher image</h2>
+      <p class="voucher-image-editor-title">{{ editingCurrentOffer.title }}</p>
+      <div class="voucher-image-editor-preview">
+        <img v-if="currentOfferImage" :src="getAssetUrl(currentOfferImage)" :alt="editingCurrentOffer.title" />
+        <span v-else>Choose an image to preview it here.</span>
+      </div>
+      <input
+        ref="currentOfferImageInput"
+        class="visually-hidden"
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        @change="uploadCurrentOfferImage"
+      />
+      <p class="voucher-editor-hint">JPEG, PNG, or WebP. Maximum 5 MB.</p>
+      <p v-if="currentOfferImageError" class="edit-error" role="alert">{{ currentOfferImageError }}</p>
+      <div class="edit-actions">
+        <button
+          class="details-button"
+          type="button"
+          :disabled="uploadingImage || savingCurrentOfferImage"
+          @click="currentOfferImageInput?.click()"
+        >
+          {{ uploadingImage ? 'Uploading…' : 'Choose image' }}
+        </button>
+        <button class="details-button" type="button" :disabled="uploadingImage || savingCurrentOfferImage" @click="closeCurrentOfferImageEdit">
+          Cancel
+        </button>
+        <button class="showtime" type="submit" :disabled="!currentOfferImage || uploadingImage || savingCurrentOfferImage">
+          {{ savingCurrentOfferImage ? 'Saving…' : 'Save image' }}
+        </button>
+      </div>
+    </form>
+  </div>
   <section class="vouchers-offers seasonal-vouchers" aria-labelledby="seasonal-vouchers-title">
     <div class="seasonal-vouchers-heading">
       <h2 id="seasonal-vouchers-title">Seasonal &amp; Holiday Vouchers</h2>
