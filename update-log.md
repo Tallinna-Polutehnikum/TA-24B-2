@@ -177,3 +177,4 @@
 - Made banner buttons better for the main and voucher pages 
 - Added developer-only image editing for current vouchers
 - We wrote in Forms: we made an optimization for voucher page which will improve its further usage and made it much better for design.
+- Added new test cases and described into SRS documentation

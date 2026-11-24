@@ -292,15 +292,23 @@ Database -- SMTP -------------> E-mail receiver
 
 ### 7.2 Test Cases
 
-**TC-05 – E-mail Receiver and QR Ticket.** The test checks requirement 3.5. Enter a valid e-mail address and complete the purchase. The system should confirm that the ticket was sent to the entered e-mail and generate a QR code for the ticket. Status: Didn’t develop yet. 
+**TC-09 – Mobile Voucher Page.** Open the voucher page on a phone-sized screen. Text, buttons, and cards should fit the screen, with no sideways scrolling. Check: Viewed it at 320, 390, 768, and 1280 px. Status: Pass.
 
-**TC-04 – Ticket Purchase.** The test checks requirement 3.4. Select a movie, session and seat, then open the ticket purchase page. The selected movie, session, seats and total cost should be shown, and the payment option should be selectable. Status: Not executed. 
+**TC-08 – Developer Voucher Image Editing.** In Developer Mode, choose **Edit image** on a current voucher, select an image, and save it. The new image should appear while the voucher text and price stay the same. Check: Upload an image, save it, and reload the page. Status: Not executed.
 
-**TC-03 – Seat Selection.** The test checks requirement 3.3. Open a session and go to seat selection. Available seats should be selectable, booked seats should not be selectable, and the ticket cost should change according to the selected seats. Status: Pass. 
+**TC-07 – Voucher Checkout.** Select **Proceed to Checkout** on a voucher. The checkout page should show the selected voucher and its price. Check: Compare the voucher and price on the checkout page. Status: Not executed.
 
-**TC-02 – Session Management.** The test checks requirement 3.2. Open a movie and view its sessions. The cinema hall, date, start time and language should be shown. An administrator should also be able to create, edit and remove a session. Status: Fail. 
+**TC-06 – Voucher Offers and Search.** Open the voucher page and search for a voucher by name. Matching voucher cards should be shown. Check: Search by name and confirm only matching cards appear. Status: Not executed.
 
-**TC-01 – Movie Listings.** The test checks requirement 3.1. Open the movie listings and select a movie. The title, poster, description, rating, duration, languages, subtitles, session times and creators should be shown. Status: Pass. 
+**TC-05 – E-mail Receiver and QR Ticket.** The test checks requirement 3.5. Enter a valid e-mail address and complete the purchase. The system should confirm that the ticket was sent to the entered e-mail and generate a QR code for the ticket. Check: Confirm the e-mail and QR code are received. Status: Didn’t develop yet.
+
+**TC-04 – Ticket Purchase.** The test checks requirement 3.4. Select a movie, session and seat, then open the ticket purchase page. The selected movie, session, seats and total cost should be shown, and the payment option should be selectable. Check: Compare the selected details and total on the purchase page. Status: Not executed.
+
+**TC-03 – Seat Selection.** The test checks requirement 3.3. Open a session and go to seat selection. Available seats should be selectable, booked seats should not be selectable, and the ticket cost should change according to the selected seats. Check: Try free and booked seats, then compare the price. Status: Pass.
+
+**TC-02 – Session Management.** The test checks requirement 3.2. Open a movie and view its sessions. The cinema hall, date, start time and language should be shown. An administrator should also be able to create, edit and remove a session. Check: View the session details and try the admin actions. Status: Works particullary, but needs to be improved.
+
+**TC-01 – Movie Listings.** The test checks requirement 3.1. Open the movie listings and select a movie. The title, poster, description, rating, duration, languages, subtitles, session times and creators should be shown. Check: Open a movie and verify its details are displayed. Status: Pass.
 
 ### 7.3 Validation Criteria
 
