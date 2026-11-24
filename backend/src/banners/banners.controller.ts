@@ -1,14 +1,9 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { randomUUID } from 'node:crypto';
-import { extname, join } from 'node:path';
-import { mkdirSync } from 'node:fs';
+import { imageUploadOptions } from '../common/image-upload-options';
 import { EditingEnabledGuard } from '../common/guards/editing-enabled.guard';
+import { BannerInputDto } from './dto/banner-input.dto';
 import { BannersService } from './banners.service';
-
-const uploadDirectory = join(process.cwd(), 'uploads', 'banners');
-mkdirSync(uploadDirectory, { recursive: true });
 
 @Controller('banners')
 export class BannersController {
@@ -26,7 +21,7 @@ export class BannersController {
 
   @Post('manual')
   @UseGuards(EditingEnabledGuard)
-  createManualBanner(@Body() input: unknown) {
+  createManualBanner(@Body() input: BannerInputDto) {
     return this.bannersService.createManualBanner(input);
   }
 
@@ -34,7 +29,7 @@ export class BannersController {
   @UseGuards(EditingEnabledGuard)
   updateBanner(
     @Param('id', ParseIntPipe) id: number,
-    @Body() input: unknown
+    @Body() input: BannerInputDto
   ) {
     return this.bannersService.updateBanner(id, input);
   }
@@ -47,32 +42,7 @@ export class BannersController {
 
   @Post('upload')
   @UseGuards(EditingEnabledGuard)
-  @UseInterceptors(
-    FileInterceptor('banner', {
-      storage: diskStorage({
-        destination: uploadDirectory,
-
-        filename: (req, file, callback) => {
-          const extension = extname(file.originalname).toLowerCase();
-          callback(null, `${randomUUID()}${extension}`);
-        }
-      }),
-
-      limits: {fileSize: 10 * 1024 * 1024},
-
-      fileFilter: (req, file, callback) => {
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-        const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
-        const valid = allowedTypes.includes(file.mimetype) && allowedExtensions.includes(extname(file.originalname).toLowerCase());
-
-        if (!valid) {
-          return callback(new BadRequestException('Only JPG, PNG and WEBP images are allowed'), false);
-        }
-
-        callback(null, true);
-      }
-    })
-  )
+  @UseInterceptors(FileInterceptor('banner', imageUploadOptions('banners')))
   uploadBanner(
     @UploadedFile() file: Express.Multer.File
   ) {

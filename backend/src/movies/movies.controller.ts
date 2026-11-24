@@ -1,20 +1,9 @@
 import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { randomUUID } from 'node:crypto';
-import { mkdirSync } from 'node:fs';
-import { extname, join } from 'node:path';
+import { imageUploadOptions } from '../common/image-upload-options';
 import { EditingEnabledGuard } from '../common/guards/editing-enabled.guard';
-import { MovieInput, MovieUpdateInput, MoviesService } from './movies.service';
-
-const uploadDirectory = join(process.cwd(), 'uploads', 'movies');
-const imageExtensions: Record<string, string> = {
-  'image/jpeg': '.jpg',
-  'image/png': '.png',
-  'image/webp': '.webp',
-};
-
-mkdirSync(uploadDirectory, { recursive: true });
+import { CreateMovieDto, MovieUpdateDto } from './dto/create-movie.dto';
+import { MoviesService } from './movies.service';
 
 @Controller('movies')
 export class MoviesController {
@@ -34,33 +23,19 @@ export class MoviesController {
 
   @Post()
   @UseGuards(EditingEnabledGuard)
-  create(@Body() input: MovieInput) {
+  create(@Body() input: CreateMovieDto) {
     return this.movies.createGeneratedMovie(input);
   }
 
   @Post('manual')
   @UseGuards(EditingEnabledGuard)
-  createManual(@Body() input: MovieUpdateInput) {
+  createManual(@Body() input: MovieUpdateDto) {
     return this.movies.createManualMovie(input);
   }
 
   @Post('poster')
   @UseGuards(EditingEnabledGuard)
-  @UseInterceptors(FileInterceptor('poster', {
-    storage: diskStorage({
-      destination: uploadDirectory,
-      filename: (_request, file, callback) => {
-        callback(null, `${randomUUID()}${imageExtensions[file.mimetype] ?? extname(file.originalname)}`);
-      },
-    }),
-    limits: { fileSize: 5 * 1024 * 1024 },
-    fileFilter: (_request, file, callback) => {
-      if (!imageExtensions[file.mimetype]) {
-        return callback(new BadRequestException('Poster must be a JPEG, PNG, or WebP image.'), false);
-      }
-      callback(null, true);
-    },
-  }))
+  @UseInterceptors(FileInterceptor('poster', imageUploadOptions('movies')))
   uploadPoster(@UploadedFile() file: { filename: string } | undefined) {
     if (!file) throw new BadRequestException('Choose a poster image to upload.');
     return { posterUrl: `/uploads/movies/${file.filename}` };
@@ -68,7 +43,7 @@ export class MoviesController {
 
   @Patch(':id')
   @UseGuards(EditingEnabledGuard)
-  update(@Param('id', ParseIntPipe) id: number, @Body() input: MovieUpdateInput) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() input: MovieUpdateDto) {
     return this.movies.updateMovie(id, input);
   }
 

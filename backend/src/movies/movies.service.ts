@@ -9,41 +9,18 @@ import { Movie } from './movie.entity';
 import { MovieRating } from './movie-rating.entity';
 import { Screening } from './screening.entity';
 import { MovieSeedData } from '../database/seeders/movie-seed-data';
+import { CreateMovieDto, MovieCreatorDto, MovieRatingDto, MovieUpdateDto } from './dto/create-movie.dto';
 
 const movieGenres = ['Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Sci-Fi', 'Thriller'];
 
-export interface MovieInput {
-  title?: string;
-  genre?: string;
-  duration?: number;
-  description?: string;
-  posterUrl?: string;
-  bannerUrl?: string;
-  trailerUrl?: string;
-}
-
-interface MovieRatingInput {
-  score: number;
-  voteCount: number;
-}
-
-interface MovieCreatorInput {
-  name: string;
-  role: string;
-}
-
 interface ValidatedMovieChanges {
-  movieFields: MovieInput;
+  movieFields: CreateMovieDto;
   hasRating: boolean;
-  rating?: MovieRatingInput | null;
+  rating?: MovieRatingDto | null;
   hasCreators: boolean;
-  creators?: MovieCreatorInput[];
+  creators?: MovieCreatorDto[];
 }
 
-export interface MovieUpdateInput extends MovieInput {
-  rating?: MovieRatingInput | null;
-  creators?: MovieCreatorInput[];
-}
 
 @Injectable()
 export class MoviesService {
@@ -131,10 +108,10 @@ export class MoviesService {
     }));
   }
 
-  async createGeneratedMovie(input: unknown) {
-    const overrides = this.validateMovieInput(input, true);
+  async createGeneratedMovie(input: CreateMovieDto) {
+    this.validateTrailerUrl(input.trailerUrl);
     faker.seed(Date.now());
-    const data = this.makeGeneratedMovie(`faker-custom-v1-${randomUUID()}`, overrides);
+    const data = this.makeGeneratedMovie(`faker-custom-v1-${randomUUID()}`, input);
     const em = this.em.fork();
     const movie = em.create(Movie, data);
     await em.persistAndFlush(movie);
@@ -142,16 +119,12 @@ export class MoviesService {
     return movie;
   }
 
-  async createManualMovie(input: unknown) {
-    const changes = this.validateMovieChanges(input, ['title', 'genre', 'duration', 'description']);
+  async createManualMovie(input: MovieUpdateDto) {
+    this.validateTrailerUrl(input.trailerUrl);
+    const changes = this.movieChanges(input);
     const { title, genre, duration, description, ...optionalFields } = changes.movieFields;
 
-    if (
-      typeof title !== 'string' ||
-      typeof genre !== 'string' ||
-      typeof duration !== 'number' ||
-      typeof description !== 'string'
-    ) {
+    if (title === undefined || genre === undefined || duration === undefined || description === undefined) {
       throw new BadRequestException('Title, genre, duration, and description are required');
     }
 
@@ -170,8 +143,9 @@ export class MoviesService {
     return createdMovie;
   }
 
-  async updateMovie(id: number, input: unknown) {
-    const changes = this.validateMovieChanges(input);
+  async updateMovie(id: number, input: MovieUpdateDto) {
+    this.validateTrailerUrl(input.trailerUrl);
+    const changes = this.movieChanges(input);
     const em = this.em.fork();
     const movie = await em.findOne(Movie, { id, active: true });
 
@@ -188,78 +162,18 @@ export class MoviesService {
     return updatedMovie;
   }
 
-  private validateMovieChanges(input: unknown, requiredFields: string[] = []): ValidatedMovieChanges {
-    if (!input || typeof input !== 'object' || Array.isArray(input)) {
-      throw new BadRequestException('Movie data must be a JSON object');
-    }
-
-    const values = input as Record<string, unknown>;
-    const allowedFields = new Set(['title', 'genre', 'duration', 'description', 'posterUrl', 'bannerUrl', 'trailerUrl', 'rating', 'creators']);
-
-    for (const field of Object.keys(values)) {
-      if (!allowedFields.has(field)) throw new BadRequestException(`Field '${field}' cannot be changed`);
-    }
-
+  private movieChanges(input: MovieUpdateDto): ValidatedMovieChanges {
+    const values = Object.fromEntries(
+      Object.entries(input).filter(([, value]) => value !== undefined),
+    ) as MovieUpdateDto;
     if (Object.keys(values).length === 0) throw new BadRequestException('At least one field is required');
-
     const { rating, creators, ...movieFields } = values;
-    const validatedMovieFields = this.validateMovieInput(movieFields, true);
-
-    for (const field of requiredFields) {
-      if (!Object.hasOwn(movieFields, field)) throw new BadRequestException(`Field '${field}' is required`);
-    }
-
-    if (Object.hasOwn(values, 'rating') && rating !== null) {
-      if (!rating || typeof rating !== 'object' || Array.isArray(rating)) {
-        throw new BadRequestException('Rating must be an object or null');
-      }
-
-      const ratingValues = rating as Record<string, unknown>;
-
-      if (
-        typeof ratingValues.score !== 'number' ||
-        !Number.isFinite(ratingValues.score) ||
-        ratingValues.score < 0 ||
-        ratingValues.score > 10 ||
-        typeof ratingValues.voteCount !== 'number' ||
-        !Number.isSafeInteger(ratingValues.voteCount) ||
-        ratingValues.voteCount < 0
-      ) {
-        throw new BadRequestException('Rating score must be between 0 and 10 and vote count must be a non-negative integer');
-      }
-    }
-
-    if (Object.hasOwn(values, 'creators')) {
-      if (!Array.isArray(creators) || creators.length > 20) {
-        throw new BadRequestException('Creators must be an array containing at most 20 entries');
-      }
-
-      for (const creator of creators) {
-        if (!creator || typeof creator !== 'object' || Array.isArray(creator)) {
-          throw new BadRequestException('Each creator must include a name and role');
-        }
-
-        const creatorValues = creator as Record<string, unknown>;
-
-        if (
-          typeof creatorValues.name !== 'string' ||
-          creatorValues.name.trim().length === 0 ||
-          creatorValues.name.length > 160 ||
-          typeof creatorValues.role !== 'string' ||
-          creatorValues.role.trim().length === 0 ||
-          creatorValues.role.length > 80
-        ) {
-          throw new BadRequestException('Creator names and roles must be non-empty and within their length limits');
-        }
-      }
-    }
-
     return {
-      movieFields: validatedMovieFields,
+      movieFields,
       hasRating: Object.hasOwn(values, 'rating'),
-      rating: rating as MovieRatingInput | null | undefined,
+      rating,
       hasCreators: Object.hasOwn(values, 'creators'),
-      creators: creators as MovieCreatorInput[] | undefined,
+      creators,
     };
   }
 
@@ -324,7 +238,7 @@ export class MoviesService {
     return movie;
   }
 
-  private makeGeneratedMovie(seedKey: string, overrides: MovieInput = {}, previous?: Movie) {
+  private makeGeneratedMovie(seedKey: string, overrides: CreateMovieDto = {}, previous?: Movie) {
     const durations = Array.from({ length: 101 }, (_, index) => index + 80);
 
     let title = faker.lorem.words({ min: 2, max: 4 }).replace(/\b\w/g, (letter) => letter.toUpperCase());
@@ -357,50 +271,10 @@ export class MoviesService {
     return faker.helpers.arrayElement(alternatives.length > 0 ? alternatives : values);
   }
 
-  private validateMovieInput(input: unknown, allowEmpty = false): MovieInput {
-    if (input === undefined && allowEmpty) input = {};
-
-    if (!input || typeof input !== 'object' || Array.isArray(input)) {
-      throw new BadRequestException('Movie data must be a JSON object');
+  private validateTrailerUrl(value?: string) {
+    if (value && !this.isYouTubeTrailerUrl(value)) {
+      throw new BadRequestException('Trailer URL must be a YouTube video link');
     }
-
-    const values = input as Record<string, unknown>;
-    const entries = Object.entries(values);
-    const allowedFields = new Set(['title', 'genre', 'duration', 'description', 'posterUrl', 'bannerUrl', 'trailerUrl']);
-
-    if (!allowEmpty && entries.length === 0) throw new BadRequestException('At least one field is required');
-
-    for (const [field, value] of entries) {
-      if (!allowedFields.has(field)) throw new BadRequestException(`Field '${field}' cannot be changed`);
-
-      if (field === 'duration') {
-        if (typeof value !== 'number' || !Number.isInteger(value) || value < 1) {
-          throw new BadRequestException('Duration must be a positive integer');
-        }
-
-        continue;
-      }
-
-      if (field === 'posterUrl' || field === 'bannerUrl' || field === 'trailerUrl') {
-        if (typeof value !== 'string' || value.length > 500) {
-          throw new BadRequestException(`Invalid value for '${field}'`);
-        }
-
-        if (field === 'trailerUrl' && value !== '' && !this.isYouTubeTrailerUrl(value)) {
-          throw new BadRequestException('Trailer URL must be a YouTube video link');
-        }
-
-        continue;
-      }
-
-      const maxLength = field === 'title' ? 160 : field === 'genre' ? 80 : 5000;
-
-      if (typeof value !== 'string' || value.trim().length === 0 || value.length > maxLength) {
-        throw new BadRequestException(`Invalid value for '${field}'`);
-      }
-    }
-
-    return values as MovieInput;
   }
 
   private isYouTubeTrailerUrl(value: string) {
@@ -479,6 +353,10 @@ export class MoviesService {
 
   async findAll() {
     const movies = await this.em.find(Movie, { active: true }, { orderBy: { id: 'ASC' } });
+    return this.mapMovies(movies);
+  }
+
+  private async mapMovies(movies: Movie[]) {
     const movieIds = movies.map(({ id }) => id);
     const [ratings, credits] = movieIds.length === 0
       ? [[], []]
@@ -536,7 +414,9 @@ export class MoviesService {
     }));
   }
 
-  findOne(id: number) {
-    return this.em.findOne(Movie, { id, active: true });
+  async findOne(id: number) {
+    const movie = await this.em.findOne(Movie, { id, active: true });
+    if (!movie) return null;
+    return (await this.mapMovies([movie]))[0];
   }
 }
