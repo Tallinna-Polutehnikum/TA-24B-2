@@ -1,0 +1,106 @@
+.settings-page {
+  width: min(100% - 32px, 900px);
+  margin: 0 auto;
+  padding: 48px 0 72px;
+  color: var(--cinema-text);
+}
+.settings-heading {
+  max-width: 720px;
+  margin-bottom: 32px;
+}
+.settings-heading h1 {
+  margin: 8px 0 12px;
+  font-family: var(--cinema-font-heading);
+  font-size: clamp(36px, 7vw, 64px);
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+.settings-heading > p:last-child,
+.settings-section > p {
+  color: var(--cinema-muted);
+  line-height: 1.7;
+}
+.settings-eyebrow {
+  margin: 0;
+  color: var(--cinema-accent);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .12em;
+}
+.settings-section {
+  margin-top: 20px;
+  padding: 24px;
+  border: 1px solid var(--cinema-border);
+  border-radius: 12px;
+  background: var(--cinema-surface);
+}
+.settings-section h2 {
+  margin: 0 0 16px;
+  font-family: var(--cinema-font-heading);
+  font-size: 24px;
+}
+.settings-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 64px;
+  cursor: pointer;
+}
+.settings-option-copy {
+  display: grid;
+  gap: 6px;
+  line-height: 1.5;
+}
+.settings-option-copy span,
+.settings-help li {
+  color: var(--cinema-muted);
+}
+.settings-option input {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  accent-color: var(--cinema-accent);
+  cursor: pointer;
+}
+.settings-help {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--cinema-border);
+}
+.settings-help h3 {
+  margin: 0;
+  font-size: 17px;
+}
+.settings-help ul {
+  display: grid;
+  gap: 10px;
+  padding-left: 22px;
+  line-height: 1.6;
+}
+.settings-page kbd {
+  padding: 2px 6px;
+  border: 1px solid var(--cinema-border);
+  border-radius: 4px;
+  background: var(--cinema-surface-raised);
+  color: var(--cinema-text);
+  font: inherit;
+  font-size: .9em;
+}
+.settings-zoom-shortcut {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+@media (max-width: 600px) {
+  .settings-page {
+    padding: 32px 0 48px;
+  }
+  .settings-section {
+    padding: 18px;
+  }
+  .settings-option {
+    align-items: flex-start;
+  }
+}

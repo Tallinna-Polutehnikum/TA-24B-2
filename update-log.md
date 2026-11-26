@@ -181,3 +181,15 @@
 - Replaced movie and banner input checks with NestJS DTO validation
 - Shared image upload validation and limits between posters and banners
 - Made `GET /movies/:id` return the same movie data as `GET /movies`
+
+## 26.11.2026
+- Added settings button and settings page for accessibilities
+- Added new features for accessible use
+- Added arrow-key navigation to make usable our site with keyboard
+- Added color display mode, now you can invert colors if you have colorblind and its difficult to see in normal mode
+- Improved text for better look in every page
+- Made intro run automatically (you can skip intro if you don't want to wait)
+- Improved page zooming up to 400% (it works like in mobile phones)
+- Made skip intro button more transparent to merge it with transparent background (not fully 100% transparent, you still can see it properly) 
+- Made optimization for pages to have the same font 
+- Fixed a header buttons

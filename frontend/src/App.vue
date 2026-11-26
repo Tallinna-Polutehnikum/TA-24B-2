@@ -70,6 +70,8 @@ const slides = ref([]);
 const activeSlide = ref(0);
 const posters = [poster1, poster2, poster3, poster4, poster5, poster6];
 const theme = ref('dark');
+const invertColors = ref(false);
+const arrowNavigation = ref(false);
 const menuAudio = ref(null);
 const logoAudio = ref(null);
 const musicEnabled = ref(false);
@@ -94,6 +96,39 @@ function setTheme(value) {
   theme.value = value;
   localStorage.setItem('bradar-theme', value);
   document.documentElement.setAttribute('data-theme', value);
+}
+
+function setInvertColors(value) {
+  invertColors.value = value;
+  localStorage.setItem('bradar-invert-colors', String(value));
+  document.documentElement.toggleAttribute('data-invert-colors', value);
+}
+
+function setArrowNavigation(value) {
+  arrowNavigation.value = value;
+  localStorage.setItem('bradar-arrow-navigation', String(value));
+}
+
+function handleArrowNavigation(event) {
+  if (!arrowNavigation.value || !['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+  const target = event.target;
+  if (target instanceof HTMLElement && (
+    target.isContentEditable ||
+    target.matches('input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]), select, textarea, [role="combobox"], [role="listbox"], [role="menu"], [role="menubar"], [role="radio"], [role="slider"], [role="spinbutton"], [role="tree"], [role="grid"]')
+  )) return;
+
+  const focusableElements = [...document.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+    .filter((element) => element instanceof HTMLElement && element.getClientRects().length > 0 && !element.closest('[inert], [aria-hidden="true"]'));
+  if (!focusableElements.length) return;
+
+  const currentIndex = focusableElements.indexOf(document.activeElement);
+  const direction = event.key === 'ArrowDown' || event.key === 'ArrowRight' ? 1 : -1;
+  const nextIndex = currentIndex < 0
+    ? (direction > 0 ? 0 : focusableElements.length - 1)
+    : (currentIndex + direction + focusableElements.length) % focusableElements.length;
+
+  event.preventDefault();
+  focusableElements[nextIndex].focus();
 }
 
 async function startMenuMusic() {
@@ -574,6 +609,10 @@ function openVouchers() {
   router.push('/vouchers');
 }
 
+function openSettings() {
+  router.push('/settings');
+}
+
 async function openCheckout(booking) {
   sessionStorage.setItem('pendingBooking', JSON.stringify(booking));
   await router.push('/checkout');
@@ -602,7 +641,11 @@ async function loadBackendData() {
 
 onMounted(async () => {
   window.addEventListener('keydown', handleModalKeydown);
+  window.addEventListener('keydown', handleArrowNavigation);
   void startBrandIntro();
+  invertColors.value = localStorage.getItem('bradar-invert-colors') === 'true';
+  arrowNavigation.value = localStorage.getItem('bradar-arrow-navigation') === 'true';
+  document.documentElement.toggleAttribute('data-invert-colors', invertColors.value);
   browserTheme = window.matchMedia('(prefers-color-scheme: dark)');
   const saved = localStorage.getItem('bradar-theme');
   theme.value = saved === 'light' || saved === 'dark' ? saved : (browserTheme.matches ? 'dark' : 'light');
@@ -622,6 +665,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleModalKeydown);
+  window.removeEventListener('keydown', handleArrowNavigation);
   window.clearInterval(slideTimer);
   window.clearInterval(backendRetryTimer);
   window.clearInterval(introFadeTimer);
@@ -638,7 +682,7 @@ onUnmounted(() => {
   <div class="page" id="bradarcinema.ee">
     <audio ref="logoAudio" class="site-audio" :src="logoMusic" preload="auto" aria-hidden="true"></audio>
     <audio ref="menuAudio" class="site-audio" :src="menuMusic" loop preload="auto" aria-hidden="true"></audio>
-    <div class="site-content" :class="{ 'site-content-visible': siteContentVisible }">
+    <div class="site-content" :class="{ 'site-content-visible': siteContentVisible }" :inert="introVisible" :aria-hidden="introVisible">
     <header class="topbar">
       <div class="brand">
         <a href="/" class="logo" aria-label="Go to main screen" @click.prevent="goHome">BRADAR <span>CINEMA</span></a>
@@ -704,6 +748,17 @@ onUnmounted(() => {
           >
             <i :class="musicEnabled ? 'pi pi-volume-up' : 'pi pi-volume-off'" aria-hidden="true"></i>
           </button>
+          <button
+            class="music-toggle"
+            :class="{ 'music-toggle-enabled': activePageName === 'settings' }"
+            type="button"
+            aria-label="Accessibility settings"
+            title="Accessibility settings"
+            :aria-current="activePageName === 'settings' ? 'page' : undefined"
+            @click="openSettings"
+          >
+            <i class="pi pi-cog" aria-hidden="true"></i>
+          </button>
           <button class="theme-toggle" type="button" :aria-label="theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'" @click="setTheme(theme === 'dark' ? 'light' : 'dark')">
             <i :class="theme === 'dark' ? 'pi pi-sun' : 'pi pi-moon'" aria-hidden="true"></i>
             {{ theme === 'dark' ? 'Light' : 'Dark' }} mode
@@ -715,7 +770,15 @@ onUnmounted(() => {
     <main v-if="activePage">
       <component
         :is="activePage"
-        v-if="activePageName === 'buyTickets'"
+        v-if="activePageName === 'settings'"
+        :invert-colors="invertColors"
+        :arrow-navigation="arrowNavigation"
+        @change-invert-colors="setInvertColors"
+        @change-arrow-navigation="setArrowNavigation"
+      />
+      <component
+        :is="activePage"
+        v-else-if="activePageName === 'buyTickets'"
         :movie="selectedBookingMovie"
         :movies="movies"
         @close="goToMovies"
@@ -1044,6 +1107,9 @@ onUnmounted(() => {
           </div>
           <button v-if="introSoundBlocked" class="brand-intro-start" type="button" @click="startBrandIntro">
             Start intro
+          </button>
+          <button class="brand-intro-start" type="button" @click="finishBrandIntro">
+            Skip intro
           </button>
           <p v-if="musicError" class="brand-intro-error" role="status">{{ musicError }}</p>
         </div>
