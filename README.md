@@ -103,6 +103,15 @@ Available commands:
 - `npm run db:fresh` drops the schema, reapplies migrations, and runs the default seeder.
 - `npm run db:baseline` adopts a matching existing schema without changing its data.
 
+`ATTENTION FOR THE TEST GENERATION (FOR K6 TESTERS)`:
+------------------------------------------------------------------------
+
+To generate more movies and screenings for local load testing, set `MOVIE_COUNT` before running the generator from the `backend` folder. The default is approximately 20 movies. The resulting screening count depends on the generated schedules.
+```powershell
+$env:MOVIE_COUNT = "100"
+npm run movies:generate
+```
+
 ------------------------------------------------------------------------
 
 ## How to run the project in developer mode
