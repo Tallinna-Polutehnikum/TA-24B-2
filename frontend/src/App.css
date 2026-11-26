@@ -1286,6 +1286,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   outline: 3px solid var(--cinema-accent);
   outline-offset: 3px;
 }
+.topbar a:focus-visible,
+.topbar button:focus-visible,
+.topbar input:focus-visible {
+  outline: 3px solid #4e7ed6;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--cinema-accent);
+}
 :root[data-invert-colors] body::after {
   position: fixed;
   z-index: 2147483647;
