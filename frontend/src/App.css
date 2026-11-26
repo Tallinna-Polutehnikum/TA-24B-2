@@ -93,16 +93,16 @@ a {
 .brand-intro-start {
   min-width: 150px;
   padding: 11px 20px;
-  border: 1px solid rgba(255, 255, 255, .48);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 24px;
-  background: rgba(25, 30, 45, .8);
+  background: rgba(25, 30, 45, 0.2);
   color: #fff;
   cursor: pointer;
   font: inherit;
 }
 .brand-intro-start:hover {
   border-color: #3d77f3;
-  background: rgba(61, 119, 243, .25);
+  background: rgba(61, 119, 243, 0.2);
 }
 .brand-intro-error {
   margin: 0;
@@ -1242,7 +1242,7 @@ button.vouchers-button:focus-visible {
   --cinema-surface-raised: #1b1b1b;
   --cinema-border: #292929;
   --cinema-text: #f5f5f5;
-  --cinema-muted: #999;
+  --cinema-muted: #beb6b6;
   --cinema-accent: #345396;
   --cinema-accent-hover: #284074;
   --cinema-font-body: "DM Sans", sans-serif;
@@ -1255,7 +1255,7 @@ button.vouchers-button:focus-visible {
   --cinema-surface-raised: #f0f2f7;
   --cinema-border: #dce1ea;
   --cinema-text: #202735;
-  --cinema-muted: #596477;
+  --cinema-muted: #3a3e46;
   --cinema-accent: #345396;
   --cinema-accent-hover: #284074;
 }
