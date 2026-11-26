@@ -1246,7 +1246,7 @@ button.vouchers-button:focus-visible {
   --cinema-accent: #345396;
   --cinema-accent-hover: #284074;
   --cinema-font-body: "DM Sans", sans-serif;
-  --cinema-font-heading: "Outfit", sans-serif;
+  --cinema-font-heading: "DM Sans", sans-serif;
 }
 :root[data-theme="light"] {
   color-scheme: light;
@@ -1265,11 +1265,11 @@ button.vouchers-button:focus-visible {
   box-sizing: border-box;
 }
 html {
-  min-width: 320px;
+  min-width: 0;
   background: var(--cinema-page);
 }
 body {
-  min-width: 320px;
+  min-width: 0;
   min-height: 100vh;
   background: radial-gradient(circle at 80% 0%, #222 0, var(--cinema-page) 40%);
   background-attachment: fixed;
@@ -1283,8 +1283,17 @@ button, input, select, textarea {
   font-family: inherit;
 }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-  outline: 2px solid var(--cinema-accent);
-  outline-offset: 2px;
+  outline: 3px solid var(--cinema-accent);
+  outline-offset: 3px;
+}
+:root[data-invert-colors] body::after {
+  position: fixed;
+  z-index: 2147483647;
+  inset: 0;
+  background: #fff;
+  content: "";
+  mix-blend-mode: difference;
+  pointer-events: none;
 }
 .page {
   background: transparent;

@@ -181,3 +181,6 @@
 - Replaced movie and banner input checks with NestJS DTO validation
 - Shared image upload validation and limits between posters and banners
 - Made `GET /movies/:id` return the same movie data as `GET /movies`
+
+## 26.11.2026
+- 
